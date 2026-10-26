@@ -421,8 +421,7 @@ tracked in GitHub issues.
 
 ## Project status
 
-Specola is alpha software, currently at v0.2, and the API and result
-schema may still move between versions. Questions, bug reports, and
+The API and result schema may still change between versions. Questions, bug reports, and
 contributions are welcome through GitHub issues and pull requests.
 
 ## License
