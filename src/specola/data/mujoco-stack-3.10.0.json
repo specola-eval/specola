@@ -1,0 +1,128 @@
+{
+  "field": {
+    "all_preceding_record_comment_blocks": [
+      {
+        "line": 103,
+        "verbatim": "  // constant sizes"
+      },
+      {
+        "line": 108,
+        "verbatim": "  // stack pointer"
+      },
+      {
+        "line": 112,
+        "verbatim": "  // arena pointer"
+      },
+      {
+        "line": 115,
+        "verbatim": "  // threading"
+      }
+    ],
+    "binding_candidates": [
+      {
+        "attribute": "threadlock",
+        "class_identity": "mujoco._structs.MjData",
+        "descriptor": null,
+        "rename_source": null,
+        "source": [
+          {
+            "line": 31,
+            "path": "/tmp/specola-extraction-20260906/mujoco-native-field-inputs/source/3.10.0/python/mujoco/raw.h",
+            "sha256": "b73c03c8220bb07b205a57584786cbbd792868b55853c31185cc48fd1024dd60",
+            "verbatim": "using MjData = ::mjData;"
+          },
+          {
+            "line": 728,
+            "path": "/tmp/specola-extraction-20260906/mujoco-native-field-inputs/source/3.10.0/python/mujoco/structs.h",
+            "sha256": "269f7541500a222f8892d26273fab7131b64de5f8ef49a5c04ccb13269bc0220",
+            "verbatim": "using MjDataWrapper = MjWrapper<raw::MjData>;"
+          },
+          {
+            "line": 824,
+            "path": "/tmp/specola-extraction-20260906/mujoco-native-field-inputs/source/3.10.0/python/mujoco/structs.cc",
+            "sha256": "8d0d9cd5f595a6f1ee7cb43bcaf5b4c3a00017fdeee4df4523b2af8a7b24ef3f",
+            "verbatim": "  py::class_<MjDataWrapper> mjData(m, \"MjData\");"
+          }
+        ],
+        "status": "no_static_descriptor"
+      }
+    ],
+    "declaration": {
+      "line": 117,
+      "path": "/opt/conda/envs/dmcontrol/lib/python3.11/site-packages/mujoco/include/mujoco/mjdata.h",
+      "sha256": "e2c7ac8a6011372eb1df4e9a53d63f8ddbc3fb940fd68d906480fe85ad0931d7",
+      "verbatim": "mjtBool threadlock;"
+    },
+    "id": "c:@S@mjData_@FI@threadlock",
+    "name": "threadlock",
+    "native": {
+      "bitfield": false,
+      "bitfield_width": null,
+      "offset_bits": 448,
+      "raw_comment": "// disable stack freeing during threaded execution",
+      "tokens": [
+        "mjtBool",
+        "threadlock"
+      ],
+      "type": {
+        "alignment": 1,
+        "canonical_kind": "BOOL",
+        "canonical_spelling": "_Bool",
+        "const": false,
+        "declaration": {
+          "kind": "TYPEDEF_DECL",
+          "spelling": "mjtBool",
+          "usr": "c:mjtype.h@T@mjtBool"
+        },
+        "kind": "ELABORATED",
+        "restrict": false,
+        "size": 1,
+        "spelling": "mjtBool",
+        "volatile": false
+      }
+    },
+    "native_dimension_macro_rows": [],
+    "nearest_comment_block": [
+      {
+        "line": 115,
+        "verbatim": "  // threading"
+      }
+    ],
+    "nested_edges": [],
+    "nested_record": null,
+    "parent_record": "c:@S@mjData_",
+    "read_authorization": "unresolved; this table does not authorize descriptor execution or pointer dereference",
+    "section_markers": [],
+    "semantic_evidence": {
+      "availability_predicate": null,
+      "completion_verbatim": [],
+      "explicit_source_passages": {
+        "availability": [],
+        "frame": [],
+        "units": []
+      },
+      "frame_normalized": null,
+      "freshness_contract": null,
+      "meaning_verbatim": "// disable stack freeing during threaded execution",
+      "owner_index_domain": "unresolved; native dimension expressions and comments retained without evaluation",
+      "status": "unclassified source input; source snippets are not reviewed normalized semantics",
+      "transformation": null,
+      "units_normalized": null
+    },
+    "source_line": "  mjtBool threadlock;        // disable stack freeing during threaded execution"
+  },
+  "read_policy": "Read the single declared byte from an owned exact native MjData after producer custody; refuse every nonzero representation before copy or stack operations.",
+  "record_alignment": 8,
+  "record_size": 161872,
+  "source_artifacts": [
+    {
+      "name": "native-field-denominator.json",
+      "sha256": "b8ff236f587b4da847b10bc678c38a1c902e7710bdedc581bca6e5c4d28fc85b"
+    },
+    {
+      "name": "query-source-plan.json",
+      "sha256": "cde2eceb52a08aa61ddc0b7436b8f64f06d2fd355e6b95b5a2f1f62cee810acb"
+    }
+  ],
+  "version": "3.10.0"
+}

@@ -1,0 +1,22 @@
+# Keys are sim-specific by design; run `specola discover` to list yours:
+#   specola discover --sim isaaclab --task Isaac-Forge-PegInsert-Direct-v0
+# Keys below are what Isaac Lab reports for that task: the Franka arm is
+# robot_0 (body_pos_w_<body>_0..2 in m, joint_vel_<joint> in rad/s), the
+# peg is the held asset (body_pos_w_forge_round_peg_8mm_*) and the hole
+# the fixed asset (body_pos_w_forge_hole_8mm_*). The peg key exists on the
+# held asset only, so object_* binds the peg alone. FORGE resets the arm
+# with the peg already grasped near its top, about 3.4 cm above the peg's
+# origin in the check that wrote this file.
+specs:
+- name: peg_stays_in_hand
+  formula: "historically[0,1s](0.05 - sqrt(
+             (robot_*[body_pos_w_panda_fingertip_centered_0] - object_*[body_pos_w_forge_round_peg_8mm_0])^2
+           + (robot_*[body_pos_w_panda_fingertip_centered_1] - object_*[body_pos_w_forge_round_peg_8mm_1])^2
+           + (robot_*[body_pos_w_panda_fingertip_centered_2] - object_*[body_pos_w_forge_round_peg_8mm_2])^2) >= 0)"
+
+# 2.175 rad/s is the lowest of the Panda's joint velocity limits: the
+# joint table Isaac Lab prints at startup lists 124.6 deg/s for joints 1
+# to 4 and 149.5 deg/s (2.61 rad/s) for joints 5 to 7. The glob matches
+# panda_joint1..7 and not the finger joints.
+- name: arm_joint_speed_within_limit
+  formula: "historically[0,1s](Max(abs(robot_*[joint_vel_panda_joint*])) <= 2.175)"

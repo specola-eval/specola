@@ -1,0 +1,24 @@
+# Keys are sim-specific by design; run `specola discover` to list yours.
+# Keys below are the mock adapter's own vocabulary
+# (src/specola/adapters/fake.py): the robot's single joint "joint1"
+# -> qpos_joint1/qvel_joint1/qfrc_applied_joint1; every object -> mass,
+# and the distractor object also exposes hinge_angle (heterogeneous
+# objects within one class); the gripper site -> grip,
+# gripper_qpos_0/1/mean/abs_mean, recent_ee_force_x/y/z/norm.
+specs:
+- name: joint_settles
+  formula: "once[0,5s](robot_*[qvel_joint1] <= limit)"
+  constants: {limit: 0.05}
+
+- name: object_mass_positive
+  formula: "historically[0,5s](object_*[mass] >= 0.1)"
+
+- name: gripper_force_bounded
+  formula: "historically[0,5s](gripper_*[recent_ee_force_norm] <= 5.0)"
+
+# Component selector example (docs/superpowers/specs/2026-07-15-spec-
+# selectors-design.md): `all: recent_ee_force_* \ recent_ee_force_norm`
+# globs the three force axes, drops the pre-computed norm with `\`, and
+# `all:` bounds each axis individually instead of the combined norm.
+- name: gripper_force_axes_bounded
+  formula: 'historically[0,5s](gripper_*[all: recent_ee_force_* \ recent_ee_force_norm] <= 5.0)'

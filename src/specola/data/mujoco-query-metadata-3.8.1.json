@@ -1,0 +1,370 @@
+{
+  "dof_population": {
+    "count_field": "mjModel.nv",
+    "joint_component": "k - mjModel.jnt_dofadr[joint_id]",
+    "joint_extent": "following jnt_dofadr minus current, with final nv; reconcile each dof_jntid rather than trusting a guessed constant",
+    "joint_id": "mjModel.dof_jntid[k]",
+    "joint_type": "mjModel.jnt_type[joint_id]",
+    "native_address": "k, in exact native qvel order; not qpos/quaternion component order"
+  },
+  "joint_branches": {
+    "mjJNT_BALL": {
+      "component_frame": "child-body local x/y/z angular components",
+      "coordinate_dimension": "1",
+      "enum_value": 1,
+      "native_dof_extent": 3
+    },
+    "mjJNT_FREE": {
+      "component_frame": "global x/y/z translation then child-body local x/y/z rotation",
+      "coordinate_dimension": "L for first three native free-joint velocity components, 1 for remaining rotation components",
+      "enum_value": 0,
+      "native_dof_extent": 6
+    },
+    "mjJNT_HINGE": {
+      "component_frame": "native joint axis from mjData.xaxis; positive direction follows stored normalized jnt_axis",
+      "coordinate_dimension": "1",
+      "enum_value": 3,
+      "native_dof_extent": 1
+    },
+    "mjJNT_SLIDE": {
+      "component_frame": "native joint axis from mjData.xaxis; positive direction follows stored normalized jnt_axis",
+      "coordinate_dimension": "L",
+      "enum_value": 2,
+      "native_dof_extent": 1
+    }
+  },
+  "scope": "Native spatial-query metadata; not the producer-surface denominator.",
+  "source": {
+    "axis_normalization": {
+      "end_line": 3261,
+      "line": 3257,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/user/user_objects.cc",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/user/user_objects.cc",
+      "sha256": "b854eaa5b7b9591a90eb3ebd47396a8b1d45a8411587883c7334b4d4ac0a8e52",
+      "verbatim": "  // normalize axis, check norm\n  if (mjuu_normvec(axis, 3) < mjEPS) {\n    throw mjCError(this, \"axis too small in joint\");\n  }\n"
+    },
+    "axis_to_world": {
+      "end_line": 117,
+      "line": 115,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/engine/engine_core_smooth.c",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/engine/engine_core_smooth.c",
+      "sha256": "3206f73347fc60f15c94f923d2f81288e25831c3439bef752ef313fa26b748eb",
+      "verbatim": "        // compute axis in global frame; ball jnt_axis is (0,0,1), set by compiler\n        mji_rotVecQuat(xaxis, m->jnt_axis+3*jid, xquat);\n"
+    },
+    "compiler_join": [
+      {
+        "end_line": 2811,
+        "line": 2801,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/user/user_model.cc",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/user/user_model.cc",
+        "sha256": "b42696ba745b418f80b5dc9677bff922d65ffdfcc6111a6ab35c9b1656611ceb",
+        "verbatim": "      // set joint fields\n      m->jnt_type[jid] = pj->type;\n      m->jnt_group[jid] = pj->group;\n      m->jnt_limited[jid] = (mjtByte)pj->is_limited();\n      m->jnt_actfrclimited[jid] = (mjtByte)pj->is_actfrclimited();\n      m->jnt_actgravcomp[jid] = pj->actgravcomp;\n      m->jnt_qposadr[jid] = pj->qposadr_;\n      m->jnt_dofadr[jid] = pj->dofadr_;\n      m->jnt_bodyid[jid] = pj->body->id;\n      mjuu_copyvec(m->jnt_pos+3*jid, pj->pos, 3);\n      mjuu_copyvec(m->jnt_axis+3*jid, pj->axis, 3);"
+      },
+      {
+        "end_line": 2867,
+        "line": 2861,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/user/user_model.cc",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/user/user_model.cc",
+        "sha256": "b42696ba745b418f80b5dc9677bff922d65ffdfcc6111a6ab35c9b1656611ceb",
+        "verbatim": "      // set dof fields for this joint\n      for (int j1=0; j1 < pj->nv(); j1++) {\n        // set attributes\n        m->dof_bodyid[dofadr] = pb->id;\n        m->dof_jntid[dofadr] = jid;\n        mjuu_copyvec(m->dof_solref+mjNREF*dofadr, pj->solref_friction, mjNREF);\n        mjuu_copyvec(m->dof_solimp+mjNIMP*dofadr, pj->solimp_friction, mjNIMP);"
+      }
+    ],
+    "field_declarations": {
+      "dof_bodyid": {
+        "end_line": 858,
+        "line": 858,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      dof_bodyid;           // id of dof's body                         (nv x 1)"
+      },
+      "dof_jntid": {
+        "end_line": 859,
+        "line": 859,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      dof_jntid;            // id of dof's joint                        (nv x 1)"
+      },
+      "jnt_axis": {
+        "end_line": 849,
+        "line": 849,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtNum*   jnt_axis;             // local joint axis                         (njnt x 3)"
+      },
+      "jnt_bodyid": {
+        "end_line": 840,
+        "line": 840,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      jnt_bodyid;           // id of joint's body                       (njnt x 1)"
+      },
+      "jnt_dofadr": {
+        "end_line": 839,
+        "line": 839,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      jnt_dofadr;           // start addr in 'qvel' for joint's data    (njnt x 1)"
+      },
+      "jnt_qposadr": {
+        "end_line": 838,
+        "line": 838,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      jnt_qposadr;          // start addr in 'qpos' for joint's data    (njnt x 1)"
+      },
+      "jnt_type": {
+        "end_line": 837,
+        "line": 837,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      jnt_type;             // type of joint (mjtJoint)                 (njnt x 1)"
+      },
+      "mjData.cacc": {
+        "end_line": 409,
+        "line": 409,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjdata.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjdata.h",
+        "sha256": "1be8300051e0ecfb69c4c88b2d190d7f23c32a713434fb19cec7b06d254ecd16",
+        "verbatim": "  mjtNum* cacc;              // com-based acceleration                           (nbody x 6)"
+      },
+      "mjData.qacc": {
+        "end_line": 273,
+        "line": 273,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjdata.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjdata.h",
+        "sha256": "1be8300051e0ecfb69c4c88b2d190d7f23c32a713434fb19cec7b06d254ecd16",
+        "verbatim": "  mjtNum* qacc;              // acceleration                                     (nv x 1)"
+      },
+      "mjData.qpos": {
+        "end_line": 255,
+        "line": 255,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjdata.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjdata.h",
+        "sha256": "1be8300051e0ecfb69c4c88b2d190d7f23c32a713434fb19cec7b06d254ecd16",
+        "verbatim": "  mjtNum* qpos;              // position                                         (nq x 1)"
+      },
+      "mjData.qvel": {
+        "end_line": 256,
+        "line": 256,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjdata.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjdata.h",
+        "sha256": "1be8300051e0ecfb69c4c88b2d190d7f23c32a713434fb19cec7b06d254ecd16",
+        "verbatim": "  mjtNum* qvel;              // velocity                                         (nv x 1)"
+      },
+      "mjData.xaxis": {
+        "end_line": 298,
+        "line": 298,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjdata.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjdata.h",
+        "sha256": "1be8300051e0ecfb69c4c88b2d190d7f23c32a713434fb19cec7b06d254ecd16",
+        "verbatim": "  mjtNum* xaxis;             // Cartesian joint axis                             (njnt x 3)"
+      },
+      "mjData.xmat": {
+        "end_line": 294,
+        "line": 294,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjdata.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjdata.h",
+        "sha256": "1be8300051e0ecfb69c4c88b2d190d7f23c32a713434fb19cec7b06d254ecd16",
+        "verbatim": "  mjtNum* xmat;              // Cartesian orientation of body frame              (nbody x 9)"
+      },
+      "name_bodyadr": {
+        "end_line": 1283,
+        "line": 1283,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      name_bodyadr;         // body name pointers                       (nbody x 1)"
+      },
+      "name_camadr": {
+        "end_line": 1287,
+        "line": 1287,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      name_camadr;          // camera name pointers                     (ncam x 1)"
+      },
+      "name_geomadr": {
+        "end_line": 1285,
+        "line": 1285,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      name_geomadr;         // geom name pointers                       (ngeom x 1)"
+      },
+      "name_jntadr": {
+        "end_line": 1284,
+        "line": 1284,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      name_jntadr;          // joint name pointers                      (njnt x 1)"
+      },
+      "name_siteadr": {
+        "end_line": 1286,
+        "line": 1286,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  int*      name_siteadr;         // site name pointers                       (nsite x 1)"
+      },
+      "names": {
+        "end_line": 1306,
+        "line": 1306,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  char*     names;                // names of all objects, 0-terminated       (nnames x 1)"
+      },
+      "nbody": {
+        "end_line": 685,
+        "line": 685,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtSize nbody;                  // number of bodies"
+      },
+      "ncam": {
+        "end_line": 698,
+        "line": 698,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtSize ncam;                   // number of cameras"
+      },
+      "ngeom": {
+        "end_line": 696,
+        "line": 696,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtSize ngeom;                  // number of geoms"
+      },
+      "njnt": {
+        "end_line": 690,
+        "line": 690,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtSize njnt;                   // number of joints"
+      },
+      "nnames": {
+        "end_line": 759,
+        "line": 759,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtSize nnames;                 // number of chars in all names"
+      },
+      "nsite": {
+        "end_line": 697,
+        "line": 697,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtSize nsite;                  // number of sites"
+      },
+      "nv": {
+        "end_line": 682,
+        "line": 682,
+        "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+        "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+        "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+        "verbatim": "  mjtSize nv;                     // number of degrees of freedom = dim(qvel)"
+      }
+    },
+    "joint_enum": {
+      "end_line": 96,
+      "line": 91,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/include/mujoco/mjmodel.h",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/include/mujoco/mjmodel.h",
+      "sha256": "4437bd2f26323108cc6be2e84b547234c96f845b55441ebaa5ff2dd8b10e7c02",
+      "verbatim": "typedef enum mjtJoint_ {          // type of degree of freedom\n  mjJNT_FREE          = 0,        // global position and orientation (quat)       (7)\n  mjJNT_BALL,                     // orientation (quat) relative to parent        (4)\n  mjJNT_SLIDE,                    // sliding distance along body-fixed axis       (1)\n  mjJNT_HINGE                     // rotation angle (rad) around body-fixed axis  (1)\n} mjtJoint;"
+    },
+    "native_nq": {
+      "end_line": 3125,
+      "line": 3114,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/user/user_objects.cc",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/user/user_objects.cc",
+      "sha256": "b854eaa5b7b9591a90eb3ebd47396a8b1d45a8411587883c7334b4d4ac0a8e52",
+      "verbatim": "int mjCJoint::nq(mjtJoint joint_type) {\n  switch (joint_type) {\n    case mjJNT_FREE:\n      return 7;\n    case mjJNT_BALL:\n      return 4;\n    case mjJNT_SLIDE:\n    case mjJNT_HINGE:\n      return 1;\n  }\n  return 1;\n}"
+    },
+    "native_nv": {
+      "end_line": 3140,
+      "line": 3129,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/user/user_objects.cc",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/user/user_objects.cc",
+      "sha256": "b854eaa5b7b9591a90eb3ebd47396a8b1d45a8411587883c7334b4d4ac0a8e52",
+      "verbatim": "int mjCJoint::nv(mjtJoint joint_type) {\n  switch (joint_type) {\n    case mjJNT_FREE:\n      return 6;\n    case mjJNT_BALL:\n      return 3;\n    case mjJNT_SLIDE:\n    case mjJNT_HINGE:\n      return 1;\n  }\n  return 1;\n}"
+    },
+    "owner_id2name": {
+      "end_line": 283,
+      "line": 270,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/engine/engine_name.c",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/engine/engine_name.c",
+      "sha256": "49d75c099faf3deddeced1b689f41beab314050016ef698981b0401a78647b7f",
+      "verbatim": "const char* mj_id2name(const mjModel* m, int type, int id) {\n  int mapadr;\n  int* adr = 0;\n\n  // get number of objects and name addresses\n  int num = _getnumadr(m, type, &adr, &mapadr);\n\n  // id is in [0, num) and the found name is not the empty string \"\\0\"\n  if (id >= 0 && id < num && m->names[adr[id]]) {\n    return m->names+adr[id];\n  }\n\n  return NULL;\n}"
+    },
+    "owner_name_dispatch": {
+      "end_line": 73,
+      "line": 28,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/engine/engine_name.c",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/engine/engine_name.c",
+      "sha256": "49d75c099faf3deddeced1b689f41beab314050016ef698981b0401a78647b7f",
+      "verbatim": "static int _getnumadr(const mjModel* m, mjtObj type, int** padr, int* mapadr) {\n  int num = -1;\n  // map address starts at the end, subtract with explicit switch fallthrough below\n  *mapadr = m->nnames_map;\n\n  // get address list and size for object type\n  switch (type) {\n  case mjOBJ_BODY:\n  case mjOBJ_XBODY:\n    *mapadr -= mjLOAD_MULTIPLE*m->nbody;\n    *padr = m->name_bodyadr;\n    num = m->nbody;\n    mjFALLTHROUGH;\n\n  case mjOBJ_JOINT:\n    *mapadr -= mjLOAD_MULTIPLE*m->njnt;\n    if (num < 0) {\n      *padr = m->name_jntadr;\n      num = m->njnt;\n    }\n    mjFALLTHROUGH;\n\n  case mjOBJ_GEOM:\n    *mapadr -= mjLOAD_MULTIPLE*m->ngeom;\n    if (num < 0) {\n      *padr = m->name_geomadr;\n      num = m->ngeom;\n    }\n    mjFALLTHROUGH;\n\n  case mjOBJ_SITE:\n    *mapadr -= mjLOAD_MULTIPLE*m->nsite;\n    if (num < 0) {\n      *padr = m->name_siteadr;\n      num = m->nsite;\n    }\n    mjFALLTHROUGH;\n\n  case mjOBJ_CAMERA:\n    *mapadr -= mjLOAD_MULTIPLE*m->ncam;\n    if (num < 0) {\n      *padr = m->name_camadr;\n      num = m->ncam;\n    }\n    mjFALLTHROUGH;\n"
+    },
+    "rne_gravity_seed": {
+      "end_line": 2479,
+      "line": 2469,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/engine/engine_core_smooth.c",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/engine/engine_core_smooth.c",
+      "sha256": "3206f73347fc60f15c94f923d2f81288e25831c3439bef752ef313fa26b748eb",
+      "verbatim": "void mj_rnePostConstraint(const mjModel* m, mjData* d) {\n  int nbody = m->nbody;\n  mjtNum cfrc_com[6], cfrc[6], lfrc[6];\n  mjContact* con;\n\n  // clear cacc, set world acceleration to -gravity\n  mju_zero(d->cacc, 6);\n  if (!mjDISABLED(mjDSBL_GRAVITY)) {\n    mju_scl3(d->cacc+3, m->opt.gravity, -1);\n  }\n"
+    },
+    "rne_stored_qacc": {
+      "end_line": 2658,
+      "line": 2654,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/engine/engine_core_smooth.c",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/engine/engine_core_smooth.c",
+      "sha256": "3206f73347fc60f15c94f923d2f81288e25831c3439bef752ef313fa26b748eb",
+      "verbatim": "    // cacc = cacc_parent + cdofdot * qvel + cdof * qacc\n    mju_mulDofVec(cacc, d->cdof_dot+6*bda, d->qvel+bda, m->body_dofnum[j]);\n    mju_add(d->cacc+6*j, d->cacc+6*m->body_parentid[j], cacc, 6);\n    mju_mulDofVec(cacc, d->cdof+6*bda, d->qacc+bda, m->body_dofnum[j]);\n    mju_addTo(d->cacc+6*j, cacc, 6);"
+    },
+    "tangent_basis": {
+      "end_line": 350,
+      "line": 298,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/src/engine/engine_core_smooth.c",
+      "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.8.1/src/engine/engine_core_smooth.c",
+      "sha256": "3206f73347fc60f15c94f923d2f81288e25831c3439bef752ef313fa26b748eb",
+      "verbatim": "  // map motion dofs to global frame centered at subtree_com\n  for (int b=1; b < nbody; b++) {\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\n\n    int jntnum = m->body_jntnum[i];\n    if (!jntnum) continue;\n\n    int start = m->body_jntadr[i];\n    int end = start + jntnum;\n    for (int j=start; j < end; j++) {\n      // get cdof address\n      int da = 6*m->jnt_dofadr[j];\n\n      // compute com-anchor vector\n      mjtNum offset[3], axis[3];\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\n\n      // create motion dof\n      int skip = 0;\n      switch ((mjtJoint) m->jnt_type[j]) {\n      case mjJNT_FREE:\n        // translation components: x, y, z in global frame\n        mju_zero(d->cdof+da, 18);\n        d->cdof[da+3+7*0] = 1;\n        d->cdof[da+3+7*1] = 1;\n        d->cdof[da+3+7*2] = 1;\n\n        // rotation components: same as ball\n        skip = 18;\n        mjFALLTHROUGH;\n\n      case mjJNT_BALL:\n        for (int k=0; k < 3; k++) {\n          // I_3 rotation in child frame (assume no subsequent rotations)\n          axis[0] = d->xmat[9*i + k + 0];\n          axis[1] = d->xmat[9*i + k + 3];\n          axis[2] = d->xmat[9*i + k + 6];\n\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\n        }\n        break;\n\n      case mjJNT_SLIDE:\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\n        break;\n\n      case mjJNT_HINGE:\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\n        break;\n      }\n    }\n  }\n}"
+    }
+  },
+  "source_artifact": {
+    "name": "dof-metadata-source.json",
+    "sha256": "2c0ec733e4a9dfbdf7b257387064ad7610a1c079f0b9dcb59451afdcf608521f"
+  },
+  "unit_contract_source": [
+    {
+      "end_line": 787,
+      "line": 763,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/doc/overview.rst",
+      "path": "/tmp/specola-extraction-20260906/mujoco-physical-frame-semantic-inputs/source/3.8.1/doc/overview.rst",
+      "sha256": "d75ef25d1888b6b1a059ff4e7376f7b07224604d11d6111375e5c3d92fd12d14",
+      "verbatim": "MuJoCo does not specify basic physical units. The user may interpret the system of units as they choose, as long as it\nis consistent. To understand this, consider an example: the dynamics of a 1 meter spaceship that weighs 1 kilogram and\nhas a 1 Newton thruster are the same as those of a 1 cm spaceship that weighs 1 gram and has a 1 dyn thruster. This is\nbecause both `MKS <https://en.wikipedia.org/wiki/MKS_system_of_units>`__ and `CGS\n<https://en.wikipedia.org/wiki/Centimetre%E2%80%93gram%E2%80%93second_system_of_units>`__ are consistent systems of\nunits. This property allows the user to scale their model as they choose, which is useful when simulating very small or\nvery large things, to improve the numerical properties of the simulation.\n\nThat said, users are encouraged to use MKS, as there are two places where MuJoCo uses MKS-like default values:\n\n- The default value of :ref:`gravity<option>` is (0, 0, -9.81), which corresponds to Earth surface gravity in MKS.\n  Note that this does not really specify the MKS system of units, since we might be using CGS on\n  `Enceladus <https://en.wikipedia.org/wiki/Enceladus>`__.\n- The default value of :ref:`geom density<body-geom>` (used to infer body masses and inertias) is 1000, which\n  corresponds to the density of water in MKS.\n\nOnce a consistent system of basic units (length, mass, time) is chosen, all derived units correspond to this system, as\nin `Dimensional Analysis <https://en.wikipedia.org/wiki/Dimensional_analysis>`__. For example if our model is\ninterpreted as MKS, then forces and torques are in Newton and Newton-Meter, respectively.\n\n**Angles:** Although angles can be specified using degrees in MJCF (and indeed degrees are the\n:ref:`default <compiler>`), all angular quantities :ref:`mjModel` and :ref:`mjData` are expressed in\n`radians <https://en.wikipedia.org/wiki/Radian>`__. So, for example, if we are using MKS, angular velocities reported by\n:ref:`gyroscopes<sensor-gyro>` would be in rad/s while stiffness of hinge joints would be in Nm/rad.\n"
+    },
+    {
+      "end_line": 2230,
+      "line": 2210,
+      "official_url": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.8.1/doc/XMLreference.rst",
+      "path": "/tmp/specola-extraction-20260906/mujoco-physical-frame-semantic-inputs/source/3.8.1/doc/XMLreference.rst",
+      "sha256": "1eec6bbc50c47b63879e9e56fdf06cc907fb09874049d18fb14359c1154054fb",
+      "verbatim": "   The **free** type creates a free \"joint\" with three translational degrees of freedom followed by three rotational\n   degrees of freedom. In other words it makes the body floating. The rotation is represented as a unit quaternion. This\n   joint type is only allowed in bodies that are children of the world body. No other joints can be defined in the body\n   if a free joint is defined. Unlike the remaining joint types, free joints do not have a position within the body\n   frame. Instead the joint position is assumed to coincide with the center of the body frame. Thus at runtime the\n   position and orientation data of the free joint correspond to the global position and orientation of the body frame.\n   Free joints cannot have limits.\n\n   The **ball** type creates a ball joint with three rotational degrees of freedom. The rotation is represented as a\n   unit quaternion. The quaternion (1,0,0,0) corresponds to the initial configuration in which the model is defined. Any\n   other quaternion is interpreted as a 3D rotation relative to this initial configuration. The rotation is around the\n   point defined by the :ref:`pos<body-joint-pos>` attribute. If a body has a ball joint, it cannot have other\n   rotational joints (ball or hinge). Combining ball joints with slide joints in the same body is allowed.\n\n   The **slide** type creates a sliding or prismatic joint with one translational degree of freedom. Such joints are\n   defined by a position and a sliding direction. For simulation purposes only the direction is needed; the joint\n   position is used for rendering purposes.\n\n   The **hinge** type creates a hinge joint with one rotational degree of freedom. The rotation takes place around a\n   specified axis through a specified position. This is the most common type of joint and is therefore the default. Most\n   models contain only hinge and free joints."
+    }
+  ],
+  "version": "3.8.1"
+}

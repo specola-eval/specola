@@ -1,0 +1,17 @@
+# Keys are sim-specific by design; run `specola discover` to list yours:
+#   specola discover --sim dmcontrol --task walker:walk \
+#     --queries examples/geometry_queries.yaml
+# Keys below are what dm_control 1.0.43 reports for walker:walk. The
+# walker's reward (dm_control/suite/walker.py, PlanarWalker.get_reward)
+# counts the torso as standing when physics.torso_height(), which is
+# xpos['torso', 'z'] -> xpos_torso_2, is at least _STAND_HEIGHT = 1.2 m,
+# and scores uprightness by xmat['torso', 'zz'] -> xmat_torso_8 (+1 upright,
+# -1 inverted). Reset randomizes the joint angles, so the first values
+# differ from one episode to the next.
+specs:
+- name: torso_stays_standing
+  formula: "historically[0,1s](robot_*[xpos_torso_2] >= stand_height)"
+  constants: {stand_height: 1.2}
+
+- name: torso_stays_upright
+  formula: "historically[0,1s](robot_*[xmat_torso_8] >= 0)"

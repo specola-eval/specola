@@ -1,0 +1,46 @@
+Provenance of the files in this directory. Their copyright notices and
+full licence texts are in THIRD_PARTY_NOTICES.md at the repository root
+(in an installed wheel, under specola-<version>.dist-info/).
+
+Socket.IO JavaScript client 4.8.1
+Source: https://cdn.socket.io/4.8.1/socket.io.min.js
+SHA-256: b0e735814f8dcfecd6cdb8a7ce95a297a7e1e5f2727a29e6f5901801d52fa0c5
+License: MIT, https://unpkg.com/socket.io-client@4.8.1/LICENSE
+
+three.js 0.185.1 (r185), module build
+Source: https://unpkg.com/three@0.185.1/build/three.module.min.js
+SHA-256: 86bcee248b64f44bcfc23c331ae74619061957d59cab040171dcb6fb5900beb6
+License: MIT, https://raw.githubusercontent.com/mrdoob/three.js/r185/LICENSE
+
+three.js 0.185.1 (r185), core chunk
+Source: https://unpkg.com/three@0.185.1/build/three.core.min.js
+SHA-256: 05b2609338c76cd65daf74f3ac515bc9a5045e1b3b33edc07d8c9bd55250fa90
+License: MIT, https://raw.githubusercontent.com/mrdoob/three.js/r185/LICENSE
+Note: the r185 module build is two files. three.module.min.js opens with
+"import ... from './three.core.min.js'", so the core chunk must sit
+beside it or every import of "three" 404s.
+
+three.js OrbitControls addon 0.185.1 (r185)
+Source: https://unpkg.com/three@0.185.1/examples/jsm/controls/OrbitControls.js
+SHA-256: faabb4e8dfd9235ee4a9fd7c9a3d75f90f1689dbd4944bd6fd32117dacec5f93
+License: MIT, https://raw.githubusercontent.com/mrdoob/three.js/r185/LICENSE
+
+fonts/ibm-plex-sans-{400,500,600}.woff2
+    IBM Plex Sans 3.201, latin subset.
+    Copyright 2019 IBM Corp. All rights reserved. SIL Open Font License 1.1.
+    https://github.com/IBM/plex
+    Vendored 2026-08-16 from @fontsource/ibm-plex-sans via jsDelivr;
+    byte-identical to its 5.3.0 latin files (checked 2026-10-13).
+
+fonts/jetbrains-mono-{400,500}.woff2
+    JetBrains Mono 2.211, latin subset.
+    Copyright 2020 The JetBrains Mono Project Authors.
+    SIL Open Font License 1.1.
+    https://github.com/JetBrains/JetBrainsMono
+    Vendored 2026-08-16 from @fontsource/jetbrains-mono via jsDelivr;
+    byte-identical to its 5.3.0 latin files (checked 2026-10-13).
+
+Both are served from the dashboard itself rather than a font CDN: the
+server binds to 127.0.0.1 and is used on machines that are often offline
+mid-experiment, and a third-party font request would also disclose when
+somebody is looking at a run.

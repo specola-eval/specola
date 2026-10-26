@@ -1,0 +1,25 @@
+# Keys are sim-specific by design; run `specola discover` to list yours:
+#   ROBODOJO_ROOT=/path/to/RoboDojo specola discover --sim robodojo \
+#     --task stack_bowls --queries examples/robodojo_queries.yaml
+# stack_bowls reports two robots (left_arm, right_arm: joint_pos_*/
+# joint_vel_* per joint, body_pos_w_<link>_<axis> per link), three
+# labelled bowls, one camera_stand fixture and, with the query file, one
+# mesh_pair entity per pair of them, 15 in all, carrying
+# mesh_distance_sampled (metres, capped at distmax; sampled
+# vertex-to-surface, an over-estimate off-vertex, never an exact
+# clearance). A pair is tagged a:<first label>, b:<second label> and
+# robot_pair, robot or environment; robots come first, so
+# `@ b:bowl0` selects the two arm-bowl0 pairs, and a run reads only the
+# pairs a specification selects. Without a query file or ROBODOJO_DISTMAX
+# no mesh_pair exists and bodies_stay_apart binds nothing, which
+# check-specs reports.
+specs:
+- name: joints_stay_slow
+  formula: "historically[0,1s](robot_*[all: joint_vel_*] <= limit)"
+  constants: {limit: 2.0}
+
+- name: bowls_stay_on_table
+  formula: "historically[0,1s](rigid_*[root_pos_w_2] >= 0.5)"
+
+- name: bodies_stay_apart
+  formula: "historically[0,1s](mesh_pair_*[mesh_distance_sampled @ b:bowl0] >= 0.005)"

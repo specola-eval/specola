@@ -1,0 +1,1484 @@
+{
+  "coalescence_by_image": {
+    "mujoco/_rollout.cpython-311-x86_64-linux-gnu.so": [
+      {
+        "importer_image_sha256": "eb5766e944ae3466d1be66e895f3c4a079ffffebb3708c3ed5be782531474c35",
+        "provenance": [
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+            "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+            "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+            "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+            "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.h",
+            "sha256": "bc2d729fbca3e891d513e31884eb5fbe554eb4b4cfda42cde468f9920a688e09"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.cc",
+            "sha256": "dc90c5cd0c24d90a5cd18acb95a19283ea46ba1e07a3866ec56847dd8c5ef20e"
+          },
+          {
+            "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+            "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+          },
+          {
+            "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+            "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+          }
+        ],
+        "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+        "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+      },
+      {
+        "importer_image_sha256": "eb5766e944ae3466d1be66e895f3c4a079ffffebb3708c3ed5be782531474c35",
+        "provenance": [
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+            "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+            "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+            "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+            "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.h",
+            "sha256": "bc2d729fbca3e891d513e31884eb5fbe554eb4b4cfda42cde468f9920a688e09"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.cc",
+            "sha256": "dc90c5cd0c24d90a5cd18acb95a19283ea46ba1e07a3866ec56847dd8c5ef20e"
+          },
+          {
+            "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+            "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+          },
+          {
+            "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+            "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+          }
+        ],
+        "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+        "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+      }
+    ],
+    "mujoco/experimental/studio/native_viewer_cc.cpython-311-x86_64-linux-gnu.so": [
+      {
+        "importer_image_sha256": "6609fb6307e4d3ae015120a07cb2970e4b3280bef1f7b000b2bea7307991cf0b",
+        "provenance": [
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+            "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+            "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+            "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+            "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+            "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+            "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+            "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+            "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+          },
+          {
+            "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+            "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+          },
+          {
+            "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+            "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+          }
+        ],
+        "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+        "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+      },
+      {
+        "importer_image_sha256": "6609fb6307e4d3ae015120a07cb2970e4b3280bef1f7b000b2bea7307991cf0b",
+        "provenance": [
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+            "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+            "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+            "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+            "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+            "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+            "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+            "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+            "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+          },
+          {
+            "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+            "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+          },
+          {
+            "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+            "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+          }
+        ],
+        "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+        "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+      }
+    ],
+    "mujoco/experimental/studio/renderer.cpython-311-x86_64-linux-gnu.so": [
+      {
+        "importer_image_sha256": "7c01b2160a8238a4c00c93bfbb193b9367ab0ea6e0b2b0cbc4f5a1c5df96c512",
+        "provenance": [
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+            "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+            "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+            "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+            "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+            "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+            "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+            "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+            "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+          },
+          {
+            "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+            "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+          },
+          {
+            "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+            "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+          }
+        ],
+        "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+        "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+      },
+      {
+        "importer_image_sha256": "7c01b2160a8238a4c00c93bfbb193b9367ab0ea6e0b2b0cbc4f5a1c5df96c512",
+        "provenance": [
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+            "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+            "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+            "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+            "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+            "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+            "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+            "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+          },
+          {
+            "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+            "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+          },
+          {
+            "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+            "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+          },
+          {
+            "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+            "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+          }
+        ],
+        "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+        "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+      }
+    ]
+  },
+  "distribution_metadata": {
+    "sha256": "e37572aef23253626ac77d51bba1eaee630f69037c315e8f715fc56758f7fe3f"
+  },
+  "distribution_record": {
+    "sha256": "e8004a5a1777fe1b1714363cc338ca2fbe4cfc740da8d800e5a8a09eee51d3ce"
+  },
+  "engine_id": "mujoco/libmujoco.so.3.10.0",
+  "environment": "dmcontrol",
+  "geometry_enum": {
+    "collision_initializers_match_dimension": true,
+    "enum_members": [
+      {
+        "name": "mjGEOM_PLANE",
+        "value": 0
+      },
+      {
+        "name": "mjGEOM_HFIELD",
+        "value": 1
+      },
+      {
+        "name": "mjGEOM_SPHERE",
+        "value": 2
+      },
+      {
+        "name": "mjGEOM_CAPSULE",
+        "value": 3
+      },
+      {
+        "name": "mjGEOM_ELLIPSOID",
+        "value": 4
+      },
+      {
+        "name": "mjGEOM_CYLINDER",
+        "value": 5
+      },
+      {
+        "name": "mjGEOM_BOX",
+        "value": 6
+      },
+      {
+        "name": "mjGEOM_MESH",
+        "value": 7
+      },
+      {
+        "name": "mjGEOM_SDF",
+        "value": 8
+      }
+    ],
+    "mjNGEOMTYPES": 9,
+    "source": {
+      "archive_sha256": "a47bfb76c1c0f1e0e444412bd3b9ed248fa7a267e0142ab2c65858486f183dbe",
+      "bytes": 27906,
+      "official_url": "https://github.com/google-deepmind/mujoco/blob/3.10.0/include/mujoco/mjtype.h",
+      "relative_path": "include/mujoco/mjtype.h",
+      "sha256": "ec580ce2a4ef0c1f6a3e68b3c5b5eeaf61d03413827453e2d0a87c3bd92d16e4",
+      "version": "3.10.0"
+    }
+  },
+  "images": [
+    {
+      "binding_plan_count": 12,
+      "engine_facing_before_table_projection": 12,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "librt.so.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._callbacks",
+      "relative_path": "mujoco/_callbacks.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2364,
+      "sha256": "91e19cc9056a1617f9b390214c9b9b87cc9bd99afe8308909bf46c6be7b7a839"
+    },
+    {
+      "binding_plan_count": 7,
+      "engine_facing_before_table_projection": 7,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._constants",
+      "relative_path": "mujoco/_constants.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 1671,
+      "sha256": "04d42364c65ec20c66dee0933b96b6a9cc13dce4a4aea2fd29ebd72d7dc35170"
+    },
+    {
+      "binding_plan_count": 0,
+      "engine_facing_before_table_projection": 0,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._enums",
+      "relative_path": "mujoco/_enums.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 4797,
+      "sha256": "ff06804d2dbbd1a2e2f69349f986ca12eca97612f2356e47f349175ba8d2b5a1"
+    },
+    {
+      "binding_plan_count": 0,
+      "engine_facing_before_table_projection": 0,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._errors",
+      "relative_path": "mujoco/_errors.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 1665,
+      "sha256": "11c342332c626467fa4396c71d99b96621d7b70937c49a55017fd37e19b19abd"
+    },
+    {
+      "binding_plan_count": 275,
+      "engine_facing_before_table_projection": 275,
+      "needed": [
+        "librt.so.1",
+        "libpthread.so.0",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._functions",
+      "relative_path": "mujoco/_functions.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2249,
+      "sha256": "cf206b729d30c0e5f810511cbf7b1f280df26bbdaa116e625e05850b49ba9142"
+    },
+    {
+      "binding_plan_count": 29,
+      "engine_facing_before_table_projection": 29,
+      "needed": [
+        "librt.so.1",
+        "libpthread.so.0",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._render",
+      "relative_path": "mujoco/_render.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 1866,
+      "sha256": "0304ad3e3f803a8f0a001170f1620d004110ed04feb122bb306e526591c8c937"
+    },
+    {
+      "binding_plan_count": 13,
+      "engine_facing_before_table_projection": 13,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "librt.so.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [
+        {
+          "importer_image_sha256": "eb5766e944ae3466d1be66e895f3c4a079ffffebb3708c3ed5be782531474c35",
+          "provenance": [
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+              "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+              "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+              "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+              "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.h",
+              "sha256": "bc2d729fbca3e891d513e31884eb5fbe554eb4b4cfda42cde468f9920a688e09"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.cc",
+              "sha256": "dc90c5cd0c24d90a5cd18acb95a19283ea46ba1e07a3866ec56847dd8c5ef20e"
+            },
+            {
+              "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+              "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+            },
+            {
+              "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+              "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+            }
+          ],
+          "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+          "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+        },
+        {
+          "importer_image_sha256": "eb5766e944ae3466d1be66e895f3c4a079ffffebb3708c3ed5be782531474c35",
+          "provenance": [
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+              "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+              "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+              "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+              "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.h",
+              "sha256": "bc2d729fbca3e891d513e31884eb5fbe554eb4b4cfda42cde468f9920a688e09"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.cc",
+              "sha256": "dc90c5cd0c24d90a5cd18acb95a19283ea46ba1e07a3866ec56847dd8c5ef20e"
+            },
+            {
+              "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+              "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+            },
+            {
+              "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+              "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+            }
+          ],
+          "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+          "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+        }
+      ],
+      "python_module": "mujoco._rollout",
+      "relative_path": "mujoco/_rollout.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2464,
+      "sha256": "eb5766e944ae3466d1be66e895f3c4a079ffffebb3708c3ed5be782531474c35"
+    },
+    {
+      "binding_plan_count": 77,
+      "engine_facing_before_table_projection": 77,
+      "needed": [
+        "librt.so.1",
+        "libm.so.6",
+        "libdl.so.2",
+        "libmujoco.so.3.10.0",
+        "libpthread.so.0",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._simulate",
+      "relative_path": "mujoco/_simulate.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2779,
+      "sha256": "5b3e844c6fb2049a7be77791d5b0d9d37a1310a8a7577907bafed6137570c8ab"
+    },
+    {
+      "binding_plan_count": 125,
+      "engine_facing_before_table_projection": 125,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "librt.so.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._specs",
+      "relative_path": "mujoco/_specs.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 3300,
+      "sha256": "e84fde67080723a07262831ca1de63892cd76c446669546882acfc0b948d92dd"
+    },
+    {
+      "binding_plan_count": 39,
+      "engine_facing_before_table_projection": 39,
+      "needed": [
+        "librt.so.1",
+        "libpthread.so.0",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._structs",
+      "relative_path": "mujoco/_structs.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 3815,
+      "sha256": "1dcd811e19027f37d288e34ac7e3d45776c81974884fad2f584b8aeb46b7b51b"
+    },
+    {
+      "binding_plan_count": 0,
+      "engine_facing_before_table_projection": 0,
+      "needed": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco.experimental.dear_imgui.dear_imgui",
+      "relative_path": "mujoco/experimental/dear_imgui/dear_imgui.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2548,
+      "sha256": "a5fbb4d0de8f8993fc3119003297d84945a4ebd3bb95e88fc5ad0d325539217d"
+    },
+    {
+      "binding_plan_count": 0,
+      "engine_facing_before_table_projection": 0,
+      "needed": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco.experimental.implot.implot",
+      "relative_path": "mujoco/experimental/implot/implot.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2054,
+      "sha256": "bb9d872d3afc7279ae78c8effbd282a81646805c032d9c3a643c1327e16af052"
+    },
+    {
+      "binding_plan_count": 37,
+      "engine_facing_before_table_projection": 37,
+      "needed": [
+        "libz.so.1",
+        "libpthread.so.0",
+        "libdl.so.2",
+        "librt.so.1",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ],
+      "object_coalescence": [
+        {
+          "importer_image_sha256": "6609fb6307e4d3ae015120a07cb2970e4b3280bef1f7b000b2bea7307991cf0b",
+          "provenance": [
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+              "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+              "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+              "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+              "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+              "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+              "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+              "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+              "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+            },
+            {
+              "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+              "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+            },
+            {
+              "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+              "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+            }
+          ],
+          "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+          "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+        },
+        {
+          "importer_image_sha256": "6609fb6307e4d3ae015120a07cb2970e4b3280bef1f7b000b2bea7307991cf0b",
+          "provenance": [
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+              "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+              "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+              "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+              "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+              "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+              "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+              "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+              "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+            },
+            {
+              "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+              "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+            },
+            {
+              "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+              "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+            }
+          ],
+          "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+          "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+        }
+      ],
+      "python_module": "mujoco.experimental.studio.native_viewer_cc",
+      "relative_path": "mujoco/experimental/studio/native_viewer_cc.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 15180,
+      "sha256": "6609fb6307e4d3ae015120a07cb2970e4b3280bef1f7b000b2bea7307991cf0b"
+    },
+    {
+      "binding_plan_count": 14,
+      "engine_facing_before_table_projection": 14,
+      "needed": [
+        "libz.so.1",
+        "libpthread.so.0",
+        "libdl.so.2",
+        "librt.so.1",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco.experimental.studio.parser",
+      "relative_path": "mujoco/experimental/studio/parser.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2611,
+      "sha256": "f001c6d5fff131d03b4ba9fe734b1c21480fafc6ae4442e2c08c44bdf2762bc8"
+    },
+    {
+      "binding_plan_count": 35,
+      "engine_facing_before_table_projection": 35,
+      "needed": [
+        "libz.so.1",
+        "libpthread.so.0",
+        "libdl.so.2",
+        "librt.so.1",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ],
+      "object_coalescence": [
+        {
+          "importer_image_sha256": "7c01b2160a8238a4c00c93bfbb193b9367ab0ea6e0b2b0cbc4f5a1c5df96c512",
+          "provenance": [
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+              "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+              "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+              "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+              "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+              "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+              "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+              "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+              "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+            },
+            {
+              "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+              "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+            },
+            {
+              "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+              "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+            }
+          ],
+          "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+          "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+        },
+        {
+          "importer_image_sha256": "7c01b2160a8238a4c00c93bfbb193b9367ab0ea6e0b2b0cbc4f5a1c5df96c512",
+          "provenance": [
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+              "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+              "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+              "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+              "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+              "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+              "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+              "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+            },
+            {
+              "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+              "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+            },
+            {
+              "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+              "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+            },
+            {
+              "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+              "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+            }
+          ],
+          "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+          "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+        }
+      ],
+      "python_module": "mujoco.experimental.studio.renderer",
+      "relative_path": "mujoco/experimental/studio/renderer.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 10370,
+      "sha256": "7c01b2160a8238a4c00c93bfbb193b9367ab0ea6e0b2b0cbc4f5a1c5df96c512"
+    },
+    {
+      "binding_plan_count": 8,
+      "engine_facing_before_table_projection": 8,
+      "needed": [
+        "libz.so.1",
+        "libpthread.so.0",
+        "libdl.so.2",
+        "librt.so.1",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco.experimental.studio.sim",
+      "relative_path": "mujoco/experimental/studio/sim.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 1816,
+      "sha256": "ffe2070132037f3c76578796d2d5e4cfdf13e49a5025fe49042e2316a6f17cb8"
+    },
+    {
+      "binding_plan_count": 41,
+      "engine_facing_before_table_projection": 41,
+      "needed": [
+        "libz.so.1",
+        "libpthread.so.0",
+        "libdl.so.2",
+        "librt.so.1",
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco.experimental.studio.ux",
+      "relative_path": "mujoco/experimental/studio/ux.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2203,
+      "sha256": "7e27c4ecd5fa68927475a5377bf0e91f194a18e2a2035efccce38993533df83c"
+    },
+    {
+      "binding_plan_count": 340,
+      "engine_facing_before_table_projection": 365,
+      "needed": [
+        "libdl.so.2",
+        "libm.so.6",
+        "libpthread.so.0",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "librt.so.1"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/libmujoco.so.3.10.0",
+      "relocation_count": 7425,
+      "sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+    },
+    {
+      "binding_plan_count": 6,
+      "engine_facing_before_table_projection": 6,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libactuator.so",
+      "relocation_count": 1431,
+      "sha256": "6e6f180215eeb930cacb685b8186a664e2a6ef817925768f28c959776af34675"
+    },
+    {
+      "binding_plan_count": 21,
+      "engine_facing_before_table_projection": 21,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libelasticity.so",
+      "relocation_count": 1446,
+      "sha256": "cc6ba840dfa5bc2ee075c163fa747d9ecbeae65457d6981c949900835cd67257"
+    },
+    {
+      "binding_plan_count": 17,
+      "engine_facing_before_table_projection": 17,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libsdf_plugin.so",
+      "relocation_count": 1476,
+      "sha256": "ca14a8f6e438bfd6bf13b696ff2ec1dfd15f17c4a259f6113954dbe60be3588e"
+    },
+    {
+      "binding_plan_count": 24,
+      "engine_facing_before_table_projection": 24,
+      "needed": [
+        "libmujoco.so.3.10.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libsensor.so",
+      "relocation_count": 2167,
+      "sha256": "ba4ea64f8ae4125ed08d39bf151e43481e3e0dfcc40958b99260d8c49949014c"
+    }
+  ],
+  "initializer_source": {
+    "archive_sha256": "a47bfb76c1c0f1e0e444412bd3b9ed248fa7a267e0142ab2c65858486f183dbe",
+    "bytes": 84924,
+    "official_url": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/engine/engine_collision_driver.c",
+    "relative_path": "src/engine/engine_collision_driver.c",
+    "sha256": "f4a58c34c7142b20e8e748874f5dff632e81d985c809c53e33509bbade73a20a",
+    "version": "3.10.0"
+  },
+  "input_sha256": "8c8920977d475431eec3168e51ff192982e6bd9c02cf5a1964f803efc6215297",
+  "native_runtime_status": "unmeasured; static files and source only",
+  "object_coalescence": [
+    {
+      "importer_image_sha256": "eb5766e944ae3466d1be66e895f3c4a079ffffebb3708c3ed5be782531474c35",
+      "provenance": [
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+          "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+          "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+          "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+          "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.h",
+          "sha256": "bc2d729fbca3e891d513e31884eb5fbe554eb4b4cfda42cde468f9920a688e09"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.cc",
+          "sha256": "dc90c5cd0c24d90a5cd18acb95a19283ea46ba1e07a3866ec56847dd8c5ef20e"
+        },
+        {
+          "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+          "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+        },
+        {
+          "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+          "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+        }
+      ],
+      "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+      "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+    },
+    {
+      "importer_image_sha256": "eb5766e944ae3466d1be66e895f3c4a079ffffebb3708c3ed5be782531474c35",
+      "provenance": [
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+          "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+          "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+          "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+          "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.h",
+          "sha256": "bc2d729fbca3e891d513e31884eb5fbe554eb4b4cfda42cde468f9920a688e09"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/threadpool.cc",
+          "sha256": "dc90c5cd0c24d90a5cd18acb95a19283ea46ba1e07a3866ec56847dd8c5ef20e"
+        },
+        {
+          "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+          "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+        },
+        {
+          "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+          "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+        }
+      ],
+      "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+      "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+    },
+    {
+      "importer_image_sha256": "6609fb6307e4d3ae015120a07cb2970e4b3280bef1f7b000b2bea7307991cf0b",
+      "provenance": [
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+          "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+          "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+          "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+          "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+          "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+          "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+          "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+          "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+        },
+        {
+          "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+          "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+        },
+        {
+          "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+          "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+        }
+      ],
+      "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+      "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+    },
+    {
+      "importer_image_sha256": "6609fb6307e4d3ae015120a07cb2970e4b3280bef1f7b000b2bea7307991cf0b",
+      "provenance": [
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+          "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+          "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+          "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+          "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+          "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+          "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+          "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+          "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+        },
+        {
+          "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+          "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+        },
+        {
+          "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+          "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+        }
+      ],
+      "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+      "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+    },
+    {
+      "importer_image_sha256": "7c01b2160a8238a4c00c93bfbb193b9367ab0ea6e0b2b0cbc4f5a1c5df96c512",
+      "provenance": [
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+          "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+          "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+          "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+          "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+          "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+          "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+          "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+          "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+        },
+        {
+          "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+          "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+        },
+        {
+          "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+          "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+        }
+      ],
+      "symbol_name": "_ZTINSt3__110__function6__baseIFvvEEE",
+      "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+    },
+    {
+      "importer_image_sha256": "7c01b2160a8238a4c00c93bfbb193b9367ab0ea6e0b2b0cbc4f5a1c5df96c512",
+      "provenance": [
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/CMakeLists.txt",
+          "sha256": "291800a63982592a9931a2f26043c6ddd8cb902978362dc070bba7d9f4c60bc3"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.h",
+          "sha256": "1ea55393fa871d11836183c614159e4dfc43cdf6ef0e19630290aaa2696458f2"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/user/user_threadpool.cc",
+          "sha256": "54097e099d03a2c93b89e62aefb0871357ccea7db92009c742bb836763ffa598"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/CMakeLists.txt",
+          "sha256": "93dea0ce75a9838a5528a2e4950709092c37f65d7bb0f4ff11540d8074e1a812"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/experimental/studio/CMakeLists.txt",
+          "sha256": "4058e394fefdefa39b034268d26cabf210641487d6b325fb82317557ed740f61"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/CMakeLists.txt",
+          "sha256": "296aaa7550e06294e4ad11714b8fc04adbb6e41a5078bb129c8989b7237bb498"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.cc",
+          "sha256": "491b83cbd1f74f73e5d39ed5affe21afdea7feedfc442b557a7fa6377c975933"
+        },
+        {
+          "identity": "https://github.com/google-deepmind/mujoco/blob/3.10.0/src/experimental/platform/hal/renderer.h",
+          "sha256": "f4c81c6bbc40f490e519872d814a42079a44f64f40bfe3cc6375b519c3c5e6fd"
+        },
+        {
+          "identity": "https://raw.githubusercontent.com/llvm/llvm-project/87f0227cb60147a26a1eeb4fb06e3b505e9c7261/libcxx/include/__functional/function.h",
+          "sha256": "e5d9c43056bdaa559158f351cffec5b6f2dc2950e624c04e7434433588bf2578"
+        },
+        {
+          "identity": "https://itanium-cxx-abi.github.io/cxx-abi/abi.html",
+          "sha256": "f342de5630d98f208f165cb3231554f4850d1b7af3397c219aa642a340b684bf"
+        }
+      ],
+      "symbol_name": "_ZTSNSt3__110__function6__baseIFvvEEE",
+      "target_image_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5"
+    }
+  ],
+  "package_init": {
+    "matches_version_matched_archive": true,
+    "sha256": "c734d493d95933f4414633325491e8e6658670455a3c94981a6c1d26600d43e1",
+    "source": {
+      "archive_sha256": "a47bfb76c1c0f1e0e444412bd3b9ed248fa7a267e0142ab2c65858486f183dbe",
+      "bytes": 7997,
+      "official_url": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/__init__.py",
+      "relative_path": "python/mujoco/__init__.py",
+      "sha256": "c734d493d95933f4414633325491e8e6658670455a3c94981a6c1d26600d43e1",
+      "version": "3.10.0"
+    }
+  },
+  "query_and_tls_exports": [
+    {
+      "binding": "STB_GLOBAL",
+      "index": 275,
+      "kind": "STT_FUNC",
+      "name": "_mjPRIVATE_getGlobalLogHandler",
+      "section": 14,
+      "size": 8,
+      "value": 3004192,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 481,
+      "kind": "STT_FUNC",
+      "name": "mj_geomDistance",
+      "section": 14,
+      "size": 1224,
+      "value": 2969424,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 501,
+      "kind": "STT_FUNC",
+      "name": "_mjPRIVATE_setTlsLogHandler",
+      "section": 14,
+      "size": 35,
+      "value": 3004144,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 518,
+      "kind": "STT_FUNC",
+      "name": "mj_copyData",
+      "section": 14,
+      "size": 10,
+      "value": 2574080,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    }
+  ],
+  "record_entries_examined_for_elf_magic": 324,
+  "source_initializer": [
+    null,
+    null,
+    "mjc_PlaneSphere",
+    "mjc_PlaneCapsule",
+    "mjc_PlaneConvex",
+    "mjc_PlaneCylinder",
+    "mjc_PlaneBox",
+    "mjc_PlaneConvex",
+    "mjc_PlaneConvex",
+    null,
+    null,
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_HFieldSDF",
+    null,
+    null,
+    "mjc_SphereSphere",
+    "mjc_SphereCapsule",
+    "mjc_Convex",
+    "mjc_SphereCylinder",
+    "mjc_SphereBox",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    "mjc_CapsuleCapsule",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_CapsuleBox",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_BoxBox",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_Convex",
+    "mjc_MeshSDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_SDF"
+  ],
+  "static_plan_summary": {
+    "coalesced_slots": 13,
+    "coalescence_policies": 6,
+    "distinct_plan_addresses": 1201,
+    "original_engine_facing": 1145,
+    "original_relocations": 77697,
+    "planned_imports_after_table_projection": 1120,
+    "strict_weak_self_slots": 42,
+    "table_positions": 81
+  },
+  "trusted_registration_boundary": "Trusted producer initialization may predate adapter construction. Retain native modules/classes/callables/raw descriptors and current mapped targets; ordinary replacement and subsequent drift fail. No historical pybind heap or resident-code attestation.",
+  "trusted_registration_boundary_source": "/tmp/specola-extraction-20260906/mujoco-runtime-guard-inputs/production-inputs-3.8.1.json",
+  "version": "3.10.0",
+  "wrapper_source_routes": {
+    "binding_target_boundary": "Trusted producer initialization; retain exact registered objects. Current relocation checks do not inspect historical pybind heap captures.",
+    "copy_native_call": {
+      "end_line": 980,
+      "source": {
+        "archive_sha256": "a47bfb76c1c0f1e0e444412bd3b9ed248fa7a267e0142ab2c65858486f183dbe",
+        "bytes": 43129,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/structs_wrappers.cc",
+        "relative_path": "python/mujoco/structs_wrappers.cc",
+        "sha256": "789010b3d78a6692dfd410b9f61e67bef82c1cb49f878db9c76e8511212656a6",
+        "version": "3.10.0"
+      },
+      "start_line": 977,
+      "verbatim": "\nraw::MjData* MjDataWrapper::Copy() const {\n  const raw::MjModel* m = model_->get();\n  return InterceptMjErrors(mj_copyData)(NULL, m, this->ptr_);\n"
+    },
+    "copy_route": "public custom mj_copyData lambda and MjData.__copy__ route",
+    "distance": {
+      "end_line": 674,
+      "source": {
+        "archive_sha256": "a47bfb76c1c0f1e0e444412bd3b9ed248fa7a267e0142ab2c65858486f183dbe",
+        "bytes": 71697,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/functions.cc",
+        "relative_path": "python/mujoco/functions.cc",
+        "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287",
+        "version": "3.10.0"
+      },
+      "start_line": 662,
+      "verbatim": "  Def<traits::mj_geomDistance>(\n      pymodule,\n      [](const raw::MjModel* m, raw::MjData* d,\n         int geom1, int geom2, mjtNum distmax,\n         std::optional<Eigen::Ref<EigenArrayXX>> fromto) {\n        if (fromto.has_value() && fromto->size() != 6) {\n          throw py::type_error(\"fromto should be of size 6\");\n        }\n        return InterceptMjErrors(::mj_geomDistance)(\n            m, d, geom1, geom2, distmax,\n            fromto.has_value() ? fromto->data() : nullptr);\n      });\n  Def<traits::mj_differentiatePos>(\n"
+    },
+    "generic_registration": {
+      "end_line": 174,
+      "source": {
+        "archive_sha256": "a47bfb76c1c0f1e0e444412bd3b9ed248fa7a267e0142ab2c65858486f183dbe",
+        "bytes": 7964,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/functions.h",
+        "relative_path": "python/mujoco/functions.h",
+        "sha256": "cc5e643cd58cb5c5181f3f11323334076b571d920a9a081a741c4759e2246b2a",
+        "version": "3.10.0"
+      },
+      "start_line": 166,
+      "verbatim": "template <typename MjTraits>\nMUJOCO_ALWAYS_INLINE\nstatic constexpr void Def(::pybind11::module_& m) {\n  WithNamedArgs(MjTraits::param_names).def(\n      m, MjTraits::name,\n      util::UnwrapArgs(InterceptMjErrors(MjTraits::GetFunc())),\n      ::pybind11::doc(MjTraits::doc),\n      ::pybind11::call_guard<::pybind11::gil_scoped_release>());\n}\n"
+    },
+    "public_copy": {
+      "end_line": 167,
+      "source": {
+        "archive_sha256": "a47bfb76c1c0f1e0e444412bd3b9ed248fa7a267e0142ab2c65858486f183dbe",
+        "bytes": 71697,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.10.0/python/mujoco/functions.cc",
+        "relative_path": "python/mujoco/functions.cc",
+        "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287",
+        "version": "3.10.0"
+      },
+      "start_line": 163,
+      "verbatim": "  DEF_WITH_OMITTED_PY_ARGS(traits::mj_copyData)(\n      pymodule,\n      [](raw::MjData* dest, const raw::MjModel* m, const raw::MjData* src) {\n        InterceptMjErrors(::mj_copyData)(dest, m, src);\n      });\n"
+    },
+    "version": "3.10.0"
+  }
+}

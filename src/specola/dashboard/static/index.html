@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Specola</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/brand/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/brand/favicon-16.png">
+  <link rel="stylesheet" href="/static/dashboard.css">
+  <script type="importmap">
+    {"imports": {"three": "/static/vendor/three.module.min.js",
+                 "three/addons/": "/static/vendor/"}}
+  </script>
+  <script defer src="/static/vendor/socket.io.min.js"></script>
+  <script defer src="/static/dashboard.js"></script>
+  <script defer src="/static/discover.js"></script>
+  <script type="module" src="/static/scene3d.js"></script>
+</head>
+<body>
+  <nav id="view-tabs">
+    <span id="brand">
+      <img src="/static/brand/icon-44.png" alt="" width="22" height="22">
+      <span>Specola</span>
+    </span>
+    <button id="tab-monitor" class="tab on" data-view="monitor">Monitor</button>
+    <button id="tab-discover" class="tab" data-view="discover" disabled
+            title="loading the scene…">Discover</button>
+  </nav>
+  <header id="status-strip">
+    <span id="run-id"></span>
+    <span id="run-task"></span>
+    <span id="run-state" class="pill"></span>
+    <span id="drop-counts" title="dropped frames (recorder / delivery)"></span>
+    <button id="scene-toggle" class="on" hidden title="show/hide the 3D scene">3D</button>
+    <button id="stop-run" hidden>Stop run</button>
+  </header>
+  <div id="ended-banner" hidden>
+    Run ended (<span id="ended-status"></span>) — reopen later:
+    <code id="view-command"></code>
+  </div>
+  <main id="layout">
+    <section id="camera-pane">
+      <canvas id="camera"></canvas>
+      <div id="camera-grid" hidden></div>
+      <div id="frame-caption" hidden></div>
+      <div id="camera-empty">no camera frames</div>
+      <button id="camera-grid-toggle" hidden title="show all cameras">▦ cameras</button>
+    </section>
+    <section id="scene-pane">
+      <div id="scene-canvas"></div>
+      <div id="scene-groups" hidden title="visible geom groups"></div>
+    </section>
+    <section id="tree-pane">
+      <div id="tree-tools">
+        <input id="search" type="search" placeholder="filter bindings">
+        <div id="state-chips"></div>
+      </div>
+      <div id="tree-header" aria-hidden="true">
+        <span class="label">binding</span>
+        <span class="rho">ρ</span>
+        <span class="verdict">verdict</span>
+      </div>
+      <ul id="tree"></ul>
+      <aside id="inspector" hidden>
+        <h3 id="inspector-label"></h3>
+        <dl>
+          <dt>authored</dt><dd id="inspector-authored"></dd>
+          <dt>resolved</dt><dd id="inspector-resolved"></dd>
+          <dt>backend</dt><dd id="inspector-backend"></dd>
+          <dt>window</dt><dd id="inspector-window"></dd>
+          <dt>current ρ</dt><dd id="inspector-current"></dd>
+          <dt>worst ρ</dt><dd id="inspector-worst"></dd>
+          <dt>final ρ</dt><dd id="inspector-final"></dd>
+          <dt>first violation</dt><dd id="inspector-violation"></dd>
+        </dl>
+        <canvas id="inspector-sparkline" width="260" height="48"></canvas>
+      </aside>
+    </section>
+    <section id="plot-pane">
+      <div id="plot-title"></div>
+      <canvas id="plot"></canvas>
+    </section>
+    <section id="bottom-pane">
+      <div id="transitions-pane">
+        <table id="transitions">
+          <thead>
+            <tr><th>step</th><th>time</th><th>binding</th><th>transition</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button id="transitions-earlier" hidden>load earlier</button>
+      </div>
+    </section>
+  </main>
+
+  <main id="discover" hidden>
+    <div id="discover-tools">
+      <input id="discover-search" type="search"
+             placeholder="Search declared names, roles, signals, tags…">
+      <div id="browse-toggle" class="seg">
+        <button id="browse-class" class="on" title="C">Class</button>
+        <button id="browse-role" title="C">Role</button>
+      </div>
+      <div id="variant-toggle" class="seg">
+        <button id="variant-semantic" class="on" title="R">Semantic</button>
+        <button id="variant-raw" title="R">Raw</button>
+      </div>
+      <span id="discover-summary"></span>
+      <button id="discover-help" class="ghost" title="?">?</button>
+    </div>
+    <section id="browse-pane">
+      <div class="pane-head">Browse <span class="hint">class → entity</span></div>
+      <ul id="class-tree"></ul>
+    </section>
+    <section id="signals-pane">
+      <div class="pane-head">Signals <span id="signal-scope" class="hint"></span></div>
+      <div id="signal-header">
+        <span>SIGNAL</span><span>UNIT / FRAME</span>
+      </div>
+      <ul id="signal-list"></ul>
+      <dl id="signal-detail" hidden></dl>
+    </section>
+    <section id="palette-pane">
+      <div class="pane-head">Ways to select this</div>
+      <ul id="palette-list"></ul>
+    </section>
+    <section id="starter-pane">
+      <div class="pane-head">Use in a specification
+        <button id="insert-selector" class="ghost" hidden>Insert selector</button>
+        <button id="copy-selector" class="ghost" hidden>Copy selector</button>
+        <button id="copy-starter" class="ghost" hidden>Copy</button>
+      </div>
+      <div id="form-detail"></div>
+      <pre id="starter-yaml"></pre>
+    </section>
+    <section id="author-pane">
+      <div class="pane-head">Draft
+        <span id="draft-state" class="hint">not validated</span>
+      </div>
+      <div id="author-body">
+        <div id="draft-fields">
+          <input id="spec-name" type="text" spellcheck="false"
+                 placeholder="Specification name">
+          <textarea id="spec-formula" spellcheck="false" rows="3"
+                    placeholder="historically[0,1s](object_*[mass] >= threshold)"
+                    ></textarea>
+          <input id="spec-constants" type="text" spellcheck="false"
+                 value="{}" placeholder="Constants YAML mapping">
+          <div id="draft-actions">
+            <button id="validate" class="primary">Validate</button>
+            <button id="keep" disabled>Keep spec</button>
+            <button id="clear-draft">Clear draft</button>
+            <button id="save-specs" disabled>Save file…</button>
+          </div>
+        </div>
+        <div id="draft-side">
+          <div id="kept-specs">Kept specs: 0</div>
+          <div id="save-status"></div>
+          <pre id="validation">Not validated.</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="palette-overlay" hidden>
+    <div id="command-box" role="dialog" aria-modal="true"
+         aria-label="Command palette">
+      <input id="command-input" type="text" autocomplete="off"
+             spellcheck="false"
+             placeholder="Jump to a spec, binding, class or view…">
+      <ul id="command-results"></ul>
+      <div id="command-hint">↑↓ move · Enter open · Esc close</div>
+    </div>
+  </div>
+
+  <div id="modal" hidden>
+    <div id="modal-box" role="dialog" aria-modal="true"
+         aria-labelledby="modal-title">
+      <div id="modal-title"></div>
+      <div id="modal-body"></div>
+      <div id="modal-actions"></div>
+    </div>
+  </div>
+
+  <footer id="timeline">
+    <button id="follow-live">LIVE</button>
+    <button id="play-pause" hidden>▶</button>
+    <select id="rate" hidden>
+      <option value="0.25">0.25×</option>
+      <option value="0.5">0.5×</option>
+      <option value="1" selected>1×</option>
+      <option value="2">2×</option>
+      <option value="4">4×</option>
+    </select>
+    <div id="scrub-wrap">
+      <input id="scrub" type="range" min="0" max="0" value="0" step="1">
+      <canvas id="ticks" height="8"></canvas>
+    </div>
+    <span id="step-label"></span>
+  </footer>
+</body>
+</html>

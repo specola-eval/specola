@@ -1,0 +1,24 @@
+# Query configuration for the geometry distance population.
+#
+# Every MuJoCo-family run (libero, robocasa, metaworld, dmcontrol,
+# mamujoco) needs one of these: mj_geomDistance takes a cutoff, and
+# specola will not invent one. Pass it with --queries on discover,
+# write-specs, check and run.
+#
+# distmax is the clearance horizon in metres. Pairs whose bounding
+# spheres are farther apart than this are never queried; they report
+# geom_distance_capped = distmax and geom_distance_clipped = 1.
+# Keep it small: MuJoCo 3.8.1 and 3.10.0 return exact zeros for some
+# separated pairs once the cutoff reaches 0.2 m (measured 2026-09-07),
+# and native cost grows with the cutoff.
+#
+# During `specola run`, observations after the first read only the pairs
+# your specifications can bind (geom_pair_*[... @ robot] keeps the robot
+# pairs). Uncomment population: all to read every pair on every observation.
+schema: specola.queries.v1
+populations:
+- binding: mujoco.mj_geomDistance
+  arguments:
+    distmax: 0.05
+    # population: all
+instances: []

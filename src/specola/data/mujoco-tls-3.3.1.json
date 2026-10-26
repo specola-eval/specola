@@ -1,0 +1,3203 @@
+{
+  "bridge": {
+    "callable_address": {
+      "cold_branch": {
+        "outcomes": "valid subtype can return method pointer; invalid live object sets SystemError and returns NULL. NULL/arbitrary/stale pointers are not valid objects.",
+        "scope": "retained outside exact-type ordinary branch; not executed",
+        "targets": [
+          {
+            "bind": "STB_GLOBAL",
+            "file_offset": 1925776,
+            "hex": "488b87580100004885c00f84f346f2ff488b481031d24885c97e4fba01000000483b7018744431d24883f901743cba01000000483b7020743131d24883f9027429ba01000000483b7028741e31d24883f9037416ba03000000483974d018740d48ffc24839d175f131d289d0c3ba01000000ebf6",
+            "index": 910,
+            "name": "PyType_IsSubtype",
+            "section": 13,
+            "segment_flags": 5,
+            "sha256": "b5fa1cf989f6f099b84d5bb63212b28504a41f56515436ab6b182ccaee0f8f84",
+            "size": 116,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 1925776,
+            "version_index": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          {
+            "bind": "STB_GLOBAL",
+            "file_offset": 1645184,
+            "hex": "4889f94189f0488b3d93fd3b0031c0488b35423b3b00488d1503031c00e98e0a1700",
+            "index": 1778,
+            "name": "_PyErr_BadInternalCall",
+            "section": 13,
+            "segment_flags": 5,
+            "sha256": "d5581ea286b004d7d1290c140421fb62a182f791f100746be25143c9cba23f26",
+            "size": 34,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 1645184,
+            "version_index": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          }
+        ]
+      },
+      "cold_function": {
+        "bind": "STB_LOCAL",
+        "file_offset": 1350351,
+        "hex": "51e8bbc7080085c0740a498b4010488b40085ac3be7a000000488d3d51042000e88c7f040031c05ac3",
+        "index": 7964,
+        "name": "PyCFunction_GetFunction.cold",
+        "section": 13,
+        "segment_flags": 5,
+        "sha256": "8a4251f9a5afad568cc98d22d9b59efbf6f4559ad64e42bbae9a8f8d95af0df4",
+        "size": 41,
+        "table": ".symtab",
+        "type": "STT_FUNC",
+        "value": 1350351,
+        "visibility": "STV_DEFAULT"
+      },
+      "ctypes_recipe": {
+        "GIL": "FUNCFLAG_PYTHONAPI suppresses Py_UNBLOCK_THREADS/ Py_BLOCK_THREADS around ffi_call",
+        "constructor": "ctypes.PYFUNCTYPE(ctypes.c_void_p, ctypes.py_object)(authenticated_cpython_bias + hot_function.value)",
+        "conversion_effects": "py_object conversion allocates owned argument carrier, temporarily increments the input reference, and succeeds via O_set without _as_parameter_ fallback; c_void_p result conversion allocates an integer or returns None. These wrapper effects are not whole-process byte purity.",
+        "errors": "FUNCFLAG_PYTHONAPI checks PyErr_Occurred after call and propagates failure; no error swallowing",
+        "input": "retained exact builtin object, never id(object) or integer pointer as py_object",
+        "placement": "within existing outer FloatingEnvironment, outside dl_iterate_phdr callback/loader-lock interval",
+        "result": "native pointer returned in integer pointer representation on this pinned x86_64 ABI; None is rejected; compare only to source-selected bridge function address",
+        "trust": "retained unmodified standard ctypes classes/from_param/restype with no custom errcheck, converters, errno/last-error hooks; existing exact bridge/library custody applies"
+      },
+      "declaration": "PyAPI_FUNC(PyCFunction) PyCFunction_GetFunction(PyObject *);",
+      "elf_class": 64,
+      "elf_machine": "EM_X86_64",
+      "elf_type": "ET_DYN",
+      "exact_type_declaration": {
+        "bind": "STB_GLOBAL",
+        "file_offset": 5492960,
+        "hex": "01000000000000000096530000000000000000000000000073a43300000000003800000000000000000000000000000080e31d00000000003000000000000000000000000000000000000000000000000000000000000000202632000000000000000000000000000000000000000000000000000000000050d42c000000000070d01f00000000000000000000000000f0ae1f0000000000000000000000000000000000000000000048000000000000000000000000000070f51c00000000000000000000000000404a2e000000000028000000000000000000000000000000000000000000000000cf530000000000a0ce530000000000a0cd5300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "index": 950,
+        "name": "PyCFunction_Type",
+        "section": 24,
+        "segment_flags": 6,
+        "sha256": "0f4dcf5a08a4a055e08a312610feb47dea74f0b7ffe79bef76f3af740f49bafd",
+        "size": 408,
+        "table": ".dynsym",
+        "type": "STT_OBJECT",
+        "value": 5492960,
+        "version_index": "VER_NDX_GLOBAL",
+        "visibility": "STV_DEFAULT"
+      },
+      "hot_function": {
+        "bind": "STB_GLOBAL",
+        "file_offset": 3071104,
+        "hex": "4989f8488b7f08488d3552f424004839f70f8538bee5ff498b4010488b4008c3",
+        "index": 551,
+        "name": "PyCFunction_GetFunction",
+        "section": 13,
+        "segment_flags": 5,
+        "sha256": "20ba7d3a4c04fcca14221f6aa84c246329117f73176aa56fcdccf77e07f4c6de",
+        "size": 32,
+        "table": ".dynsym",
+        "type": "STT_FUNC",
+        "value": 3071104,
+        "version_index": "VER_NDX_GLOBAL",
+        "visibility": "STV_DEFAULT"
+      },
+      "image": {
+        "bytes": 25533120,
+        "path": "/opt/conda/envs/robocasa/bin/python3.11",
+        "resolved_path": "/opt/conda/envs/robocasa/bin/python3.11",
+        "sha256": "faa229fdfdc0a2cc0afc48dbcaf31cab85e703d35c3bdf4dc7ce4f5db9b3e6fb"
+      },
+      "little_endian": true,
+      "native_calls_performed": 0,
+      "normal_branch": {
+        "FP_instructions": false,
+        "GIL_operations": false,
+        "call_count": 0,
+        "reads": "native API dereferences object type and method definition pointer; returns ml_meth without invoking it",
+        "relocation_slots_in_hot_body": [],
+        "required_argument": "live exact types.BuiltinFunctionType / canonical PyCFunction_Type, retained through call",
+        "type_address_rule": "authenticated CPython bias + exact PyCFunction_Type symbol value; compare retained canonical Python type before API call",
+        "writes": false
+      },
+      "purpose": "detect pre-enrollment builtin substitutions whose name/module/type appear plausible; complements live code/import/table checks",
+      "remaining": "source and static ELF approval input only; bounded fixture must execute positive actual builtin joins and actual wrong-builtin negative control before activation.",
+      "return_declaration": "typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);",
+      "source_quotes": "/tmp/specola-extraction-20260906/mujoco-cfunction-address-source/source-quotes.json",
+      "version": "CPython 3.11.15 exact installed RoboCasa executable"
+    },
+    "callable_flags": {
+      "bridge_expected_flags": {
+        "existing_tls": {
+          "macro": "METH_VARARGS",
+          "value": 1
+        },
+        "layout": {
+          "macro": "METH_NOARGS",
+          "value": 4
+        }
+      },
+      "cold_function": null,
+      "cold_layout_reason": "No separately named cold function exists in full symbol table; nonexact/error branches reside within the same 68-byte function.",
+      "comparison": "Compare the entire returned int against source-selected canonical method-table flags, not just a masking subset.",
+      "constructor_scope": "Symbols and complete body bytes retained as fixture construction input. Allocation/GC/reference operations and transitive constructor calls are not an allocation-free call closure or native authorization.",
+      "constructor_symbol_inputs": [
+        {
+          "bind": "STB_GLOBAL",
+          "file_offset": 1664726,
+          "hex": "31c9e9534f0300",
+          "index": 1851,
+          "name": "PyCFunction_NewEx",
+          "section": 13,
+          "segment_flags": 5,
+          "sha256": "c214c857418087213f91bb8235fc456bb7706ee4ee8d9aae0a4370a8d7459bb5",
+          "size": 7,
+          "table": ".dynsym",
+          "type": "STT_FUNC",
+          "value": 1664726,
+          "version_index": "VER_NDX_GLOBAL",
+          "visibility": "STV_DEFAULT"
+        },
+        {
+          "bind": "STB_GLOBAL",
+          "file_offset": 1881648,
+          "hex": "415741564989ce415541544989d4554889fd534889f34883ec188b571089d0258f02000083f8080f84cb0100000f8e050200003d820000000f84620200004c8d2d7bd70a003d820200000f851802000080e6020f85af0100004d85f60f8570ccf2ff488b05ef1a37004889c248c1e80348c1ea0d83e00283e2024801d048baffffffffffffff7f4c8d34c500000000488b053a1a37004c8b3d536138004c29f24839c20f8253ccf2ff4c01f04889c60f8847ccf2ff488b05bc083700488d151d5cffff4839d00f85b1020000488d46ff483dff0100000f874b0200008d7eff488d156a063700c1ef048d043f488b14c24c8b42104c39c20f8412020000488b4208ff02488b0848894a084885c90f846d010000660fefc00f1100488b3dcf6038004c01f04c8b77100f1140f0418bb6b4020000418b8eb00200008d5601418996b402000039ca0f8f83010000488d355d19370048897008f605fb193700020f859f0100008b0d2ad9270085c90f852202000048c7000100000048c7402800000000488968104885db0f84d701000048ff03488958184d85e40f85d60100004c896020488d70f04c896830488b153f603800488b5210488b8ae8020000488b50f8488b790883e20366480f6ec14809fa48893766480f6eca660f6cc10f1140f0488971084883c4185b5d415c415d415e415fc3660f1f4400004c8d2da1fb020080e6020f8451feffff4d85f60f84d6caf2ff488d3df8163700e84357ffff4885c00f84a5caf2ff49ff064c897038e947ffffff660f1f4400004c8d2d212a010083f8040f8408feffff0f8f64caf2fff7c28d0200000f8458caf2ff4531ede9eefdffff660f1f4400003d800000000f853fcaf2ff4c8d2d36810300e9d1fdffff908b4a28394a2c7328488b5218498950184c894210e97afeffff0f1f80000000004c8d2dd97e0200e9a4fdffff0f1f4000ffc789cec1e7044801d601cf48897208897a2848c70600000000e944feffff4183be9402000000741285c9740e4183be50030000000f84c0000000488d0dbe17370048894808f6055c183700020f8461feffff48ff05a6173700e955feffff4889742408e8c75affff488b7424084885c00f85ecfdffff488b056a073700488d15ab3fffff4839d00f85a00000004885f6bf01000000480f45feff1590d127004885c00f84a3c9f2ff48ff0540063b00e9aefdffff31d2488950184d85e40f842afeffff49ff0424e921feffff488b3dec053700ffd04885c00f8584fdffffe968c9f2ff4889c74889442408e83f740900488b442408e9c7fdffff48837f60000f8535ffffff41c78650030000010000004889442408e8753f0d0031f6488b4424084189b650030000e90dffffff488b3dab063700ffd0e964ffffff",
+          "index": 726,
+          "name": "PyCMethod_New",
+          "section": 13,
+          "segment_flags": 5,
+          "sha256": "465a6455c1132fc7ea85dfdbe8e090f0bb565d6300508d029b01b629d21eb450",
+          "size": 1004,
+          "table": ".dynsym",
+          "type": "STT_FUNC",
+          "value": 1881648,
+          "version_index": "VER_NDX_GLOBAL",
+          "visibility": "STV_DEFAULT"
+        }
+      ],
+      "ctypes_recipe": "ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.py_object)(authenticated_python_bias + function.value)",
+      "declaration": "PyAPI_FUNC(int) PyCFunction_GetFlags(PyObject *);",
+      "elf_type": "ET_DYN",
+      "exact_type_declaration": {
+        "bind": "STB_GLOBAL",
+        "file_offset": 5492960,
+        "hex": "01000000000000000096530000000000000000000000000073a43300000000003800000000000000000000000000000080e31d00000000003000000000000000000000000000000000000000000000000000000000000000202632000000000000000000000000000000000000000000000000000000000050d42c000000000070d01f00000000000000000000000000f0ae1f0000000000000000000000000000000000000000000048000000000000000000000000000070f51c00000000000000000000000000404a2e000000000028000000000000000000000000000000000000000000000000cf530000000000a0ce530000000000a0cd5300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "index": 950,
+        "name": "PyCFunction_Type",
+        "section": 24,
+        "segment_flags": 6,
+        "sha256": "0f4dcf5a08a4a055e08a312610feb47dea74f0b7ffe79bef76f3af740f49bafd",
+        "size": 408,
+        "table": ".dynsym",
+        "type": "STT_OBJECT",
+        "value": 5492960,
+        "version_index": "VER_NDX_GLOBAL",
+        "visibility": "STV_DEFAULT"
+      },
+      "function": {
+        "bind": "STB_GLOBAL",
+        "file_offset": 1646050,
+        "hex": "4989f8488b7f08488d35f0b23a004839f7742951e89544040085c07516be8e000000488d3d35811b00e870fcffff83c8ffeb07498b40108b40105ac3498b40108b4010c3",
+        "index": 1634,
+        "name": "PyCFunction_GetFlags",
+        "section": 13,
+        "segment_flags": 5,
+        "sha256": "7655ca7eec7d06fc755f676125c669b804a9bf5de481dd6e863f6467a5aa1df8",
+        "size": 68,
+        "table": ".dynsym",
+        "type": "STT_FUNC",
+        "value": 1646050,
+        "version_index": "VER_NDX_GLOBAL",
+        "visibility": "STV_DEFAULT"
+      },
+      "image": {
+        "bytes": 25533120,
+        "path": "/opt/conda/envs/robocasa/bin/python3.11",
+        "resolved_path": "/opt/conda/envs/robocasa/bin/python3.11",
+        "sha256": "faa229fdfdc0a2cc0afc48dbcaf31cab85e703d35c3bdf4dc7ce4f5db9b3e6fb"
+      },
+      "native_calls_performed": 0,
+      "normal_branch": {
+        "FP_instructions": false,
+        "GIL_operations": false,
+        "call_count": 0,
+        "instruction_ranges": [
+          [
+            1646050,
+            1646069
+          ],
+          [
+            1646110,
+            1646118
+          ]
+        ],
+        "precondition": "retained live exact BuiltinFunctionType with authenticated PyCFunction_Type identity",
+        "relocation_slots_in_body": [],
+        "result": "signed C int copied from actual callable method-definition ml_flags; returned in eax",
+        "writes": false
+      },
+      "other_branches": {
+        "disposition": "Retained but excluded by exact-type precondition; invalid live object sets SystemError and returns -1. Arbitrary or stale addresses remain invalid inputs.",
+        "instruction_range": [
+          1646069,
+          1646110
+        ],
+        "targets": [
+          {
+            "bind": "STB_GLOBAL",
+            "file_offset": 1925776,
+            "hex": "488b87580100004885c00f84f346f2ff488b481031d24885c97e4fba01000000483b7018744431d24883f901743cba01000000483b7020743131d24883f9027429ba01000000483b7028741e31d24883f9037416ba03000000483974d018740d48ffc24839d175f131d289d0c3ba01000000ebf6",
+            "index": 910,
+            "name": "PyType_IsSubtype",
+            "section": 13,
+            "segment_flags": 5,
+            "sha256": "b5fa1cf989f6f099b84d5bb63212b28504a41f56515436ab6b182ccaee0f8f84",
+            "size": 116,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 1925776,
+            "version_index": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          {
+            "bind": "STB_GLOBAL",
+            "file_offset": 1645184,
+            "hex": "4889f94189f0488b3d93fd3b0031c0488b35423b3b00488d1503031c00e98e0a1700",
+            "index": 1778,
+            "name": "_PyErr_BadInternalCall",
+            "section": 13,
+            "segment_flags": 5,
+            "sha256": "d5581ea286b004d7d1290c140421fb62a182f791f100746be25143c9cba23f26",
+            "size": 34,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 1645184,
+            "version_index": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          }
+        ]
+      },
+      "parent_address_profile": {
+        "bytes": 6634,
+        "path": "/tmp/specola-extraction-20260906/mujoco-cfunction-address-source/profile.json",
+        "resolved_path": "/tmp/specola-extraction-20260906/mujoco-cfunction-address-source/profile.json",
+        "sha256": "664b2ebe08e8bc49a0fd8a2dd39c1ed2b7051c500ed0267ad4e3e7c868cef527"
+      },
+      "placement": "Inside existing outer FloatingEnvironment and outside loader callback; standard retained ctypes conversions and no custom errcheck/hooks.",
+      "schema": "specola.source-input.cfunction-flags.v1",
+      "source_quotes": "/tmp/specola-extraction-20260906/mujoco-cfunction-flags-source/source-quotes.json"
+    },
+    "compiled": {
+      "ELF": {
+        "class": 64,
+        "little_endian": true,
+        "machine": "EM_X86_64",
+        "type": "ET_DYN"
+      },
+      "PLT_selected_import_stubs": {
+        "file_offset": 4272,
+        "hex": "f30f1efaf2ff25cd2e00000f1f440000f30f1efaf2ff25c52e00000f1f440000f30f1efaf2ff25bd2e00000f1f440000f30f1efaf2ff25b52e00000f1f440000f30f1efaf2ff25ad2e00000f1f440000f30f1efaf2ff25a52e00000f1f440000f30f1efaf2ff259d2e00000f1f440000",
+        "rva": 4272,
+        "rva_hex": "0x10b0",
+        "segment_flags": 5,
+        "sha256": "9f928c0c99bc264a78946f923b04b29f2bb2371a6b4f4b9acf731ec081edf22a",
+        "size": 112
+      },
+      "build_inputs_manifest": {
+        "bytes": 66239,
+        "path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-build-001/compile-inputs.json",
+        "resolved_path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-build-001/compile-inputs.json",
+        "sha256": "68953c422d55a373a41b60a5d7f1b1501ac4e2b625fc36337f8138affd53e1d6"
+      },
+      "compile_command": {
+        "bytes": 959,
+        "path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-build-001/compile.command.json",
+        "resolved_path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-build-001/compile.command.json",
+        "sha256": "0d22029b30f70e13a7d4fee3bf291b6f9953cf51b17ee6dd4a01df03cd6b6cea"
+      },
+      "compiled_layout_call_arguments": {
+        "runtime_layout_function_called": false,
+        "source": "specola_tls_layout disassembly 0x1584..0x15ca, reconciled independently with compiled DWARF",
+        "value": [
+          8,
+          8,
+          64,
+          [
+            0,
+            8
+          ],
+          [
+            8,
+            8
+          ],
+          [
+            16,
+            8
+          ],
+          [
+            24,
+            2
+          ],
+          [
+            32,
+            8
+          ],
+          [
+            40,
+            8
+          ],
+          [
+            48,
+            8
+          ],
+          [
+            56,
+            8
+          ]
+        ]
+      },
+      "compiled_layouts": {
+        "PyMethodDef": {
+          "die_offset": 505,
+          "fields": [
+            {
+              "die_offset": 518,
+              "encoding": null,
+              "name": "ml_name",
+              "offset": 0,
+              "size": 8
+            },
+            {
+              "die_offset": 531,
+              "encoding": null,
+              "name": "ml_meth",
+              "offset": 8,
+              "size": 8
+            },
+            {
+              "die_offset": 544,
+              "encoding": 5,
+              "name": "ml_flags",
+              "offset": 16,
+              "size": 4
+            },
+            {
+              "die_offset": 557,
+              "encoding": null,
+              "name": "ml_doc",
+              "offset": 24,
+              "size": 8
+            }
+          ],
+          "size": 32
+        },
+        "PyModuleDef": {
+          "die_offset": 310,
+          "fields": [
+            {
+              "die_offset": 323,
+              "encoding": null,
+              "name": "m_base",
+              "offset": 0,
+              "size": 40
+            },
+            {
+              "die_offset": 336,
+              "encoding": null,
+              "name": "m_name",
+              "offset": 40,
+              "size": 8
+            },
+            {
+              "die_offset": 349,
+              "encoding": null,
+              "name": "m_doc",
+              "offset": 48,
+              "size": 8
+            },
+            {
+              "die_offset": 362,
+              "encoding": 5,
+              "name": "m_size",
+              "offset": 56,
+              "size": 8
+            },
+            {
+              "die_offset": 375,
+              "encoding": null,
+              "name": "m_methods",
+              "offset": 64,
+              "size": 8
+            },
+            {
+              "die_offset": 388,
+              "encoding": null,
+              "name": "m_slots",
+              "offset": 72,
+              "size": 8
+            },
+            {
+              "die_offset": 401,
+              "encoding": null,
+              "name": "m_traverse",
+              "offset": 80,
+              "size": 8
+            },
+            {
+              "die_offset": 414,
+              "encoding": null,
+              "name": "m_clear",
+              "offset": 88,
+              "size": 8
+            },
+            {
+              "die_offset": 427,
+              "encoding": null,
+              "name": "m_free",
+              "offset": 96,
+              "size": 8
+            }
+          ],
+          "size": 104
+        },
+        "PyModuleDef_Base": {
+          "die_offset": 3569,
+          "fields": [
+            {
+              "die_offset": 3582,
+              "encoding": null,
+              "name": "ob_base",
+              "offset": 0,
+              "size": 16
+            },
+            {
+              "die_offset": 3595,
+              "encoding": null,
+              "name": "m_init",
+              "offset": 16,
+              "size": 8
+            },
+            {
+              "die_offset": 3608,
+              "encoding": 5,
+              "name": "m_index",
+              "offset": 24,
+              "size": 8
+            },
+            {
+              "die_offset": 3621,
+              "encoding": null,
+              "name": "m_copy",
+              "offset": 32,
+              "size": 8
+            }
+          ],
+          "size": 40
+        },
+        "dl_phdr_info": {
+          "die_offset": 3947,
+          "fields": [
+            {
+              "die_offset": 3960,
+              "encoding": 7,
+              "name": "dlpi_addr",
+              "offset": 0,
+              "size": 8
+            },
+            {
+              "die_offset": 3973,
+              "encoding": null,
+              "name": "dlpi_name",
+              "offset": 8,
+              "size": 8
+            },
+            {
+              "die_offset": 3986,
+              "encoding": null,
+              "name": "dlpi_phdr",
+              "offset": 16,
+              "size": 8
+            },
+            {
+              "die_offset": 3999,
+              "encoding": 7,
+              "name": "dlpi_phnum",
+              "offset": 24,
+              "size": 2
+            },
+            {
+              "die_offset": 4012,
+              "encoding": 7,
+              "name": "dlpi_adds",
+              "offset": 32,
+              "size": 8
+            },
+            {
+              "die_offset": 4025,
+              "encoding": 7,
+              "name": "dlpi_subs",
+              "offset": 40,
+              "size": 8
+            },
+            {
+              "die_offset": 4038,
+              "encoding": 7,
+              "name": "dlpi_tls_modid",
+              "offset": 48,
+              "size": 8
+            },
+            {
+              "die_offset": 4051,
+              "encoding": null,
+              "name": "dlpi_tls_data",
+              "offset": 56,
+              "size": 8
+            }
+          ],
+          "size": 64
+        },
+        "specola_tls_lookup": {
+          "die_offset": 4142,
+          "fields": [
+            {
+              "die_offset": 4155,
+              "encoding": 7,
+              "name": "image",
+              "offset": 0,
+              "size": 8
+            },
+            {
+              "die_offset": 4168,
+              "encoding": 7,
+              "name": "phdr",
+              "offset": 8,
+              "size": 8
+            },
+            {
+              "die_offset": 4181,
+              "encoding": 7,
+              "name": "phnum",
+              "offset": 16,
+              "size": 8
+            },
+            {
+              "die_offset": 4194,
+              "encoding": 7,
+              "name": "matches",
+              "offset": 24,
+              "size": 8
+            },
+            {
+              "die_offset": 4207,
+              "encoding": 5,
+              "name": "short_record",
+              "offset": 32,
+              "size": 4
+            },
+            {
+              "die_offset": 4220,
+              "encoding": 7,
+              "name": "tls",
+              "offset": 40,
+              "size": 8
+            },
+            {
+              "die_offset": 4233,
+              "encoding": 7,
+              "name": "module_id",
+              "offset": 48,
+              "size": 8
+            }
+          ],
+          "size": 56
+        }
+      },
+      "control_flow_contract": {
+        "GIL_release_in_bridge_functions": false,
+        "callback_address_LEA_rva": 5321,
+        "callback_call_instructions": 0,
+        "callback_indirect_branches": 0,
+        "callback_rva": 4627,
+        "iterator_indirect_call_rva": 5331,
+        "iterator_source": "caller-supplied authenticated glibc dl_iterate_phdr only",
+        "source_stack_context_bytes": 56,
+        "terminal_stack_canary_call_rva": 5481,
+        "x87_or_SIMD_in_callback": false
+      },
+      "extension": {
+        "bytes": 26800,
+        "path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-build-001/lib/specola/_native_tls.cpython-311-x86_64-linux-gnu.so",
+        "resolved_path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-build-001/lib/specola/_native_tls.cpython-311-x86_64-linux-gnu.so",
+        "sha256": "f5829226d1f9480d8c2f610dad33ef8f72950aae4c72c35471f5db9c21df2f10"
+      },
+      "function_denominator": {
+        "all_sized_defined_functions_retained": true,
+        "callback_bytes": 216,
+        "emitted_header_helpers": 2,
+        "own_source_functions": 4,
+        "selected_bytes": 1050
+      },
+      "functions": [
+        {
+          "calls": [],
+          "code": {
+            "file_offset": 4569,
+            "hex": "554889e548897df8488b45f8488b40085dc3",
+            "rva": 4569,
+            "rva_hex": "0x11d9",
+            "segment_flags": 5,
+            "sha256": "7307d58e08d24e93b4c55ca6858147f681d75ebcc6bbf54e2e16359c1e174521",
+            "size": 18
+          },
+          "phase": "before/after loader call or module initialization",
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 10,
+            "name": "Py_TYPE",
+            "section_index": 14,
+            "size": 18,
+            "table": ".symtab",
+            "type": "STT_FUNC",
+            "value": 4569,
+            "visibility": "STV_DEFAULT"
+          }
+        },
+        {
+          "calls": [
+            {
+              "assembly": "call   11d9 <Py_TYPE>",
+              "hex": "e8d2ffffff",
+              "raw_line": "    1202:\te8 d2 ff ff ff       \tcall   11d9 <Py_TYPE>",
+              "rva": 4610
+            }
+          ],
+          "code": {
+            "file_offset": 4587,
+            "hex": "554889e54883ec1048897df8488975f0488b45f84889c7e8d2ffffff483945f00f94c00fb6c0c9c3",
+            "rva": 4587,
+            "rva_hex": "0x11eb",
+            "segment_flags": 5,
+            "sha256": "5a5294e01457bc297feb33553f8df52db3f19f23deb77b4d6b3debc360cbf9f0",
+            "size": 40
+          },
+          "phase": "before/after loader call or module initialization",
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 11,
+            "name": "Py_IS_TYPE",
+            "section_index": 14,
+            "size": 40,
+            "table": ".symtab",
+            "type": "STT_FUNC",
+            "value": 4587,
+            "visibility": "STV_DEFAULT"
+          }
+        },
+        {
+          "calls": [],
+          "code": {
+            "file_offset": 4627,
+            "hex": "f30f1efa554889e548897de8488975e0488955d8488b45d8488945f848837de800740748837de03f7715488b45f8c7402001000000b801000000e997000000488b45e8488b10488b45f8488b004839c2757f488b45e8488b40104889c2488b45f8488b40084839c27567488b45e80fb740180fb7d0488b45f8488b40104839c2754f488b45f8488b40184885c07413488b45f848c7401802000000b801000000eb34488b45f848c7401801000000488b45e8488b40384889c2488b45f848895028488b45e8488b5030488b45f848895030b8000000005dc3",
+            "rva": 4627,
+            "rva_hex": "0x1213",
+            "segment_flags": 5,
+            "sha256": "e2052469645234459c130cdecb0008c9a9fe9f7eca4951ebd58595301040eee9",
+            "size": 216
+          },
+          "phase": "loader callback",
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 12,
+            "name": "specola_tls_callback",
+            "section_index": 14,
+            "size": 216,
+            "table": ".symtab",
+            "type": "STT_FUNC",
+            "value": 4627,
+            "visibility": "STV_DEFAULT"
+          }
+        },
+        {
+          "calls": [
+            {
+              "assembly": "call   1100 <_PyArg_ParseTuple_SizeT@plt>",
+              "hex": "e86efdffff",
+              "raw_line": "    138d:\te8 6e fd ff ff       \tcall   1100 <_PyArg_ParseTuple_SizeT@plt>",
+              "rva": 5005
+            },
+            {
+              "assembly": "call   11eb <Py_IS_TYPE>",
+              "hex": "e81dfeffff",
+              "raw_line": "    13c9:\te8 1d fe ff ff       \tcall   11eb <Py_IS_TYPE>",
+              "rva": 5065
+            },
+            {
+              "assembly": "call   10d0 <PyErr_SetString@plt>",
+              "hex": "e8e2fcffff",
+              "raw_line": "    13e9:\te8 e2 fc ff ff       \tcall   10d0 <PyErr_SetString@plt>",
+              "rva": 5097
+            },
+            {
+              "assembly": "call   10b0 <PyLong_AsUnsignedLongLong@plt>",
+              "hex": "e8a4fcffff",
+              "raw_line": "    1407:\te8 a4 fc ff ff       \tcall   10b0 <PyLong_AsUnsignedLongLong@plt>",
+              "rva": 5127
+            },
+            {
+              "assembly": "call   10e0 <PyErr_Occurred@plt>",
+              "hex": "e8c3fcffff",
+              "raw_line": "    1418:\te8 c3 fc ff ff       \tcall   10e0 <PyErr_Occurred@plt>",
+              "rva": 5144
+            },
+            {
+              "assembly": "call   10d0 <PyErr_SetString@plt>",
+              "hex": "e84bfcffff",
+              "raw_line": "    1480:\te8 4b fc ff ff       \tcall   10d0 <PyErr_SetString@plt>",
+              "rva": 5248
+            },
+            {
+              "assembly": "call   rdx",
+              "hex": "ffd2",
+              "raw_line": "    14d3:\tff d2                \tcall   rdx",
+              "rva": 5331
+            },
+            {
+              "assembly": "call   10d0 <PyErr_SetString@plt>",
+              "hex": "e8d2fbffff",
+              "raw_line": "    14f9:\te8 d2 fb ff ff       \tcall   10d0 <PyErr_SetString@plt>",
+              "rva": 5369
+            },
+            {
+              "assembly": "call   10d0 <PyErr_SetString@plt>",
+              "hex": "e89cfbffff",
+              "raw_line": "    152f:\te8 9c fb ff ff       \tcall   10d0 <PyErr_SetString@plt>",
+              "rva": 5423
+            },
+            {
+              "assembly": "call   1110 <_Py_BuildValue_SizeT@plt>",
+              "hex": "e8b6fbffff",
+              "raw_line": "    1555:\te8 b6 fb ff ff       \tcall   1110 <_Py_BuildValue_SizeT@plt>",
+              "rva": 5461
+            },
+            {
+              "assembly": "call   10c0 <__stack_chk_fail@plt>",
+              "hex": "e852fbffff",
+              "raw_line": "    1569:\te8 52 fb ff ff       \tcall   10c0 <__stack_chk_fail@plt>",
+              "rva": 5481
+            }
+          ],
+          "code": {
+            "file_offset": 4843,
+            "hex": "f30f1efa554889e54881ecc00000004889bd48ffffff4889b540ffffff64488b042528000000488945f831c048c78570ffffff0000000048c78578ffffff0000000048c745800000000048c745880000000048c745900000000048c745980000000048c745a000000000488d45b0488d7818488d45b0488d7010488d45b0488d4808488d55b0488b8540ffffff4989f94989f0488d357b0c00004889c7b800000000e86efdffff85c0750ab800000000e9ba01000048c78560ffffff00000000e984000000488b8560ffffff488b44c5b0488b15252c00004889d64889c7e81dfeffff85c07526488b05ff2b0000488b00488d15350c00004889d64889c7e8e2fcffffb800000000e962010000488b8560ffffff488b44c5b04889c7e8a4fcffff488b9560ffffff488944d5d0e8c3fcffff4885c0740ab800000000e92e01000048838560ffffff014883bd60ffffff030f866effffff488b45d04885c0741e488b45e04885c07415488b45e84885c0740c488b45e8483dffff00007626488b05602b0000488b00488d15c60b00004889d64889c7e84bfcffffb800000000e9cb000000488b45d848898570ffffff488b45e048898578ffffff488b45e848894580488b45d048898568ffffff488d8570ffffff488b9568ffffff4889c6488d0543fdffff4889c7ffd289855cffffff8b459085c07423488b05df2a0000488b00488d15750b00004889d64889c7e8d2fbffffb800000000eb5583bd5cffffff00750a488b45884883f8017423488b05a92a0000488b00488d15670b00004889d64889c7e89cfbffffb800000000eb1f488b5598488b45a04889c6488d056b0b00004889c7b800000000e8b6fbffff488b55f864482b1425280000007405e852fbffffc9c3",
+            "rva": 4843,
+            "rva_hex": "0x12eb",
+            "segment_flags": 5,
+            "sha256": "41a72c793f2801e94c3c07afc80ab5d494e29314cfcf144d6908e9ab1a4e4f7f",
+            "size": 645
+          },
+          "phase": "before/after loader call or module initialization",
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 13,
+            "name": "specola_existing_tls",
+            "section_index": 14,
+            "size": 645,
+            "table": ".symtab",
+            "type": "STT_FUNC",
+            "value": 4843,
+            "visibility": "STV_DEFAULT"
+          }
+        },
+        {
+          "calls": [
+            {
+              "assembly": "call   1110 <_Py_BuildValue_SizeT@plt>",
+              "hex": "e841fbffff",
+              "raw_line": "    15ca:\te8 41 fb ff ff       \tcall   1110 <_Py_BuildValue_SizeT@plt>",
+              "rva": 5578
+            }
+          ],
+          "code": {
+            "file_offset": 5488,
+            "hex": "f30f1efa554889e54883ec1048897df8488975f06a086a386a086a306a086a286a086a206a026a186a086a106a086a0841b90800000041b800000000b940000000ba08000000be08000000488d05fe0a00004889c7b800000000e841fbffff4883c470c9c3",
+            "rva": 5488,
+            "rva_hex": "0x1570",
+            "segment_flags": 5,
+            "sha256": "9d70a6d84135694c8d8f1233942cc0de9e6a010391f934d08143236ed8482f14",
+            "size": 101
+          },
+          "phase": "before/after loader call or module initialization",
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 14,
+            "name": "specola_tls_layout",
+            "section_index": 14,
+            "size": 101,
+            "table": ".symtab",
+            "type": "STT_FUNC",
+            "value": 5488,
+            "visibility": "STV_DEFAULT"
+          }
+        },
+        {
+          "calls": [
+            {
+              "assembly": "call   10f0 <PyModule_Create2@plt>",
+              "hex": "e8fffaffff",
+              "raw_line": "    15ec:\te8 ff fa ff ff       \tcall   10f0 <PyModule_Create2@plt>",
+              "rva": 5612
+            }
+          ],
+          "code": {
+            "file_offset": 5589,
+            "hex": "f30f1efa554889e5bef5030000488d05972a00004889c7e8fffaffff5dc3",
+            "rva": 5589,
+            "rva_hex": "0x15d5",
+            "segment_flags": 5,
+            "sha256": "dbb2625db779cecab4668615a5ccca5825c97a1bf0206a35e9ef418d8b46b190",
+            "size": 30
+          },
+          "phase": "before/after loader call or module initialization",
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 41,
+            "name": "PyInit__native_tls",
+            "section_index": 14,
+            "size": 30,
+            "table": ".symtab",
+            "type": "STT_FUNC",
+            "value": 5589,
+            "visibility": "STV_DEFAULT"
+          }
+        }
+      ],
+      "limitations": [
+        "No extension import, native call, producer execution, runtime layout measurement or observation-effect measurement.",
+        "Exact ELF import declarations plus expected owner values do not prove current loaded GOT targets; runtime must verify them.",
+        "CPython exports are trusted maintained runtime dependencies outside the loader-lock interval; their entire transitive call graphs are not recertified.",
+        "Compiler CRT initialization/teardown and terminal corruption branches are retained outside the selected ordinary-call guarantee.",
+        "Calling arbitrary supplied function addresses directly remains unsafe; the Python owner must authenticate function identity/ranges before entry.",
+        "A trusted CPython-created builtin method identity must remain attached to this exact module/method table; retaining names or file paths alone is insufficient."
+      ],
+      "literal_region": {
+        "file_offset": 8192,
+        "hex": "4f4f4f4f3a6578697374696e675f746c7300000000000000544c53206c6f6f6b757020726571756972657320657861637420696e746567657273000000000000544c53206c6f6f6b75702061646472657373206f722041424920697320696e76616c6964000000006e617469766520544c532063616c6c6261636b207265636f72642069732073686f727400000000006e617469766520544c5320696d61676520697320616273656e74206f7220616d626967756f7573004b4b000000000000284b4b4b284b4b29284b4b29284b4b29284b4b29284b4b29284b4b29284b4b29284b4b2929006578697374696e675f746c7300000000000052657475726e206578697374696e6720544c53206964656e74697479207468726f75676820616e2061757468656e74696361746564207075626c6963206974657261746f722e006c61796f757400000052657475726e20636f6d70696c6564207075626c6963207265636f7264206f66667365747320616e642077696474687320666f7220736f75726365207265636f6e63696c696174696f6e2e005f6e61746976655f746c7300",
+        "rva": 8192,
+        "rva_hex": "0x2000",
+        "segment_flags": 4,
+        "sha256": "35e30b6f2147318e3104cf7d39df1379b65c31dbb765883063c7e8e1fb2e84c4",
+        "size": 416
+      },
+      "own_objects": [
+        {
+          "relocations": [
+            {
+              "addend": 8422,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 3,
+              "section": ".rela.dyn",
+              "slot_rva": 16416,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            },
+            {
+              "addend": 4843,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 4,
+              "section": ".rela.dyn",
+              "slot_rva": 16424,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            },
+            {
+              "addend": 8440,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 5,
+              "section": ".rela.dyn",
+              "slot_rva": 16440,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            },
+            {
+              "addend": 8511,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 6,
+              "section": ".rela.dyn",
+              "slot_rva": 16448,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            },
+            {
+              "addend": 5488,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 7,
+              "section": ".rela.dyn",
+              "slot_rva": 16456,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            },
+            {
+              "addend": 8520,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 8,
+              "section": ".rela.dyn",
+              "slot_rva": 16472,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            }
+          ],
+          "runtime_rule": "method table fields immutable; module first 40 bytes are CPython-managed and are not expected to retain file bytes",
+          "storage": {
+            "file_offset": 12320,
+            "hex": "e620000000000000eb120000000000000100000000000000f8200000000000003f210000000000007015000000000000040000000000000048210000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "rva": 16416,
+            "rva_hex": "0x4020",
+            "segment_flags": 6,
+            "sha256": "983242e7145c671f968a710f57e978e1e626c6741e3d24d179d8604abba02ade",
+            "size": 96
+          },
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 15,
+            "name": "specola_tls_methods",
+            "section_index": 23,
+            "size": 96,
+            "table": ".symtab",
+            "type": "STT_OBJECT",
+            "value": 16416,
+            "visibility": "STV_DEFAULT"
+          }
+        },
+        {
+          "relocations": [
+            {
+              "addend": 8596,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 9,
+              "section": ".rela.dyn",
+              "slot_rva": 16552,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            },
+            {
+              "addend": 16416,
+              "binding_rule": "bridge load bias plus signed RELA addend",
+              "disposition": "self_relative",
+              "index": 10,
+              "section": ".rela.dyn",
+              "slot_rva": 16576,
+              "symbol": {
+                "binding": "STB_LOCAL",
+                "index": 0,
+                "name": "",
+                "section_index": "SHN_UNDEF",
+                "size": 0,
+                "table": ".dynsym",
+                "type": "STT_NOTYPE",
+                "value": 0,
+                "visibility": "STV_DEFAULT"
+              },
+              "type_number": 8,
+              "version_index_raw": "VER_NDX_LOCAL",
+              "version_requirement": null
+            }
+          ],
+          "runtime_rule": "check source-declared m_name/m_doc/m_size/m_methods/m_slots/m_traverse/m_clear/m_free at offsets 40..103; do not freeze m_base at offsets 0..39",
+          "storage": {
+            "file_offset": 12416,
+            "hex": "0100000000000000000000000000000000000000000000000000000000000000000000000000000094210000000000000000000000000000ffffffffffffffff20400000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "rva": 16512,
+            "rva_hex": "0x4080",
+            "segment_flags": 6,
+            "sha256": "2434279eaecba906cfd439d70daa88961bbea84fac2a96ba94d44c6c1be43257",
+            "size": 104
+          },
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 16,
+            "name": "specola_tls_module",
+            "section_index": 23,
+            "size": 104,
+            "table": ".symtab",
+            "type": "STT_OBJECT",
+            "value": 16512,
+            "visibility": "STV_DEFAULT"
+          }
+        }
+      ],
+      "projection_source": {
+        "bytes": 134639,
+        "path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-compiled-review/compiled-profile.json",
+        "resolved_path": "/tmp/specola-extraction-20260906/mujoco-tls-bridge-compiled-review/compiled-profile.json",
+        "sha256": "a1adedbb1d20b006e9381495cabb3a403adbb4037e1cd217ef9242394b56f9a4"
+      },
+      "provider_images": {
+        "cpython": {
+          "elf_machine": "EM_X86_64",
+          "elf_type": "ET_DYN",
+          "identity": {
+            "bytes": 25533120,
+            "path": "/opt/conda/envs/robocasa/bin/python3.11",
+            "resolved_path": "/opt/conda/envs/robocasa/bin/python3.11",
+            "sha256": "faa229fdfdc0a2cc0afc48dbcaf31cab85e703d35c3bdf4dc7ce4f5db9b3e6fb"
+          }
+        },
+        "libc": {
+          "elf_machine": "EM_X86_64",
+          "elf_type": "ET_DYN",
+          "identity": {
+            "bytes": 2220400,
+            "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+            "resolved_path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+            "sha256": "e01b1ce7be2987f3b8560e26d0df2623f9dd5cec17be923ae28a785bc0d32d50"
+          }
+        }
+      },
+      "relocations": [
+        {
+          "addend": 4560,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 0,
+          "section": ".rela.dyn",
+          "slot_rva": 15744,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 4496,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 1,
+          "section": ".rela.dyn",
+          "slot_rva": 15752,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 16384,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 2,
+          "section": ".rela.dyn",
+          "slot_rva": 16384,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 8422,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 3,
+          "section": ".rela.dyn",
+          "slot_rva": 16416,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 4843,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 4,
+          "section": ".rela.dyn",
+          "slot_rva": 16424,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 8440,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 5,
+          "section": ".rela.dyn",
+          "slot_rva": 16440,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 8511,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 6,
+          "section": ".rela.dyn",
+          "slot_rva": 16448,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 5488,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 7,
+          "section": ".rela.dyn",
+          "slot_rva": 16456,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 8520,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 8,
+          "section": ".rela.dyn",
+          "slot_rva": 16472,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 8596,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 9,
+          "section": ".rela.dyn",
+          "slot_rva": 16552,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 16416,
+          "binding_rule": "bridge load bias plus signed RELA addend",
+          "disposition": "self_relative",
+          "index": 10,
+          "section": ".rela.dyn",
+          "slot_rva": 16576,
+          "symbol": {
+            "binding": "STB_LOCAL",
+            "index": 0,
+            "name": "",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 8,
+          "version_index_raw": "VER_NDX_LOCAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "retained; no observed target accepted or full CRT closure claimed",
+          "disposition": "CRT_initialization_or_teardown_outside_selected_call_interval",
+          "index": 11,
+          "section": ".rela.dyn",
+          "slot_rva": 16320,
+          "symbol": {
+            "binding": "STB_WEAK",
+            "index": 1,
+            "name": "_ITM_deregisterTMCloneTable",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 484,
+            "name": "PyExc_RuntimeError",
+            "section_index": 24,
+            "size": 8,
+            "table": ".dynsym",
+            "type": "STT_OBJECT",
+            "value": 5526000,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 12,
+          "section": ".rela.dyn",
+          "slot_rva": 16328,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 4,
+            "name": "PyExc_RuntimeError",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 1430,
+            "name": "PyExc_ValueError",
+            "section_index": 24,
+            "size": 8,
+            "table": ".dynsym",
+            "type": "STT_OBJECT",
+            "value": 5554816,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 13,
+          "section": ".rela.dyn",
+          "slot_rva": 16336,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 6,
+            "name": "PyExc_ValueError",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 1549,
+            "name": "PyExc_TypeError",
+            "section_index": 24,
+            "size": 8,
+            "table": ".dynsym",
+            "type": "STT_OBJECT",
+            "value": 5554832,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 14,
+          "section": ".rela.dyn",
+          "slot_rva": 16344,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 7,
+            "name": "PyExc_TypeError",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "retained; no observed target accepted or full CRT closure claimed",
+          "disposition": "CRT_initialization_or_teardown_outside_selected_call_interval",
+          "index": 15,
+          "section": ".rela.dyn",
+          "slot_rva": 16352,
+          "symbol": {
+            "binding": "STB_WEAK",
+            "index": 8,
+            "name": "__gmon_start__",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 1339,
+            "name": "PyLong_Type",
+            "section_index": 24,
+            "size": 408,
+            "table": ".dynsym",
+            "type": "STT_OBJECT",
+            "value": 5506848,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 16,
+          "section": ".rela.dyn",
+          "slot_rva": 16360,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 12,
+            "name": "PyLong_Type",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "retained; no observed target accepted or full CRT closure claimed",
+          "disposition": "CRT_initialization_or_teardown_outside_selected_call_interval",
+          "index": 17,
+          "section": ".rela.dyn",
+          "slot_rva": 16368,
+          "symbol": {
+            "binding": "STB_WEAK",
+            "index": 14,
+            "name": "_ITM_registerTMCloneTable",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "retained; no observed target accepted or full CRT closure claimed",
+          "disposition": "CRT_initialization_or_teardown_outside_selected_call_interval",
+          "index": 18,
+          "section": ".rela.dyn",
+          "slot_rva": 16376,
+          "symbol": {
+            "binding": "STB_WEAK",
+            "index": 15,
+            "name": "__cxa_finalize",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 6,
+          "version_index_raw": 3,
+          "version_requirement": {
+            "library": "libc.so.6",
+            "name": "GLIBC_2.2.5"
+          }
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 456,
+            "name": "PyLong_AsUnsignedLongLong",
+            "section_index": 13,
+            "size": 131,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 2646576,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 0,
+          "section": ".rela.plt",
+          "slot_rva": 16264,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 2,
+            "name": "PyLong_AsUnsignedLongLong",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 7,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus exact GLIBC_2.4 export",
+          "disposition": "terminal_stack_corruption_only",
+          "expected_image": "libc",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 2882,
+            "name": "__stack_chk_fail",
+            "section_index": 15,
+            "size": 22,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 1271184,
+            "version_definition": {
+              "name": "GLIBC_2.4"
+            },
+            "version_index_raw": 8,
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 1,
+          "section": ".rela.plt",
+          "slot_rva": 16272,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 3,
+            "name": "__stack_chk_fail",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 7,
+          "version_index_raw": 2,
+          "version_requirement": {
+            "library": "libc.so.6",
+            "name": "GLIBC_2.4"
+          }
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 794,
+            "name": "PyErr_SetString",
+            "section_index": 13,
+            "size": 715,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 2421024,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 2,
+          "section": ".rela.plt",
+          "slot_rva": 16280,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 5,
+            "name": "PyErr_SetString",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 7,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 995,
+            "name": "PyErr_Occurred",
+            "section_index": 13,
+            "size": 12,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 1907248,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 3,
+          "section": ".rela.plt",
+          "slot_rva": 16288,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 9,
+            "name": "PyErr_Occurred",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 7,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 524,
+            "name": "PyModule_Create2",
+            "section_index": 13,
+            "size": 30,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 2863792,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 4,
+          "section": ".rela.plt",
+          "slot_rva": 16296,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 10,
+            "name": "PyModule_Create2",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 7,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 1593,
+            "name": "_PyArg_ParseTuple_SizeT",
+            "section_index": 13,
+            "size": 215,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 1978816,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 5,
+          "section": ".rela.plt",
+          "slot_rva": 16304,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 11,
+            "name": "_PyArg_ParseTuple_SizeT",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 7,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        },
+        {
+          "addend": 0,
+          "binding_rule": "provider load bias plus pinned dynamic export value; no observed-target enrollment",
+          "disposition": "exact_cpython_export",
+          "expected_image": "cpython",
+          "expected_symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 383,
+            "name": "_Py_BuildValue_SizeT",
+            "section_index": 13,
+            "size": 188,
+            "table": ".dynsym",
+            "type": "STT_FUNC",
+            "value": 2478640,
+            "version_definition": null,
+            "version_index_raw": "VER_NDX_GLOBAL",
+            "visibility": "STV_DEFAULT"
+          },
+          "index": 6,
+          "section": ".rela.plt",
+          "slot_rva": 16312,
+          "symbol": {
+            "binding": "STB_GLOBAL",
+            "index": 13,
+            "name": "_Py_BuildValue_SizeT",
+            "section_index": "SHN_UNDEF",
+            "size": 0,
+            "table": ".dynsym",
+            "type": "STT_NOTYPE",
+            "value": 0,
+            "visibility": "STV_DEFAULT"
+          },
+          "type_number": 7,
+          "version_index_raw": "VER_NDX_GLOBAL",
+          "version_requirement": null
+        }
+      ],
+      "review_status": "source_and_static_ELF_review_only; native execution requires concrete fixture review",
+      "schema": "specola.native_tls.compact_selected_compiled_profile.v1",
+      "setup": {
+        "bytes": 291,
+        "path": "/tmp/specola-extraction-20260906/mujoco-existing-tls-implementation-001/source/setup.py",
+        "resolved_path": "/tmp/specola-extraction-20260906/mujoco-existing-tls-implementation-001/source/setup.py",
+        "sha256": "d7dfc3a642b65015751498331345f21de304df3030be4a2daea843211150eaf4"
+      },
+      "source": {
+        "bytes": 5017,
+        "path": "/tmp/specola-extraction-20260906/mujoco-existing-tls-implementation-001/source/src/specola/_native_tls.c",
+        "resolved_path": "/tmp/specola-extraction-20260906/mujoco-existing-tls-implementation-001/source/src/specola/_native_tls.c",
+        "sha256": "4c349668742c66d05fdc53b7e4c9db13c96476ffbddd7cdefe88ad4271488fa7"
+      }
+    },
+    "filename": "_native_tls.cpython-311-x86_64-linux-gnu.so",
+    "sha256": "f5829226d1f9480d8c2f610dad33ef8f72950aae4c72c35471f5db9c21df2f10"
+  },
+  "lookup": {
+    "before_native_call": [
+      "Retain exact libc/loader files and derived image biases; validate current loaded backing/ranges at the same stable-loader boundary as FloatingEnvironment. Do not use CDLL/dlsym as address authentication.",
+      "Verify complete GNU verneed/verdef joins, including required ld-linux-x86-64.so.2 and GLIBC_PRIVATE. Existing MuJoCo unversioned-symbol policy remains unchanged.",
+      "Validate libc GLOB_DAT slots0x219ec8 and0x219fa0 against expected loader symbol starts, and loader RELATIVE slot0x39e48 against loader bias+0x14d80. Native observed targets are evidence to compare with those expectations, never the expectations themselves.",
+      "Validate selected code ranges and profile body bytes from pinned files; where existing policy checks current instruction bytes, use exact nonrelocated body bytes retained here. Check object extents before reading slot or mutex metadata.",
+      "Read the source-fixed mutex kind (must equal1), and refuse the exact counter-overflow state. Do not copy/restore shared glibc mutex bytes; allow its maintained synchronization and private futex wait/wake.",
+      "Enter fenv preservation before metadata/guard work. Use a retained owned callback with exact source/DWARF ABI and keep callback lifetime through synchronous return. Catch callback errors explicitly and stop safely.",
+      "Require callback size covers all fields before copying primitive values. Do not dereference dlpi_name merely to identify the module: compare authenticated load bias and program-header identity. Do not retain native struct views after callback.",
+      "If the target module has absent/unallocated TLS or is not enumerated in the callback namespace, retain unresolved/refuse before MuJoCo getters/copy/query. Never call __tls_get_addr, a getter, or a query to initialize as a transparent fallback.",
+      "Use the prior exact five-array profile to validate/copy/restore current-thread producer TLS bytes, preserving opaque pointers as bytes. Keep adapter/scratch reentry protection and poison after failed restore.",
+      "Retain terminal/cancellation branches and declared OS/bridge assumptions; this is no whole-libc, loader, TLS, process-state or performance certification."
+    ],
+    "binding_slots": [
+      {
+        "expected_image": "loader",
+        "expected_symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_OBJECT"
+            },
+            "st_name": 403,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 18,
+            "st_size": 928,
+            "st_value": 236256
+          },
+          "index": 5,
+          "name": "_rtld_global_ro",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 7,
+            "definition_name": "GLIBC_PRIVATE",
+            "hidden": false,
+            "raw_index": 7,
+            "required_file": null,
+            "required_name": null
+          }
+        },
+        "expected_value_expression": "loader_bias + expected_symbol.entry.st_value",
+        "imported_symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_OBJECT"
+            },
+            "st_name": 28373,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": "SHN_UNDEF",
+            "st_size": 0,
+            "st_value": 0
+          },
+          "index": 8,
+          "name": "_rtld_global_ro",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 38,
+            "definition_name": null,
+            "hidden": false,
+            "raw_index": 38,
+            "required_file": "ld-linux-x86-64.so.2",
+            "required_name": "GLIBC_PRIVATE"
+          }
+        },
+        "importer": "libc",
+        "kind": "R_X86_64_GLOB_DAT",
+        "relocation": {
+          "entry": {
+            "r_addend": 0,
+            "r_info": 34359738374,
+            "r_info_sym": 8,
+            "r_info_type": 6,
+            "r_offset": 2203336
+          },
+          "section": ".rela.dyn",
+          "symbol": "_rtld_global_ro"
+        }
+      },
+      {
+        "expected_image": "loader",
+        "expected_symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_OBJECT"
+            },
+            "st_name": 1,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 22,
+            "st_size": 4304,
+            "st_value": 237632
+          },
+          "index": 8,
+          "name": "_rtld_global",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 7,
+            "definition_name": "GLIBC_PRIVATE",
+            "hidden": false,
+            "raw_index": 7,
+            "required_file": null,
+            "required_name": null
+          }
+        },
+        "expected_value_expression": "loader_bias + expected_symbol.entry.st_value",
+        "imported_symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_OBJECT"
+            },
+            "st_name": 28584,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": "SHN_UNDEF",
+            "st_size": 0,
+            "st_value": 0
+          },
+          "index": 15,
+          "name": "_rtld_global",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 38,
+            "definition_name": null,
+            "hidden": false,
+            "raw_index": 38,
+            "required_file": "ld-linux-x86-64.so.2",
+            "required_name": "GLIBC_PRIVATE"
+          }
+        },
+        "importer": "libc",
+        "kind": "R_X86_64_GLOB_DAT",
+        "relocation": {
+          "entry": {
+            "r_addend": 0,
+            "r_info": 64424509446,
+            "r_info_sym": 15,
+            "r_info_type": 6,
+            "r_offset": 2203552
+          },
+          "section": ".rela.dyn",
+          "symbol": "_rtld_global"
+        }
+      },
+      {
+        "containing_symbol": "_rtld_global_ro",
+        "expected_debug_symbol": {
+          "declaration_source": "matching build-ID and debuglink-CRC .symtab",
+          "entry": {
+            "st_info": {
+              "bind": "STB_LOCAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 7400,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 13,
+            "st_size": 125,
+            "st_value": 85376
+          },
+          "index": 554,
+          "name": "_dl_tls_get_addr_soft",
+          "symbol_table": "matching_debug_symtab"
+        },
+        "expected_image": "loader",
+        "expected_value_expression": "loader_bias + relocation.entry.r_addend; must equal independently matched debug-symbol start",
+        "field": "_dl_tls_get_addr_soft",
+        "field_offset": 872,
+        "importer": "loader",
+        "kind": "R_X86_64_RELATIVE",
+        "relocation": {
+          "entry": {
+            "r_addend": 85376,
+            "r_info": 8,
+            "r_info_sym": 0,
+            "r_info_type": 8,
+            "r_offset": 237128
+          },
+          "section": ".rela.dyn",
+          "symbol": ""
+        }
+      }
+    ],
+    "branches": [
+      {
+        "condition": "pinned loader recursive mutex; mutex __kind exactly1",
+        "disposition": "ordinary",
+        "function": "dl_iterate_phdr",
+        "site": "0x174c48",
+        "source": [
+          "public_lookup",
+          "rtld_lock_dispatch",
+          "recursive_lock"
+        ],
+        "target": "libc __pthread_mutex_lock 0x97eb0"
+      },
+      {
+        "condition": "current loader entry has nonzero TLS module id",
+        "disposition": "ordinary conditional",
+        "function": "dl_iterate_phdr",
+        "site": "0x174d91",
+        "source": [
+          "public_lookup",
+          "soft_pointer_declaration",
+          "rtld_initializers",
+          "soft_lookup"
+        ],
+        "target": "loader _rtld_global_ro +0x368 slot; expected loader bias+0x14d80"
+      },
+      {
+        "condition": "catch Python exceptions inside callback; record and return stopping integer; do not leak borrowed info",
+        "disposition": "ordinary supplied callback",
+        "function": "dl_iterate_phdr",
+        "site": "0x174dae",
+        "source": [
+          "public_lookup",
+          "public_abi"
+        ],
+        "target": "owned CFUNCTYPE callback exact retained callable"
+      },
+      {
+        "disposition": "ordinary",
+        "function": "dl_iterate_phdr",
+        "site": "0x174dc9",
+        "source": [
+          "public_lookup",
+          "recursive_unlock"
+        ],
+        "target": "libc __pthread_mutex_unlock 0x99a30"
+      },
+      {
+        "condition": "caller address in non-base namespace candidate and l_contiguous false; read-only segment arithmetic with no calls",
+        "disposition": "ordinary optional namespace search",
+        "function": "dl_iterate_phdr",
+        "site": "0x174df6",
+        "source": [
+          "public_lookup",
+          "inside_object"
+        ],
+        "target": "libc _dl_addr_inside_object 0x1748a0"
+      },
+      {
+        "condition": "valid recursive mutex not owned by current thread and atomic acquisition finds it locked; private futex wait may block, no duration bound claimed",
+        "disposition": "ordinary conditional contention",
+        "function": "__pthread_mutex_lock",
+        "site": "0x98018",
+        "source": [
+          "recursive_lock",
+          "kernel_wait_wake",
+          "futex_macros"
+        ],
+        "target": "libc __lll_lock_wait 0x91250"
+      },
+      {
+        "condition": "last recursive release with potential waiters; syscall result is ignored by this wrapper",
+        "disposition": "ordinary conditional contention",
+        "function": "__pthread_mutex_unlock",
+        "site": "0x99ac8",
+        "source": [
+          "recursive_unlock",
+          "kernel_wait_wake",
+          "futex_macros"
+        ],
+        "target": "libc __lll_lock_wake 0x912e0"
+      },
+      {
+        "condition": "owned recursive count wraps at UINT32_MAX; dl_iterate_phdr does not check lock return, so a valid nonoverflowing lock is required",
+        "disposition": "refuse exact overflow precondition",
+        "function": "__pthread_mutex_lock",
+        "site": "0x98067",
+        "source": [
+          "recursive_lock"
+        ],
+        "target": "returns EAGAIN, no callback"
+      },
+      {
+        "condition": "ordinary glibc-owned interval owns the acquired recursive lock; callback must not destroy/unlock it or nonlocally unwind",
+        "disposition": "invalid ownership failure",
+        "function": "__pthread_mutex_unlock",
+        "site": "0x99aef",
+        "source": [
+          "recursive_unlock"
+        ],
+        "target": "returns EPERM"
+      },
+      {
+        "condition": "owner nonzero after valid acquisition; do not execute as a control",
+        "disposition": "unperformed corruption/assertion",
+        "function": "__pthread_mutex_lock",
+        "site": "0x98148",
+        "source": [
+          "recursive_lock"
+        ],
+        "target": "libc __assert_fail 0x39e50"
+      },
+      {
+        "condition": "unexpected futex error; retain native fatal outcome, do not replace with fake success",
+        "disposition": "unperformed terminal system failure",
+        "function": "__lll_lock_wait",
+        "site": "0x912a3",
+        "source": [
+          "futex_failure"
+        ],
+        "target": "libc __libc_fatal 0x89690"
+      },
+      {
+        "condition": "installed function stack-canary comparison fails; owned valid ABI is required, no unsafe stimulation",
+        "disposition": "unperformed stack-corruption failure",
+        "function": "dl_iterate_phdr",
+        "site": "0x174e13",
+        "source": [
+          "public_lookup"
+        ],
+        "target": "libc __stack_chk_fail 0x136590"
+      },
+      {
+        "condition": "POSIX asynchronous cancellation/foreign native unwinding outside owned callback contract; do not force libgcc lazy initialization to attest it",
+        "disposition": "unperformed foreign unwind cleanup",
+        "function": "dl_iterate_phdr",
+        "site": "0x174e1f",
+        "source": [
+          "public_lookup"
+        ],
+        "target": "libc cold path0x29c09 then exact unlock and _Unwind_Resume0x2a120"
+      },
+      {
+        "condition": "refuse changed mutex kind before API call; do not erase declarations or claim their behavior was exercised",
+        "disposition": "outside source-selected recursive mutex kind",
+        "function": "__pthread_mutex_lock/__pthread_mutex_unlock",
+        "site": "other retained inter-function transfers",
+        "source": [
+          "recursive_lock",
+          "recursive_unlock"
+        ],
+        "target": "full robust/PI/PP, elision, adaptive/errorcheck and their assertions retained in static profile"
+      }
+    ],
+    "callback_abi": {
+      "callback_size_precondition": "size >=64 before reading any final field; pinned function passes exactly64",
+      "error_policy": "0 continues; nonzero stops and is returned; owned callback catches exceptions and records failure before returning stop code",
+      "fields": [
+        {
+          "name": "dlpi_addr",
+          "offset": 0,
+          "size": 8,
+          "type": "Elf64_Addr / uint64"
+        },
+        {
+          "name": "dlpi_name",
+          "offset": 8,
+          "size": 8,
+          "type": "const char* / pointer"
+        },
+        {
+          "name": "dlpi_phdr",
+          "offset": 16,
+          "size": 8,
+          "type": "const Elf64_Phdr* / pointer"
+        },
+        {
+          "name": "dlpi_phnum",
+          "offset": 24,
+          "size": 2,
+          "type": "Elf64_Half / uint16"
+        },
+        {
+          "name": "dlpi_adds",
+          "offset": 32,
+          "size": 8,
+          "type": "unsigned long long / uint64"
+        },
+        {
+          "name": "dlpi_subs",
+          "offset": 40,
+          "size": 8,
+          "type": "unsigned long long / uint64"
+        },
+        {
+          "name": "dlpi_tls_modid",
+          "offset": 48,
+          "size": 8,
+          "type": "size_t / uint64"
+        },
+        {
+          "name": "dlpi_tls_data",
+          "offset": 56,
+          "size": 8,
+          "type": "void* / pointer"
+        }
+      ],
+      "info_size": 64,
+      "lifetime": "serialize header and primitive field values synchronously inside callback; callback info is a native stack object",
+      "native_ABI_measurement": "not executed here; installed header, two identical compiled DWARF declarations, and disassembly join are static evidence",
+      "pointer_bytes": 8,
+      "result_type": "int32",
+      "signature": "int dl_iterate_phdr(int (*callback)(struct dl_phdr_info*, size_t, void*), void*)"
+    },
+    "denominator": {
+      "callback_fields": 8,
+      "function_code_bytes": 1918,
+      "inter_function_transfers": 23,
+      "ordinary_functions": 7,
+      "producer_TLS_bytes": 88848,
+      "producer_TLS_symbols": 5,
+      "required_binding_slots": 3,
+      "retained_unwind_functions": 1,
+      "system_images": 2
+    },
+    "functions": [
+      {
+        "body_relocations": [],
+        "file_offset": 1526800,
+        "hex": "f30f1efa415741564155415455534883ec7848897c2410488974241864488b0425280000004889442468488b055f530a00488db8300a0000e86332f2ff488b054c530a004c8ba424a80000008b6808488b80000a00004c8d70ff4d85f60f8e98010000488b0d26530a00488d04804531ff48c1e0054c8dac0860ffffff0f1f00498b5d004885db74400f1f8000000000418b45084801c54c3ba35803000072204c3ba3600300007317f6831e030000040f842a0100004d89f70f1f8000000000488b5b184885db75c74981eda00000004983ee0175aa488b0db3520a004b8d04bf48c1e005488b1c014885db0f84040100004c8d642420eb140f1f8000000000488b5b184885db0f84e9000000488b7b28488b07f30f7e470848c74424580000000048894424200fb787b80200000f1687a80200000f114424286689442438488b054a520a00488b80800a000048894424084829e8f30f7e44240866480f6ec8488b8760040000660f6cc148894424500f294424404885c07412488b0537510a00ff90680300004889442458488b542418488b442410be400000004c89e7ffd04189c585c00f8455ffffff488b05de510a00488db8300a0000e8624cf2ff488b44246864482b04252800000075354883c4784489e85b5d415c415d415e415fc34c89e64889dfe8a5faffff85c04d0f45fee9cafeffff4531edebb04531ffe9d3feffffe87817fcfff30f1efa4889c5e9e54debff",
+        "image": "libc",
+        "role": "ordinary_conditional_closure",
+        "sha256": "d4c7ced1408e472cb48a3e901868784e340bb0ffdc08925fc6887d18ab47f477",
+        "size": 532,
+        "symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_WEAK",
+              "type": "STT_FUNC"
+            },
+            "st_name": 24935,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 15,
+            "st_size": 532,
+            "st_value": 1526800
+          },
+          "index": 1138,
+          "name": "dl_iterate_phdr",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 2,
+            "definition_name": "GLIBC_2.2.5",
+            "hidden": false,
+            "raw_index": 2,
+            "required_file": null,
+            "required_name": null
+          }
+        },
+        "transfers": [
+          {
+            "bytes_hex": "e86332f2ff",
+            "disassembler_label": "__pthread_mutex_lock@GLIBC_2.2.5",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 1526856,
+            "target_value": 622256
+          },
+          {
+            "bytes_hex": "ff9068030000",
+            "mode": "indirect",
+            "opcode": "call",
+            "operand": "*0x368(%rax)",
+            "site": 1527185
+          },
+          {
+            "bytes_hex": "ffd0",
+            "mode": "indirect",
+            "opcode": "call",
+            "operand": "*%rax",
+            "site": 1527214
+          },
+          {
+            "bytes_hex": "e8624cf2ff",
+            "disassembler_label": "__pthread_mutex_unlock@GLIBC_2.2.5",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 1527241,
+            "target_value": 629296
+          },
+          {
+            "bytes_hex": "e8a5faffff",
+            "disassembler_label": "_dl_addr_inside_object",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 1527286,
+            "target_value": 1525920
+          },
+          {
+            "bytes_hex": "e87817fcff",
+            "disassembler_label": "__stack_chk_fail",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 1527315,
+            "target_value": 1271184
+          },
+          {
+            "bytes_hex": "e9e54debff",
+            "disassembler_label": "__GI___dl_iterate_phdr.cold",
+            "mode": "direct_same_image_relative",
+            "opcode": "jmp",
+            "site": 1527327,
+            "target_value": 171017
+          }
+        ],
+        "vaddr": 1526800
+      },
+      {
+        "body_relocations": [],
+        "file_offset": 622256,
+        "hex": "f30f1efa8b471089c281e27f0100009083e07c0f85a7000000534883ec1085d20f85a2000000448b0db74b18004585c9755e8b771081e680000000750c648b04251800000085c0743731c0ba01000000f00fb1170f85ae0000008b4f0885c90f855c010000648b0425d002000089470883470c019031c04883c4105bc30f1f00448b074585c075c1c70701000000ebca8b4710f6c4037408f6c4017495eb079080cc018947108b57104883c410488d77165b81e280000000e9638dffff0f1f00e9ebf7ffff0f1f0081fa0001000074d68b571083e27f83fa010f8595000000648b0425d002000039470875308b470483f8ff0f84bf00000083c00189470431c0e972ffffff0f1f0048897c2408e88e92ffff488b7c2408e93effffff8b771081e680000000752f648b04251800000085c075238b1785d2751dc707010000008b470885c00f8534010000c7470401000000e90fffffff31c0ba01000000f00fb11774dc48897c2408e83392ffff488b7c2408ebcb8b571083e27f83fa030f85ae000000ba01000000f00fb1177552837f08000f84cdfeffff488d0df1971400ba9b000000488d3513151400488d3d37151400e8e91dfaffb80b000000e9b6feffff488d0dc8971400ba5e000000488d35ea141400488d3d0e151400e8c01dfaff0fbf47140fbf1511221800b9010000008d44000a39d00f4ed031c08d580139d07d55f3908b0785c0740489d8ebedf00fb10f75f60fbf571489d8be0800000029d089d199f7fe01c166894f14e95dffffff648b1425d00200008b471083e07f83f80275593957080f85e5fdffffb823000000e920feffff31c0ba01000000f00fb11774b08b771048897c240881e680000000e82991ffff488b7c2408eb96488d0d0b971400ba82000000488d352d141400488d3d51141400e8031dfaff488d0dec961400baa0000000488d350e141400488d3d395d1400e8e41cfaff",
+        "image": "libc",
+        "role": "ordinary_conditional_closure",
+        "sha256": "b79a55bb83e74f699df1a8ea48f5ade456136f10e32f3890fec9774213e583ed",
+        "size": 700,
+        "symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 14622,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 15,
+            "st_size": 700,
+            "st_value": 622256
+          },
+          "index": 2644,
+          "name": "__pthread_mutex_lock",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 2,
+            "definition_name": "GLIBC_2.2.5",
+            "hidden": true,
+            "raw_index": 32770,
+            "required_file": null,
+            "required_name": null
+          }
+        },
+        "transfers": [
+          {
+            "bytes_hex": "e9638dffff",
+            "disassembler_label": "__GI___lll_lock_elision",
+            "mode": "direct_same_image_relative",
+            "opcode": "jmp",
+            "site": 622440,
+            "target_value": 593104
+          },
+          {
+            "bytes_hex": "e9ebf7ffff",
+            "disassembler_label": "__pthread_mutex_lock_full",
+            "mode": "direct_same_image_relative",
+            "opcode": "jmp",
+            "site": 622448,
+            "target_value": 620384
+          },
+          {
+            "bytes_hex": "e88e92ffff",
+            "disassembler_label": "__GI___lll_lock_wait",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 622525,
+            "target_value": 594512
+          },
+          {
+            "bytes_hex": "e83392ffff",
+            "disassembler_label": "__GI___lll_lock_wait",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 622616,
+            "target_value": 594512
+          },
+          {
+            "bytes_hex": "e8e91dfaff",
+            "disassembler_label": "__assert_fail",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 622690,
+            "target_value": 237136
+          },
+          {
+            "bytes_hex": "e8c01dfaff",
+            "disassembler_label": "__assert_fail",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 622731,
+            "target_value": 237136
+          },
+          {
+            "bytes_hex": "e82991ffff",
+            "disassembler_label": "__GI___lll_lock_wait",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 622882,
+            "target_value": 594512
+          },
+          {
+            "bytes_hex": "e8031dfaff",
+            "disassembler_label": "__assert_fail",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 622920,
+            "target_value": 237136
+          },
+          {
+            "bytes_hex": "e8e41cfaff",
+            "disassembler_label": "__assert_fail",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 622951,
+            "target_value": 237136
+          }
+        ],
+        "vaddr": 622256
+      },
+      {
+        "body_relocations": [],
+        "file_offset": 629296,
+        "hex": "f30f1efa8b471089c281e27f01000083e07c754c4883ec1885d27554836f0c01c74708000000008b771081e680000000741631d2871783fa017f55904883c418c30f1f8000000000648b14251800000085d275dec70700000000ebdf0f1f4000be01000000e9e6f9ffff660f1f44000081fa00010000752f8b77104883c41881e680000000e95674ffff660f1f4400008944240c48893c24e81378ffff8b44240c488b3c24eb948b4f1083e17f83f9017526648b1425d0020000395708740ab801000000e973ffffff836f04010f8569ffffffe944ffffff8b4f1083e17f83f9030f8435ffffff83fa027517648b1425d002000039570875c6833f0074c1e919ffffff488d0d467d1400ba62000000488d35a0fa1300488d3d33441400e8fe02faff",
+        "image": "libc",
+        "role": "ordinary_conditional_closure",
+        "sha256": "7b40c0092242ae30329d370c5338acf90a300bea21cf5030c2698aa492738589",
+        "size": 290,
+        "symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 29601,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 15,
+            "st_size": 290,
+            "st_value": 629296
+          },
+          "index": 2479,
+          "name": "__pthread_mutex_unlock",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 2,
+            "definition_name": "GLIBC_2.2.5",
+            "hidden": true,
+            "raw_index": 32770,
+            "required_file": null,
+            "required_name": null
+          }
+        },
+        "transfers": [
+          {
+            "bytes_hex": "e9e6f9ffff",
+            "disassembler_label": "__pthread_mutex_unlock_full",
+            "mode": "direct_same_image_relative",
+            "opcode": "jmp",
+            "site": 629397,
+            "target_value": 627840
+          },
+          {
+            "bytes_hex": "e95674ffff",
+            "disassembler_label": "__GI___lll_unlock_elision",
+            "mode": "direct_same_image_relative",
+            "opcode": "jmp",
+            "site": 629429,
+            "target_value": 593680
+          },
+          {
+            "bytes_hex": "e81378ffff",
+            "disassembler_label": "__GI___lll_lock_wake",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 629448,
+            "target_value": 594656
+          },
+          {
+            "bytes_hex": "e8fe02faff",
+            "disassembler_label": "__assert_fail",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 629581,
+            "target_value": 237136
+          }
+        ],
+        "vaddr": 629296
+      },
+      {
+        "body_relocations": [],
+        "file_offset": 1525920,
+        "hex": "f30f1efa0fb78fb8020000482b376685c974650fb7c1488bbfa8020000488d14c5000000004829c248c1e203488d4417c8488d5417908d79ff488d0cfd000000004829f948c1e1034829caeb0c0f1f004883e8384839d0741f83380175f24889f1482b4810483b482873e5b801000000c30f1f800000000031c0c3",
+        "image": "libc",
+        "role": "ordinary_conditional_closure",
+        "sha256": "d23560399255b8cbdcf3c8c454b81037040b917e1ea6fcfdec75e927aad10bdc",
+        "size": 123,
+        "symbol": {
+          "declaration_source": "matching build-ID and debuglink-CRC .symtab",
+          "entry": {
+            "st_info": {
+              "bind": "STB_LOCAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 64541,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 15,
+            "st_size": 123,
+            "st_value": 1525920
+          },
+          "index": 4862,
+          "name": "_dl_addr_inside_object",
+          "symbol_table": "matching_debug_symtab"
+        },
+        "transfers": [],
+        "vaddr": 1525920
+      },
+      {
+        "body_relocations": [],
+        "file_offset": 594512,
+        "hex": "f30f1efa8b074189f083f802740bb802000000870785c07447904489c64531d2ba02000000b8ca0000004080f6800f05483d00f0ffff76d683c00b83f80b770bba81080000480fa3c272c350488d3d65ca1400e8e883ffff0f1f840000000000c3",
+        "image": "libc",
+        "role": "ordinary_conditional_closure",
+        "sha256": "801fd093b052ec6d3bb3bed9b999c1e514a9821137d7f708bf57ef6135f3fd61",
+        "size": 97,
+        "symbol": {
+          "declaration_source": "matching build-ID and debuglink-CRC .symtab",
+          "entry": {
+            "st_info": {
+              "bind": "STB_LOCAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 51106,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 15,
+            "st_size": 97,
+            "st_value": 594512
+          },
+          "index": 6406,
+          "name": "__lll_lock_wait",
+          "symbol_table": "matching_debug_symtab"
+        },
+        "transfers": [
+          {
+            "bytes_hex": "e8e883ffff",
+            "disassembler_label": "__libc_fatal",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 594595,
+            "target_value": 562832
+          }
+        ],
+        "vaddr": 594512
+      },
+      {
+        "body_relocations": [],
+        "file_offset": 594656,
+        "hex": "f30f1efa4080f6814531d2ba01000000b8ca0000000f05c3",
+        "image": "libc",
+        "role": "ordinary_conditional_closure",
+        "sha256": "d697fadf4db0cc96431887a87d97b083b278d533256dd9c602bdf02272f84000",
+        "size": 24,
+        "symbol": {
+          "declaration_source": "matching build-ID and debuglink-CRC .symtab",
+          "entry": {
+            "st_info": {
+              "bind": "STB_LOCAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 86320,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 15,
+            "st_size": 24,
+            "st_value": 594656
+          },
+          "index": 6255,
+          "name": "__lll_lock_wake",
+          "symbol_table": "matching_debug_symtab"
+        },
+        "transfers": [],
+        "vaddr": 594656
+      },
+      {
+        "body_relocations": [],
+        "file_offset": 85376,
+        "hex": "f30f1efa4883bf6004000000746c64488b142508000000488b051a6302004c8b024939c0488b8760040000751348c1e004488b04024883f8ff743fc30f1f4000483b42f07334488b35c36202004889c1488b3e4839c777170f1f840000000000488b76084829f9488b3e4839cf76f148c1e1044c3b44311073b331c0c3",
+        "image": "loader",
+        "role": "ordinary_conditional_closure",
+        "sha256": "7ed43a5d609ebd812e489eec0dcb366322afc644941c487fe66180d856ca0716",
+        "size": 125,
+        "symbol": {
+          "declaration_source": "matching build-ID and debuglink-CRC .symtab",
+          "entry": {
+            "st_info": {
+              "bind": "STB_LOCAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 7400,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 13,
+            "st_size": 125,
+            "st_value": 85376
+          },
+          "index": 554,
+          "name": "_dl_tls_get_addr_soft",
+          "symbol_table": "matching_debug_symtab"
+        },
+        "transfers": [],
+        "vaddr": 85376
+      },
+      {
+        "body_relocations": [],
+        "file_offset": 171017,
+        "hex": "488b0590031f00488db8300a0000e814fe06004889efe8fc040000",
+        "image": "libc",
+        "role": "unperformed_foreign_unwind_cleanup",
+        "sha256": "88c09a44389b758d10638c0b25c07edf6dd8c6ab08ae8252c70c7b6d8211ab32",
+        "size": 27,
+        "symbol": {
+          "declaration_source": "matching build-ID and debuglink-CRC .symtab",
+          "entry": {
+            "st_info": {
+              "bind": "STB_LOCAL",
+              "type": "STT_FUNC"
+            },
+            "st_name": 39779,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 15,
+            "st_size": 27,
+            "st_value": 171017
+          },
+          "index": 3413,
+          "name": "__GI___dl_iterate_phdr.cold",
+          "symbol_table": "matching_debug_symtab"
+        },
+        "transfers": [
+          {
+            "bytes_hex": "e814fe0600",
+            "disassembler_label": "__pthread_mutex_unlock@GLIBC_2.2.5",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 171031,
+            "target_value": 629296
+          },
+          {
+            "bytes_hex": "e8fc040000",
+            "disassembler_label": "_Unwind_Resume",
+            "mode": "direct_same_image_relative",
+            "opcode": "call",
+            "site": 171039,
+            "target_value": 172320
+          }
+        ],
+        "vaddr": 171017
+      }
+    ],
+    "limitations": [
+      "Only this declared glibc ordinary function/recursive-lock path; no general libc or loader certification",
+      "Kernel futex wait/wake ABI and maintained Python/ctypes/libffi callback dispatch remain declared dependencies",
+      "No custom DTV parser or __tls_get_addr initialization; call the exact public API after validating the three expected slots",
+      "No POSIX cancellation or foreign C++ exception may unwind through the owned ctypes callback; catch Python callback errors and return an explicit stopping code",
+      "Keep terminal corruption/assert/futex failure and cold unwind edges, without forcing them or their lazy binding during enrollment",
+      "Lookup does not preserve all libc private TLS, errno, interpreter allocator state or system scheduling; do not claim whole-process byte equality",
+      "Runtime thread TLS base must be non-null, matched to unique authenticated module; validate only producer-declared TLS ranges and never dereference stored pointers"
+    ],
+    "loader_mutex": {
+      "assumption": "valid glibc-managed initialized recursive lock; no concurrent application corruption, asynchronous cancellation/unwind or loader unload during the retained call interval",
+      "containing_object": "_rtld_global",
+      "count_offset": 4,
+      "count_overflow": 4294967295,
+      "count_rule": "refuse this exact source overflow state before dl_iterate_phdr; not an arbitrary recursion cap",
+      "expected_file_initializer_kind": 1,
+      "expected_kind": 1,
+      "image": "loader",
+      "kind_meaning": "PTHREAD_MUTEX_RECURSIVE_NP; verify kind before call, do not mutate it",
+      "kind_offset": 16,
+      "member_offset": 2608,
+      "native_object_vaddr": 237632,
+      "ordinary_mutation": "mutex count/owner/nusers/lock change under loader synchronization; do not raw-byte restore a shared loader mutex",
+      "size": 40
+    },
+    "loader_objects": [
+      {
+        "image": "loader",
+        "symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_OBJECT"
+            },
+            "st_name": 403,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 18,
+            "st_size": 928,
+            "st_value": 236256
+          },
+          "index": 5,
+          "name": "_rtld_global_ro",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 7,
+            "definition_name": "GLIBC_PRIVATE",
+            "hidden": false,
+            "raw_index": 7,
+            "required_file": null,
+            "required_name": null
+          }
+        }
+      },
+      {
+        "image": "loader",
+        "symbol": {
+          "entry": {
+            "st_info": {
+              "bind": "STB_GLOBAL",
+              "type": "STT_OBJECT"
+            },
+            "st_name": 1,
+            "st_other": {
+              "local": 0,
+              "visibility": "STV_DEFAULT"
+            },
+            "st_shndx": 22,
+            "st_size": 4304,
+            "st_value": 237632
+          },
+          "index": 8,
+          "name": "_rtld_global",
+          "symbol_table": "dynamic",
+          "version": {
+            "base_index": 7,
+            "definition_name": "GLIBC_PRIVATE",
+            "hidden": false,
+            "raw_index": 7,
+            "required_file": null,
+            "required_name": null
+          }
+        }
+      }
+    ],
+    "namespace": {
+      "acceptance": "exactly one callback record matches authenticated producer bias, expected phdr address/count and owned phdr bytes; missing/duplicate producer record refuses; do not accept whichever filename matches",
+      "base_namespace_only_precondition": false,
+      "loader_interval": "unchanged enrolled libc/loader/producer mappings, no concurrent unload or application corruption; normal API lock contention remains supported",
+      "optional_source_function": "libc _dl_addr_inside_object is included in the ordinary function profile",
+      "resolution": "use the public API namespace chosen from native return address; do not implement a link_map or DTV traversal"
+    },
+    "producer": {
+      "PT_TLS": {
+        "alignment": 16,
+        "declaration": "  TLS            0x40b120 0x000000000040d120 0x000000000040d120 0x000004 0x016458 R   0x10",
+        "file_offset": 4239648,
+        "filesz": 4,
+        "memsz": 91224,
+        "vaddr": 4247840
+      },
+      "base_rule": "dlpi_tls_data of matched module on calling thread must already be non-null; do not initialize with accessor, query or __tls_get_addr",
+      "callback_image_match": {
+        "ELF_header": {
+          "e_phentsize": 56,
+          "e_phnum": 10,
+          "e_phoff": 64
+        },
+        "PT_TLS": [
+          {
+            "p_align": 16,
+            "p_filesz": 4,
+            "p_flags": 4,
+            "p_memsz": 91224,
+            "p_offset": 4239648,
+            "p_paddr": 4247840,
+            "p_type": "PT_TLS",
+            "p_vaddr": 4247840
+          }
+        ],
+        "containing_PT_LOAD": {
+          "p_align": 4096,
+          "p_filesz": 978156,
+          "p_flags": 4,
+          "p_memsz": 978156,
+          "p_offset": 0,
+          "p_paddr": 0,
+          "p_type": "PT_LOAD",
+          "p_vaddr": 0
+        },
+        "identity": {
+          "path": "/opt/conda/envs/robocasa/lib/python3.11/site-packages/mujoco/libmujoco.so.3.3.1",
+          "sha256": "e5ad1f81436875347cb3bd9d824f5dafe434c220e8a5ebcf3c6208baeac06059"
+        },
+        "match_policy": "callback dlpi_addr equals authenticated engine bias; dlpi_phnum equals e_phnum; dlpi_phdr equals bias+program_header_vaddr on this installed image. Validate range and bytes through existing reader. Do not depend on callback pathname or dereference TLS until matched.",
+        "program_header_bytes_hex": "06000000040000004000000000000000400000000000000040000000000000003002000000000000300200000000000008000000000000000100000004000000000000000000000000000000000000000000000000000000ecec0e0000000000ecec0e000000000000100000000000000100000005000000ecec0e0000000000ecfc0e0000000000ecfc0e000000000034c431000000000034c43100000000000010000000000000010000000600000020b140000000000020d140000000000020d14000000000000097000000000000e09e00000000000000100000000000000100000006000000204841000000000020784100000000002078410000000000a01501000000000080590100000000000010000000000000070000000400000020b140000000000020d140000000000020d14000000000000400000000000000586401000000000010000000000000000200000006000000c839410000000000c859410000000000c859410000000000f001000000000000f001000000000000080000000000000052e574640400000020b140000000000020d140000000000020d14000000000000097000000000000e09e000000000000010000000000000050e57464040000005cca0b00000000005cca0b00000000005cca0b0000000000fc64000000000000fc64000000000000040000000000000051e5746406000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "program_header_extent": 560,
+        "program_header_vaddr": 64,
+        "scope": "static installed-image expectation, no callback executed"
+      },
+      "declared_total_bytes": 88848,
+      "file": {
+        "path": "/opt/conda/envs/robocasa/lib/python3.11/site-packages/mujoco/libmujoco.so.3.3.1",
+        "resolved_path": "/opt/conda/envs/robocasa/lib/python3.11/site-packages/mujoco/libmujoco.so.3.3.1",
+        "sha256": "e5ad1f81436875347cb3bd9d824f5dafe434c220e8a5ebcf3c6208baeac06059"
+      },
+      "memory_rule": "TLS symbol offsets are relative to existing module TLS base, not image load bias. Validate each declared range and writable allocation before exact byte save/restore; treat pointer-array bytes as opaque. Keep same-thread and no-reentry ownership; poison after failed restoration.",
+      "symbols": [
+        {
+          "declaration": "  2347: 0000000000000020 14000 TLS     LOCAL  DEFAULT   18 mjc_ccd.vert_data",
+          "elf_tls_offset": 32,
+          "name": "mjc_ccd.vert_data",
+          "size": 14000
+        },
+        {
+          "declaration": "  2348: 00000000000036d0 65280 TLS     LOCAL  DEFAULT   18 mjc_ccd.face_data",
+          "elf_tls_offset": 14032,
+          "name": "mjc_ccd.face_data",
+          "size": 65280
+        },
+        {
+          "declaration": "  2349: 00000000000135d0  8160 TLS     LOCAL  DEFAULT   18 mjc_ccd.map_data",
+          "elf_tls_offset": 79312,
+          "name": "mjc_ccd.map_data",
+          "size": 8160
+        },
+        {
+          "declaration": "  2350: 00000000000155b0   704 TLS     LOCAL  DEFAULT   18 mjc_ccd.index_data",
+          "elf_tls_offset": 87472,
+          "name": "mjc_ccd.index_data",
+          "size": 704
+        },
+        {
+          "declaration": "  2351: 0000000000015870   704 TLS     LOCAL  DEFAULT   18 mjc_ccd.edge_data",
+          "elf_tls_offset": 88176,
+          "name": "mjc_ccd.edge_data",
+          "size": 704
+        }
+      ]
+    },
+    "schema": "specola.source-input.mujoco-331-tls-lookup.v1",
+    "scratch_constructor": {
+      "conclusion": "__init__ forms getter/setter CFUNCTYPE objects from authenticated integer code addresses without invoking those functions, copies, or completion functions. It performs exact native field/property reads and global pointer memory reads. _function_address/_symbol_address/check/function return or authenticate addresses/identities; they do not call producer functions.",
+      "default_timer": "preserve __copy__ route; do not replace it with MjData(model), whose constructor installs the timer when absent.",
+      "entry_condition": "MuJoCo is already imported and the model/data subject has been created during authorized initialization; import_module may otherwise perform first import effects and is not claimed transparent. Data.model is a retained wrapper property; nplugin/threadpool/pstack are native descriptors.",
+      "first_tls_getter_call": "_capture_legacy_warnings begins by calling self._get_error and self._get_warning after observe enters; put existing-TLS lookup before that context, copy and kinematics.",
+      "not_claimed": "CFUNCTYPE creation, Python locks or owned allocator bookkeeping have no interpreter effects; claim is specifically no producer TLS accessor invocation",
+      "source": "reviewed-repository-inputs.json and source method records",
+      "version_scope": "3.3.1 branch only; not a blanket assertion about the separate3.10 logging constructor"
+    },
+    "sources": [
+      {
+        "path": "/tmp/specola-extraction-20260906/mujoco-331-tls-lookup-closure/callable-slot-abi-profile.json",
+        "sha256": "ab086c081d0121ed9d10e170c7ab83a98f22b71c571630a9b285e2f579d16e9c"
+      },
+      {
+        "path": "/tmp/specola-extraction-20260906/mujoco-331-tls-lookup-closure/source-branch-contract.json",
+        "sha256": "449f0000195579f2f172d25ad4143ddfd933a147c89559bbbccb2f6b729dbf23"
+      },
+      {
+        "path": "/tmp/specola-extraction-20260906/mujoco-331-tls-lookup-closure/dwarf-selected-declarations.json",
+        "sha256": "2ffed98abd17247dcaabf828fd40696845627e8053ce4521214c5ff74bf03cd4"
+      },
+      {
+        "path": "/tmp/specola-extraction-20260906/mujoco-331-tls-lookup-closure/producer-callback-image-match.json",
+        "sha256": "22772580c86b80d3fc1c4e0db163afeaa94ff6823a77cffbf2e9d75df6008f34"
+      },
+      {
+        "path": "/tmp/specola-extraction-20260906/mujoco-331-tls-lookup-closure/source-extractions.json",
+        "sha256": "6b0c338d1c4001ce4cee84bc6e78834cc56c3173edc27bba044b7ca63fe67646"
+      },
+      {
+        "path": "/tmp/specola-extraction-20260906/mujoco-331-tls-lookup-closure/reviewed-repository-inputs.json",
+        "sha256": "14ed01d33db727ffc45f8c0e40ae21ad72d9c89c7eb68fff52e5bc6e79bbd0d8"
+      },
+      {
+        "path": "/tmp/specola-extraction-20260906/mujoco-331-geom-distance-contract/tls-profile-candidate.json",
+        "sha256": "fbd6442cf7455b975918541990a1093f5b0f628f5cfd8e2d6bc10f721e8bbe8a"
+      }
+    ],
+    "status": "compact projection of source/static evidence; no runtime calls or new implementation acceptance",
+    "system_images": {
+      "libc": {
+        "build_id": "22ca0a83a4004122e30a69b597be96e134068616",
+        "debug_provenance": {
+          "bytes": 4418352,
+          "path": "/usr/lib/debug/.build-id/22/ca0a83a4004122e30a69b597be96e134068616.debug",
+          "resolved_path": "/usr/lib/debug/.build-id/22/ca0a83a4004122e30a69b597be96e134068616.debug",
+          "sha256": "e38f731edae6e3295fcd041625e6877e80e21154561ab37c38f6ab8c8a450c56"
+        },
+        "debuglink": {
+          "crc32": 1942126678,
+          "filename": "ca0a83a4004122e30a69b597be96e134068616.debug",
+          "matched": true
+        },
+        "elf": {
+          "class": 64,
+          "little_endian": true,
+          "machine": "EM_X86_64",
+          "type": "ET_DYN"
+        },
+        "file": {
+          "bytes": 2220400,
+          "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+          "resolved_path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+          "sha256": "e01b1ce7be2987f3b8560e26d0df2623f9dd5cec17be923ae28a785bc0d32d50"
+        },
+        "load_segments": [
+          {
+            "p_align": 4096,
+            "p_filesz": 163808,
+            "p_flags": 4,
+            "p_memsz": 163808,
+            "p_offset": 0,
+            "p_paddr": 0,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 0
+          },
+          {
+            "p_align": 4096,
+            "p_filesz": 1655745,
+            "p_flags": 5,
+            "p_memsz": 1655745,
+            "p_offset": 163840,
+            "p_paddr": 163840,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 163840
+          },
+          {
+            "p_align": 4096,
+            "p_filesz": 358708,
+            "p_flags": 4,
+            "p_memsz": 358708,
+            "p_offset": 1822720,
+            "p_paddr": 1822720,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 1822720
+          },
+          {
+            "p_align": 4096,
+            "p_filesz": 20376,
+            "p_flags": 6,
+            "p_memsz": 75104,
+            "p_offset": 2185456,
+            "p_paddr": 2189552,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 2189552
+          }
+        ],
+        "relro_segments": [
+          {
+            "p_align": 1,
+            "p_filesz": 14096,
+            "p_flags": 4,
+            "p_memsz": 14096,
+            "p_offset": 2185456,
+            "p_paddr": 2189552,
+            "p_type": "PT_GNU_RELRO",
+            "p_vaddr": 2189552
+          }
+        ]
+      },
+      "loader": {
+        "build_id": "63cab9adbb271847e9c8d0baa6305bb80d6ada2e",
+        "debug_provenance": {
+          "bytes": 592880,
+          "path": "/usr/lib/debug/.build-id/63/cab9adbb271847e9c8d0baa6305bb80d6ada2e.debug",
+          "resolved_path": "/usr/lib/debug/.build-id/63/cab9adbb271847e9c8d0baa6305bb80d6ada2e.debug",
+          "sha256": "b5d70d6295413450c826c60bcd5646d37244aa98daee219c8ec3b8cb6b49f692"
+        },
+        "debuglink": {
+          "crc32": 4284639710,
+          "filename": "cab9adbb271847e9c8d0baa6305bb80d6ada2e.debug",
+          "matched": true
+        },
+        "elf": {
+          "class": 64,
+          "little_endian": true,
+          "machine": "EM_X86_64",
+          "type": "ET_DYN"
+        },
+        "file": {
+          "bytes": 240936,
+          "path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+          "resolved_path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+          "sha256": "8d06f393f4a93bcf9b81145a259524d66a95522a646bf8d7e05b6ffdf2e63dcc"
+        },
+        "load_segments": [
+          {
+            "p_align": 4096,
+            "p_filesz": 6992,
+            "p_flags": 4,
+            "p_memsz": 6992,
+            "p_offset": 0,
+            "p_paddr": 0,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 0
+          },
+          {
+            "p_align": 4096,
+            "p_filesz": 168725,
+            "p_flags": 5,
+            "p_memsz": 168725,
+            "p_offset": 8192,
+            "p_paddr": 8192,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 8192
+          },
+          {
+            "p_align": 4096,
+            "p_filesz": 44852,
+            "p_flags": 4,
+            "p_memsz": 44852,
+            "p_offset": 180224,
+            "p_paddr": 180224,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 180224
+          },
+          {
+            "p_align": 4096,
+            "p_filesz": 10992,
+            "p_flags": 6,
+            "p_memsz": 11448,
+            "p_offset": 226848,
+            "p_paddr": 230944,
+            "p_type": "PT_LOAD",
+            "p_vaddr": 230944
+          }
+        ],
+        "relro_segments": [
+          {
+            "p_align": 1,
+            "p_filesz": 6624,
+            "p_flags": 4,
+            "p_memsz": 6624,
+            "p_offset": 226848,
+            "p_paddr": 230944,
+            "p_type": "PT_GNU_RELRO",
+            "p_vaddr": 230944
+          }
+        ]
+      }
+    }
+  },
+  "mutex_abi": {
+    "count": {
+      "bytes": 4,
+      "signed": false
+    },
+    "kind": {
+      "bytes": 4,
+      "signed": true
+    }
+  },
+  "schema": "specola.mujoco.existing-tls.v1",
+  "source_artifacts": [
+    {
+      "name": "lookup.json",
+      "sha256": "caa7ab0a8c988ea2402c049a1d7e5a621ea262ecc5554d88117d947e8b449175"
+    },
+    {
+      "name": "callback.json",
+      "sha256": "d53e908b9cad1c53a8e04d313c5f08a97234fc6361c6fd405857a5e1fca8a6c0"
+    },
+    {
+      "name": "mutex.json",
+      "sha256": "562c0324e54194e904aaa700b74c879a70f3de5fbd7831878e11f2f16c4c5ef1"
+    },
+    {
+      "name": "bridge_profile.json",
+      "sha256": "5b16ae97749ab8acfdcd8b3e11a7356f0e1520ae6fd7a0f92871453bc0f96a32"
+    },
+    {
+      "name": "callable_profile.json",
+      "sha256": "664b2ebe08e8bc49a0fd8a2dd39c1ed2b7051c500ed0267ad4e3e7c868cef527"
+    },
+    {
+      "name": "flags_profile.json",
+      "sha256": "17783baad049bfc646ee0979275d0c2572f04d5f97ff93213730e48efabdc68e"
+    }
+  ],
+  "status": "source and selected build identity; native and adapter evidence are separate"
+}

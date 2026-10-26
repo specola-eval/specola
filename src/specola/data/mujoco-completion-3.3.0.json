@@ -1,0 +1,1087 @@
+{
+  "clock_target": {
+    "body_hex": "f30f1efa488b05ad481300488b80f80200004885c074194883ec08ffd085c0755731c04883c408c30f1f840000000000b8e40000000f0585c0741d83f8da7420488b15b9471300f7d8648902b8ffffffffc3660f1f44000031c0c30f1f440000488b059947130064c70026000000b8ffffffffc30f1f4000488b1581471300f7d8648902b8ffffffffeb98",
+    "entry": {
+      "st_info": {
+        "bind": "STB_GLOBAL",
+        "type": "STT_FUNC"
+      },
+      "st_name": 18410,
+      "st_other": {
+        "local": 0,
+        "visibility": "STV_DEFAULT"
+      },
+      "st_shndx": 15,
+      "st_size": 139,
+      "st_value": 939536
+    },
+    "error_branch": "Nonzero vDSO/syscall results write native TLS errno. The compiled C++ clock helper enters its error/exception branch; no recoverable Python-error guarantee is established.",
+    "ordinary_success": "Only owned timespec output writes; no errno store or lazy vDSO pointer initialization in the inspected successful libc branches.",
+    "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "sha256": "e01b1ce7be2987f3b8560e26d0df2623f9dd5cec17be923ae28a785bc0d32d50",
+    "symbol_index": 2997,
+    "symbol_name": "clock_gettime",
+    "transitive_boundary": "Reads loader-initialized GLRO(dl_vdso_clock_gettime64) / vDSO or makes Linux clock_gettime syscall. Runtime vDSO/kernel image/effect validation is not supplied by static libc identity.",
+    "version_definition_and_parent": [
+      "GLIBC_2.17",
+      "GLIBC_2.16"
+    ],
+    "version_index": 21
+  },
+  "completion": {
+    "energy_gate": "No mjENBL_ENERGY check in these direct native energy functions.",
+    "existing_detailed_contract": {
+      "combined_order_for_three_projections": [
+        "mj_kinematics",
+        "mj_comPos",
+        "mj_flex if potential-energy flex prerequisites are needed",
+        "mj_tendon if potential-energy tendon lengths or kinetic tendon armature are needed",
+        "mj_crb if kinetic energy is computed",
+        "mj_tendonArmature if kinetic energy is computed and its contribution is nonzero",
+        "mj_comVel",
+        "mj_subtreeVel",
+        "mj_energyPos",
+        "mj_energyVel"
+      ],
+      "energy_work_gate": "Direct energy calls always compute.",
+      "excluded_execution_stages": [
+        "mj_forward",
+        "mj_fwdPosition",
+        "mj_fwdVelocity",
+        "mj_passive",
+        "mj_sensorPos",
+        "mj_sensorVel",
+        "mj_sensorAcc",
+        "mj_collision",
+        "mj_makeConstraint",
+        "mj_factorM",
+        "mj_fwdActuation",
+        "mj_fwdAcceleration",
+        "mj_fwdConstraint"
+      ],
+      "external_effect_limits": [
+        "No control/passive/sensor/plugin callback is introduced by the selected stage bodies or their bounded normal math/Jacobian/wrapping routes.",
+        "No native RNG function occurs in the retained normal stage routes. Sensor noise stages are excluded.",
+        "Allocation failures and invalid model/type/wrap/interpolation invariants can enter native diagnostic handlers. The version-matched error/TLS/global-logging contract remains necessary; default logging is not side-effect-free.",
+        "Libm, SIMD intrinsics, memory helpers and compile-time macros remain explicit leaves of the lexical source record. This record is not compiled call-graph, resident-code, or whole-process effect attestation."
+      ],
+      "kinetic_projection": {
+        "base_sequence": [
+          "mj_kinematics",
+          "mj_comPos",
+          "mj_crb"
+        ],
+        "conditional_preparation": [],
+        "effects": [
+          "Temporary nv-element stack allocation and scratch stack accounting.",
+          "Mass preparation timing is recorded separately; mj_energyVel itself has no timer macro."
+        ],
+        "finish": "mj_energyVel",
+        "matrix_field_read_by_mj_mulM": "qM",
+        "matrix_mirror_limit": "The old routines update qM directly.",
+        "native_function": "mj_energyVel",
+        "not_prerequisites": [
+          "mj_comVel",
+          "mj_factorM",
+          "mj_forward",
+          "qacc recomputation"
+        ],
+        "output_fields": [
+          "energy[1]"
+        ],
+        "public_full_mass_alternative": null,
+        "public_full_mass_alternative_effect": null
+      },
+      "native_state_boundary": "Keep copied qpos, qvel, qacc, applied inputs, stored forces and constraints unchanged as native stored state. Completion buffers and scalar projections belong to separate scratch results. These three stages do not recompute qacc. Their prerequisite closure does not certify the separate rnePostConstraint constraint-force inputs.",
+      "potential_projection": {
+        "conditional_preparation": [
+          {
+            "condition": "ntendon > 0 and native spring terms enabled",
+            "reason": "The tendon loop reads ten_length; full tendon stage also computes Jacobians and wrapping data.",
+            "stage": "mj_tendon"
+          },
+          {
+            "condition": "Native spring terms enabled and a non-rigid flex with nonzero edge stiffness and dimension <= 1 exists",
+            "reason": "The native flex-energy loop reads non-rigid flexedge_length entries.",
+            "stage": "mj_flex"
+          }
+        ],
+        "energy_enable_behavior": "Direct calls compute regardless of mjENBL_ENERGY; the pipeline may gate whether it calls them.",
+        "free_joint_limit": "The retained free-joint branch normalizes a copied four-element qpos slice before its translational spring term. Do not silently replace it with a hand-written corrected formula.",
+        "gravity_input": "xipos is required when gravity is enabled; joint spring terms use qpos and qpos_spring.",
+        "native_function": "mj_energyPos",
+        "output_fields": [
+          "energy[0]"
+        ],
+        "preparation_in_combined_completion": [
+          "mj_kinematics",
+          "mj_comPos"
+        ],
+        "required_current_fields": [
+          "qpos",
+          "xipos",
+          "ten_length",
+          "flexedge_length"
+        ],
+        "spring_disable_flag": "mjDSBL_PASSIVE",
+        "term_limits": "Preserve the source result. This function does not add arbitrary plugin potential energy or flex dimension > 1 elastic energy."
+      },
+      "scope": "Three completion projections and their necessary data stages; not an API inventory or provider-readiness denominator.",
+      "serial_scratch_preconditions": [
+        "Separate owned mjData allocation with copied state and a stable, internally consistent compiled mjModel.",
+        "No active stack frame in the source; do not enter completion concurrently with a writer.",
+        "threadpool == 0 for the ordinary owned-stack route; the shared thread-pool stack route is outside this contract.",
+        "The separate copy/allocation, callable/image custody, and TLS/logging contracts still apply."
+      ],
+      "sleep_contract": "These retained stage bodies do not have the later sleep-filter branches.",
+      "stage_declarations": {
+        "mj_comPos": {
+          "abi": "void mj_comPos(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "cdof",
+            "cinert",
+            "subtree_com",
+            "xanchor",
+            "xaxis",
+            "ximat",
+            "xipos",
+            "xmat"
+          ],
+          "lexical_calls": [
+            "mjMAX",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_markStack",
+            "mju_addTo3",
+            "mju_addToScl3",
+            "mju_copy3",
+            "mju_dofCom",
+            "mju_inertCom",
+            "mju_scl3",
+            "mju_sub3",
+            "mju_zero"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "7fe6e1ea469d9c630552af803276295080b76bebc6d7e39a20188b27edab6f21",
+            "end_line": 270,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+              "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+            },
+            "start_line": 183
+          },
+          "timed_body": false
+        },
+        "mj_comVel": {
+          "abi": "void mj_comVel(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "cdof",
+            "cdof_dot",
+            "cvel",
+            "qvel"
+          ],
+          "lexical_calls": [
+            "mju_addTo",
+            "mju_copy",
+            "mju_crossMotion",
+            "mju_mulDofVec",
+            "mju_zero"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "2738a5b6157cab88d01072fa1a844076f913f4f5379bc306d3a730944e1d3951",
+            "end_line": 1898,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+              "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+            },
+            "start_line": 1833
+          },
+          "timed_body": false
+        },
+        "mj_crb": {
+          "abi": "void mj_crb(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "cdof",
+            "cinert",
+            "crb",
+            "qM"
+          ],
+          "lexical_calls": [
+            "TM_END",
+            "mju_addTo",
+            "mju_copy",
+            "mju_dot",
+            "mju_mulInertVec",
+            "mju_zero"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "dfa3672250d2045d372a3a4bd595fae6142252c6c6e949a999d474f973f77447",
+            "end_line": 1401,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+              "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+            },
+            "start_line": 1353
+          },
+          "timed_body": true
+        },
+        "mj_energyPos": {
+          "abi": "void mj_energyPos(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "energy",
+            "flexedge_length",
+            "qpos",
+            "ten_length",
+            "xipos"
+          ],
+          "lexical_calls": [
+            "mjDISABLED",
+            "mju_copy4",
+            "mju_dot3",
+            "mju_normalize4",
+            "mju_sub3",
+            "mju_subQuat"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "a438bed3569c6563ad8a9f68afad0109ece049ccaba85b688ac882369defb456",
+            "end_line": 997,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_sensor.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_sensor.c",
+              "sha256": "4ad300012a4f763c3fff43b560907e21bfe7da29ff26256027483e8fe4cad8d0"
+            },
+            "start_line": 911
+          },
+          "timed_body": false
+        },
+        "mj_energyVel": {
+          "abi": "void mj_energyVel(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "energy",
+            "qvel"
+          ],
+          "lexical_calls": [
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_markStack",
+            "mj_mulM",
+            "mju_dot"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "d1467d7e83cda32b13891decd3a21f0e7ad2c117a8d4b5731120f7b1bff02881",
+            "end_line": 1011,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_sensor.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_sensor.c",
+              "sha256": "4ad300012a4f763c3fff43b560907e21bfe7da29ff26256027483e8fe4cad8d0"
+            },
+            "start_line": 1002
+          },
+          "timed_body": false
+        },
+        "mj_flex": {
+          "abi": "void mj_flex(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "bvh_aabb_dyn",
+            "flexedge_J",
+            "flexedge_J_colind",
+            "flexedge_J_rowadr",
+            "flexedge_J_rownnz",
+            "flexedge_length",
+            "flexelem_aabb",
+            "flexvert_xpos",
+            "xmat",
+            "xpos"
+          ],
+          "lexical_calls": [
+            "mjDISABLED",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_isSparse",
+            "mj_jac",
+            "mj_jacDifPair",
+            "mj_markStack",
+            "mj_updateDynamicBVH",
+            "mju_addTo3",
+            "mju_addToScl3",
+            "mju_copy",
+            "mju_copy3",
+            "mju_copyInt",
+            "mju_max",
+            "mju_min",
+            "mju_mulMatTVec",
+            "mju_mulMatVec3",
+            "mju_normalize3",
+            "mju_sub",
+            "mju_sub3",
+            "mju_zero",
+            "mju_zero3",
+            "mju_zeroInt"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "e0cac4bb03f646e076ecbfacde12dd2fc5f671f171cfc5b0fdc0a47c18c4da09",
+            "end_line": 646,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+              "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+            },
+            "start_line": 442
+          },
+          "timed_body": false
+        },
+        "mj_kinematics": {
+          "abi": "void mj_kinematics(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "geom_xmat",
+            "geom_xpos",
+            "mocap_pos",
+            "mocap_quat",
+            "qpos",
+            "site_xmat",
+            "site_xpos",
+            "xanchor",
+            "xaxis",
+            "ximat",
+            "xipos",
+            "xmat",
+            "xpos",
+            "xquat"
+          ],
+          "lexical_calls": [
+            "mjERROR",
+            "mj_local2Global",
+            "mju_addTo3",
+            "mju_addToScl3",
+            "mju_axisAngle2Quat",
+            "mju_copy3",
+            "mju_copy4",
+            "mju_mulMatVec3",
+            "mju_mulQuat",
+            "mju_normalize4",
+            "mju_quat2Mat",
+            "mju_rotVecQuat",
+            "mju_sub3",
+            "mju_unit4",
+            "mju_zero",
+            "mju_zero3"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "6410b4a8ade2149674ac9a188aa21905e05672ecb51bf5f863b14d8aa241550c",
+            "end_line": 178,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+              "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+            },
+            "start_line": 38
+          },
+          "timed_body": false
+        },
+        "mj_subtreeVel": {
+          "abi": "void mj_subtreeVel(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "subtree_angmom",
+            "subtree_com",
+            "subtree_linvel",
+            "ximat",
+            "xipos"
+          ],
+          "lexical_calls": [
+            "mjMAX",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_markStack",
+            "mj_objectVelocity",
+            "mju_addTo3",
+            "mju_cross",
+            "mju_mulMatTVec3",
+            "mju_mulMatVec3",
+            "mju_scl3",
+            "mju_sub3"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "6df96e85c1765080fb49f36fd73db3ce6f2a6ae7ea1fa039d433afa8547e926a",
+            "end_line": 1964,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+              "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+            },
+            "start_line": 1903
+          },
+          "timed_body": false
+        },
+        "mj_tendon": {
+          "abi": "void mj_tendon(const mjModel* m, mjData* d)",
+          "data_field_mentions_not_write_set": [
+            "geom_xmat",
+            "geom_xpos",
+            "qpos",
+            "site_xpos",
+            "ten_J",
+            "ten_J_colind",
+            "ten_J_rowadr",
+            "ten_J_rownnz",
+            "ten_length",
+            "ten_wrapadr",
+            "ten_wrapnum",
+            "wrap_obj",
+            "wrap_xpos"
+          ],
+          "lexical_calls": [
+            "mjERROR",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_isSparse",
+            "mj_jac",
+            "mj_jacDifPair",
+            "mj_markStack",
+            "mju_addToScl",
+            "mju_combineSparse",
+            "mju_copy",
+            "mju_copy3",
+            "mju_dist3",
+            "mju_mulMatTVec",
+            "mju_normalize3",
+            "mju_round",
+            "mju_sub",
+            "mju_sub3",
+            "mju_wrap",
+            "mju_zero",
+            "mju_zero3",
+            "mju_zeroInt"
+          ],
+          "public_header_declaration": true,
+          "python_generic_Def_registration": true,
+          "source_body": {
+            "body_sha256": "04abdb1be680b0ea64b37e2b4aad9ac0d8f592bb35051e2720981824cfde6f15",
+            "end_line": 860,
+            "source": {
+              "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+              "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+              "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+              "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+            },
+            "start_line": 651
+          },
+          "timed_body": false
+        }
+      },
+      "subtree_projection": {
+        "effects": [
+          "Temporary body_vel stack allocation for 6*nbody mjtNum values.",
+          "Stack high-water/arena usage accounting can change on scratch."
+        ],
+        "intermediate_comVel_inputs": [
+          "qvel",
+          "cdof"
+        ],
+        "native_function": "mj_subtreeVel",
+        "native_meaning": "Body velocities shifted by mj_objectVelocity feed mass-weighted subtree linear velocity and angular momentum.",
+        "output_fields": [
+          "subtree_linvel",
+          "subtree_angmom"
+        ],
+        "prerequisite_fields": [
+          "xipos",
+          "ximat",
+          "subtree_com",
+          "cvel"
+        ],
+        "sequence": [
+          "mj_kinematics",
+          "mj_comPos",
+          "mj_comVel",
+          "mj_subtreeVel"
+        ]
+      },
+      "timer_contract": {
+        "custody_requirement": "A Python callback getter returning None does not prove the C pointer is null. A non-null pointer requires the separate authenticated timer effect contract. The default GetTime route has a first-call static clock-epoch effect. Do not run it merely to discover or initialize that state.",
+        "native_macro_effect": "TM_START and TM_END call the actual mjcb_time pointer if non-null; TM_END also increments scratch timer duration and number.",
+        "timed_preparation_functions": [
+          "mj_crb"
+        ]
+      },
+      "version": "3.3.0"
+    },
+    "general_qM_parity": "The native mass routines update qM directly.",
+    "kinetic_tendon_requirement": "No tendon/actuator armature term exists in these pinned mass routines.",
+    "mass_buffer": "qM",
+    "mass_preparation": [
+      "mj_crb"
+    ],
+    "order_for_combined_energy_subtree_projections": [
+      "mj_kinematics",
+      "mj_comPos",
+      "mj_flex when native potential-energy flex edge lengths are read",
+      "mj_tendon when spring tendon lengths or tendon mass Jacobians are required",
+      "mj_crb",
+      "mj_comVel",
+      "mj_subtreeVel",
+      "mj_energyPos",
+      "mj_energyVel"
+    ],
+    "potential_flex_requirement": "When the native spring branch runs, an eligible flex has !flex_rigid, flex_edgestiffness != 0, flex_dim <= 1 and at least one !flexedge_rigid within [flex_edgeadr, flex_edgeadr+flex_edgenum). mj_flex supplies current flexedge_length; this energy function does not add arbitrary higher-dimensional/plugin elastic energy.",
+    "potential_tendon_requirement": "When the native spring branch runs and ntendon > 0, prepare mj_tendon. The source reads ten_length even when tendon_stiffness is zero; do not infer an omission from zero stiffness. Modern sleep filtering is retained, but running the declared full tendon stage avoids handwritten active populations.",
+    "public_route_limit": null,
+    "spring_gate": "mjDSBL_PASSIVE",
+    "stage_sources": {
+      "mj_actuatorArmature": [],
+      "mj_comPos": [
+        {
+          "body_sha256": "7fe6e1ea469d9c630552af803276295080b76bebc6d7e39a20188b27edab6f21",
+          "data_field_tokens": [
+            "cdof",
+            "cinert",
+            "subtree_com",
+            "xanchor",
+            "xaxis",
+            "ximat",
+            "xipos",
+            "xmat"
+          ],
+          "end_line": 270,
+          "lexical_call_identifiers": [
+            "mjMAX",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_markStack",
+            "mju_addTo3",
+            "mju_addToScl3",
+            "mju_copy3",
+            "mju_dofCom",
+            "mju_inertCom",
+            "mju_scl3",
+            "mju_sub3",
+            "mju_zero"
+          ],
+          "model_field_tokens": [
+            "body_inertia",
+            "body_mass",
+            "body_parentid",
+            "body_rootid",
+            "jnt_bodyid",
+            "jnt_dofadr",
+            "jnt_type",
+            "nbody",
+            "njnt"
+          ],
+          "name": "mj_comPos",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+            "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+          },
+          "source_relative": "src/engine/engine_core_smooth.c",
+          "start_line": 183,
+          "verbatim": "void mj_comPos(const mjModel* m, mjData* d) {\n  int nbody = m->nbody, njnt = m->njnt;\n  mjtNum offset[3], axis[3];\n  mj_markStack(d);\n  mjtNum* mass_subtree = mjSTACKALLOC(d, m->nbody, mjtNum);\n\n  // clear subtree\n  mju_zero(mass_subtree, m->nbody);\n  mju_zero(d->subtree_com, m->nbody*3);\n\n  // backwards pass over bodies: compute subtree_com and mass_subtree\n  for (int i=nbody-1; i >= 0; i--) {\n    // add local info\n    mju_addToScl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\n    mass_subtree[i] += m->body_mass[i];\n\n    // add to parent, except for world\n    if (i) {\n      int j = m->body_parentid[i];\n      mju_addTo3(d->subtree_com+3*j, d->subtree_com+3*i);\n      mass_subtree[j] += mass_subtree[i];\n    }\n\n    // compute local com\n    if (mass_subtree[i] < mjMINVAL) {\n      mju_copy3(d->subtree_com+3*i, d->xipos+3*i);\n    } else {\n      mju_scl3(d->subtree_com+3*i, d->subtree_com+3*i,\n               1.0/mjMAX(mjMINVAL, mass_subtree[i]));\n    }\n  }\n\n  // zero out CoM frame inertia for the world body\n  mju_zero(d->cinert, 10);\n\n  // map inertias to frame centered at subtree_com\n  for (int i=1; i < nbody; i++) {\n    mju_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i,\n                 offset, m->body_mass[i]);\n  }\n\n  // map motion dofs to global frame centered at subtree_com\n  for (int j=0; j < njnt; j++) {\n    // get dof address, body index\n    int da = 6*m->jnt_dofadr[j];\n    int bi = m->jnt_bodyid[j];\n\n    // compute com-anchor vector\n    mju_sub3(offset, d->subtree_com+3*m->body_rootid[bi], d->xanchor+3*j);\n\n    // create motion dof\n    int skip = 0;\n    switch ((mjtJoint) m->jnt_type[j]) {\n    case mjJNT_FREE:\n      // translation components: x, y, z in global frame\n      mju_zero(d->cdof+da, 18);\n      for (int i=0; i < 3; i++) {\n        d->cdof[da+3+7*i] = 1;\n      }\n\n      // rotation components: same as ball\n      skip = 18;\n      mjFALLTHROUGH;\n\n    case mjJNT_BALL:\n      for (int i=0; i < 3; i++) {\n        // I_3 rotation in child frame (assume no subsequent rotations)\n        axis[0] = d->xmat[9*bi+i+0];\n        axis[1] = d->xmat[9*bi+i+3];\n        axis[2] = d->xmat[9*bi+i+6];\n\n        mju_dofCom(d->cdof+da+skip+6*i, axis, offset);\n      }\n      break;\n\n    case mjJNT_SLIDE:\n      mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\n      break;\n\n    case mjJNT_HINGE:\n      mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\n      break;\n    }\n  }\n\n  mj_freeStack(d);\n}"
+        }
+      ],
+      "mj_comVel": [
+        {
+          "body_sha256": "2738a5b6157cab88d01072fa1a844076f913f4f5379bc306d3a730944e1d3951",
+          "data_field_tokens": [
+            "cdof",
+            "cdof_dot",
+            "cvel",
+            "qvel"
+          ],
+          "end_line": 1898,
+          "lexical_call_identifiers": [
+            "mju_addTo",
+            "mju_copy",
+            "mju_crossMotion",
+            "mju_mulDofVec",
+            "mju_zero"
+          ],
+          "model_field_tokens": [
+            "body_dofadr",
+            "body_dofnum",
+            "body_parentid",
+            "dof_jntid",
+            "jnt_type",
+            "nbody"
+          ],
+          "name": "mj_comVel",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+            "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+          },
+          "source_relative": "src/engine/engine_core_smooth.c",
+          "start_line": 1833,
+          "verbatim": "void mj_comVel(const mjModel* m, mjData* d) {\n  int nbody = m->nbody;\n\n  // set world vel to 0\n  mju_zero(d->cvel, 6);\n\n  // forward pass over bodies\n  for (int i=1; i < nbody; i++) {\n    // get body's first dof address\n    int bda = m->body_dofadr[i];\n\n    // cvel = cvel_parent\n    mjtNum cvel[6];\n    mju_copy(cvel, d->cvel+6*m->body_parentid[i], 6);\n\n    // cvel = cvel_parent + cdof * qvel,  cdofdot = cvel x cdof\n    int dofnum = m->body_dofnum[i];\n    mjtNum cdofdot[36];\n    for (int j=0; j < dofnum; j++) {\n      mjtNum tmp[6];\n\n      // compute cvel and cdofdot\n      switch ((mjtJoint) m->jnt_type[m->dof_jntid[bda+j]]) {\n      case mjJNT_FREE:\n        // cdofdot = 0\n        mju_zero(cdofdot, 18);\n\n        // update velocity\n        mju_mulDofVec(tmp, d->cdof+6*bda, d->qvel+bda, 3);\n        mju_addTo(cvel, tmp, 6);\n\n        // continue with rotations\n        j += 3;\n        mjFALLTHROUGH;\n\n      case mjJNT_BALL:\n        // compute all 3 cdofdots using parent velocity\n        for (int k=0; k < 3; k++) {\n          mju_crossMotion(cdofdot+6*(j+k), cvel, d->cdof+6*(bda+j+k));\n        }\n\n        // update velocity\n        mju_mulDofVec(tmp, d->cdof+6*(bda+j), d->qvel+bda+j, 3);\n        mju_addTo(cvel, tmp, 6);\n\n        // adjust for 3-dof joint\n        j += 2;\n        break;\n\n      default:\n        // in principle we should use the new velocity to compute cdofdot,\n        // but it makes no difference because crossMotion(cdof, cdof) = 0,\n        // and using the old velocity may be more accurate numerically\n        mju_crossMotion(cdofdot+6*j, cvel, d->cdof+6*(bda+j));\n\n        // update velocity\n        mju_mulDofVec(tmp, d->cdof+6*(bda+j), d->qvel+bda+j, 1);\n        mju_addTo(cvel, tmp, 6);\n      }\n    }\n\n    // assign cvel, cdofdot\n    mju_copy(d->cvel+6*i, cvel, 6);\n    mju_copy(d->cdof_dot+6*bda, cdofdot, 6*m->body_dofnum[i]);\n  }\n}"
+        }
+      ],
+      "mj_crb": [
+        {
+          "body_sha256": "dfa3672250d2045d372a3a4bd595fae6142252c6c6e949a999d474f973f77447",
+          "data_field_tokens": [
+            "cdof",
+            "cinert",
+            "crb",
+            "qM"
+          ],
+          "end_line": 1401,
+          "lexical_call_identifiers": [
+            "TM_END",
+            "mju_addTo",
+            "mju_copy",
+            "mju_dot",
+            "mju_mulInertVec",
+            "mju_zero"
+          ],
+          "model_field_tokens": [
+            "body_parentid",
+            "dof_M0",
+            "dof_Madr",
+            "dof_armature",
+            "dof_bodyid",
+            "dof_parentid",
+            "dof_simplenum",
+            "nM",
+            "nbody",
+            "nv"
+          ],
+          "name": "mj_crb",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+            "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+          },
+          "source_relative": "src/engine/engine_core_smooth.c",
+          "start_line": 1353,
+          "verbatim": "void mj_crb(const mjModel* m, mjData* d) {\n  TM_START;\n  mjtNum buf[6];\n  mjtNum* crb = d->crb;\n  int last_body = m->nbody - 1, nv = m->nv;\n\n  // crb = cinert\n  mju_copy(crb, d->cinert, 10*m->nbody);\n\n  // backward pass over bodies, accumulate composite inertias\n  for (int i=last_body; i > 0; i--) {\n    if (m->body_parentid[i] > 0) {\n      mju_addTo(crb+10*m->body_parentid[i], crb+10*i, 10);\n    }\n  }\n\n  // clear qM\n  mju_zero(d->qM, m->nM);\n\n  // dense forward pass over dofs\n  for (int i=0; i < nv; i++) {\n    // process block of diagonals (simple bodies)\n    if (m->dof_simplenum[i]) {\n      int n = i + m->dof_simplenum[i];\n      for (; i < n; i++) {\n        d->qM[m->dof_Madr[i]] = m->dof_M0[i];\n      }\n\n      // finish or else fall through with next row\n      if (i == nv) {\n        break;\n      }\n    }\n\n    // init M(i,i) with armature inertia\n    int Madr_ij = m->dof_Madr[i];\n    d->qM[Madr_ij] = m->dof_armature[i];\n\n    // precompute buf = crb_body_i * cdof_i\n    mju_mulInertVec(buf, crb+10*m->dof_bodyid[i], d->cdof+6*i);\n\n    // sparse backward pass over ancestors\n    for (int j=i; j >= 0; j = m->dof_parentid[j]) {\n      // M(i,j) += cdof_j * (crb_body_i * cdof_i)\n      d->qM[Madr_ij++] += mju_dot(d->cdof+6*j, buf, 6);\n    }\n  }\n  TM_END(mjTIMER_POS_INERTIA);\n}"
+        }
+      ],
+      "mj_energyPos": [
+        {
+          "body_sha256": "a438bed3569c6563ad8a9f68afad0109ece049ccaba85b688ac882369defb456",
+          "data_field_tokens": [
+            "energy",
+            "flexedge_length",
+            "qpos",
+            "ten_length",
+            "xipos"
+          ],
+          "end_line": 997,
+          "lexical_call_identifiers": [
+            "mjDISABLED",
+            "mju_copy4",
+            "mju_dot3",
+            "mju_normalize4",
+            "mju_sub3",
+            "mju_subQuat"
+          ],
+          "model_field_tokens": [
+            "body_mass",
+            "flex_dim",
+            "flex_edgeadr",
+            "flex_edgenum",
+            "flex_edgestiffness",
+            "flex_rigid",
+            "flexedge_length0",
+            "flexedge_rigid",
+            "jnt_qposadr",
+            "jnt_stiffness",
+            "jnt_type",
+            "nbody",
+            "nflex",
+            "njnt",
+            "ntendon",
+            "opt",
+            "qpos_spring",
+            "tendon_lengthspring",
+            "tendon_stiffness"
+          ],
+          "name": "mj_energyPos",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_sensor.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_sensor.c",
+            "sha256": "4ad300012a4f763c3fff43b560907e21bfe7da29ff26256027483e8fe4cad8d0"
+          },
+          "source_relative": "src/engine/engine_sensor.c",
+          "start_line": 911,
+          "verbatim": "void mj_energyPos(const mjModel* m, mjData* d) {\n  int padr;\n  mjtNum dif[3], quat[4], stiffness;\n\n  // init potential energy:  -sum_i body(i).mass * mju_dot(body(i).pos, gravity)\n  d->energy[0] = 0;\n  if (!mjDISABLED(mjDSBL_GRAVITY)) {\n    for (int i=1; i < m->nbody; i++) {\n      d->energy[0] -= m->body_mass[i] * mju_dot3(m->opt.gravity, d->xipos+3*i);\n    }\n  }\n\n  // add joint-level springs\n  if (!mjDISABLED(mjDSBL_PASSIVE)) {\n    for (int i=0; i < m->njnt; i++) {\n      stiffness = m->jnt_stiffness[i];\n      padr = m->jnt_qposadr[i];\n\n      switch ((mjtJoint) m->jnt_type[i]) {\n      case mjJNT_FREE:\n        mju_copy4(quat, d->qpos+padr);\n        mju_normalize4(quat);\n        mju_sub3(dif, quat, m->qpos_spring+padr);\n        d->energy[0] += 0.5*stiffness*mju_dot3(dif, dif);\n\n        // continue with rotations\n        padr += 3;\n        mjFALLTHROUGH;\n\n      case mjJNT_BALL:\n        // covert quatertion difference into angular \"velocity\"\n        mju_copy4(quat, d->qpos+padr);\n        mju_normalize4(quat);\n        mju_subQuat(dif, d->qpos + padr, m->qpos_spring + padr);\n        d->energy[0] += 0.5*stiffness*mju_dot3(dif, dif);\n        break;\n\n      case mjJNT_SLIDE:\n      case mjJNT_HINGE:\n        d->energy[0] += 0.5*stiffness*\n                        (d->qpos[padr] - m->qpos_spring[padr])*\n                        (d->qpos[padr] - m->qpos_spring[padr]);\n        break;\n      }\n    }\n  }\n\n  // add tendon-level springs\n  if (!mjDISABLED(mjDSBL_PASSIVE)) {\n    for (int i=0; i < m->ntendon; i++) {\n      stiffness = m->tendon_stiffness[i];\n      mjtNum length = d->ten_length[i];\n      mjtNum displacement = 0;\n\n      // compute spring displacement\n      mjtNum lower = m->tendon_lengthspring[2*i];\n      mjtNum upper = m->tendon_lengthspring[2*i+1];\n      if (length > upper) {\n        displacement = upper - length;\n      } else if (length < lower) {\n        displacement = lower - length;\n      }\n\n      d->energy[0] += 0.5*stiffness*displacement*displacement;\n    }\n  }\n\n  // add flex-level springs for dim=1 (dim>1 requires plugins)\n  if (!mjDISABLED(mjDSBL_PASSIVE)) {\n    for (int i=0; i < m->nflex; i++) {\n      stiffness = m->flex_edgestiffness[i];\n      if (m->flex_rigid[i] || stiffness == 0 || m->flex_dim[i] > 1) {\n        continue;\n      }\n\n      // process non-rigid edges of this flex\n      int flex_edgeadr = m->flex_edgeadr[i];\n      int flex_edgenum = m->flex_edgenum[i];\n      for (int e=flex_edgeadr; e < flex_edgeadr+flex_edgenum; e++) {\n        if (!m->flexedge_rigid[e]) {\n          mjtNum displacement = m->flexedge_length0[e] - d->flexedge_length[e];\n          d->energy[0] += 0.5*stiffness*displacement*displacement;\n        };\n      }\n    }\n  }\n}"
+        }
+      ],
+      "mj_energyVel": [
+        {
+          "body_sha256": "d1467d7e83cda32b13891decd3a21f0e7ad2c117a8d4b5731120f7b1bff02881",
+          "data_field_tokens": [
+            "energy",
+            "qvel"
+          ],
+          "end_line": 1011,
+          "lexical_call_identifiers": [
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_markStack",
+            "mj_mulM",
+            "mju_dot"
+          ],
+          "model_field_tokens": [
+            "nv"
+          ],
+          "name": "mj_energyVel",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_sensor.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_sensor.c",
+            "sha256": "4ad300012a4f763c3fff43b560907e21bfe7da29ff26256027483e8fe4cad8d0"
+          },
+          "source_relative": "src/engine/engine_sensor.c",
+          "start_line": 1002,
+          "verbatim": "void mj_energyVel(const mjModel* m, mjData* d) {\n  mj_markStack(d);\n  mjtNum *vec = mjSTACKALLOC(d, m->nv, mjtNum);\n\n  // kinetic energy:  0.5 * qvel' * M * qvel\n  mj_mulM(m, d, vec, d->qvel);\n  d->energy[1] = 0.5*mju_dot(vec, d->qvel, m->nv);\n\n  mj_freeStack(d);\n}"
+        }
+      ],
+      "mj_flex": [
+        {
+          "body_sha256": "e0cac4bb03f646e076ecbfacde12dd2fc5f671f171cfc5b0fdc0a47c18c4da09",
+          "data_field_tokens": [
+            "bvh_aabb_dyn",
+            "flexedge_J",
+            "flexedge_J_colind",
+            "flexedge_J_rowadr",
+            "flexedge_J_rownnz",
+            "flexedge_length",
+            "flexelem_aabb",
+            "flexvert_xpos",
+            "xmat",
+            "xpos"
+          ],
+          "end_line": 646,
+          "lexical_call_identifiers": [
+            "mjDISABLED",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_isSparse",
+            "mj_jac",
+            "mj_jacDifPair",
+            "mj_markStack",
+            "mj_updateDynamicBVH",
+            "mju_addTo3",
+            "mju_addToScl3",
+            "mju_copy",
+            "mju_copy3",
+            "mju_copyInt",
+            "mju_max",
+            "mju_min",
+            "mju_mulMatTVec",
+            "mju_mulMatVec3",
+            "mju_normalize3",
+            "mju_sub",
+            "mju_sub3",
+            "mju_zero",
+            "mju_zero3",
+            "mju_zeroInt"
+          ],
+          "model_field_tokens": [
+            "bvh_nodeid",
+            "flex_bvhadr",
+            "flex_bvhnum",
+            "flex_centered",
+            "flex_damping",
+            "flex_dim",
+            "flex_edge",
+            "flex_edgeadr",
+            "flex_edgedamping",
+            "flex_edgeequality",
+            "flex_edgenum",
+            "flex_edgestiffness",
+            "flex_elem",
+            "flex_elemadr",
+            "flex_elemdataadr",
+            "flex_elemnum",
+            "flex_interp",
+            "flex_node",
+            "flex_nodeadr",
+            "flex_nodebodyid",
+            "flex_nodenum",
+            "flex_radius",
+            "flex_rigid",
+            "flex_vert",
+            "flex_vert0",
+            "flex_vertadr",
+            "flex_vertbodyid",
+            "flex_vertnum",
+            "nbvhstatic",
+            "nflex",
+            "nflexedge",
+            "nv"
+          ],
+          "name": "mj_flex",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+            "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+          },
+          "source_relative": "src/engine/engine_core_smooth.c",
+          "start_line": 442,
+          "verbatim": "void mj_flex(const mjModel* m, mjData* d) {\n  int nv = m->nv, issparse = mj_isSparse(m);\n  int* rowadr = d->flexedge_J_rowadr, *rownnz = d->flexedge_J_rownnz;\n  mjtNum* J = d->flexedge_J;\n\n  // skip if no flexes\n  if (!m->nflex) {\n    return;\n  }\n\n  // compute Cartesian positions of flex vertices\n  for (int f=0; f < m->nflex; f++) {\n    int vstart = m->flex_vertadr[f];\n    int vend = m->flex_vertadr[f] + m->flex_vertnum[f];\n    int nstart = m->flex_nodeadr[f];\n    int nend = m->flex_nodeadr[f] + m->flex_nodenum[f];\n\n    // 0: vertices are the mesh vertices, 1: vertices are interpolated from nodal dofs\n    if (m->flex_interp[f] == 0) {\n      // centered: copy body position\n      if (m->flex_centered[f]) {\n        for (int i=vstart; i < vend; i++) {\n          mju_copy3(d->flexvert_xpos+3*i, d->xpos+3*m->flex_vertbodyid[i]);\n        }\n      }\n\n      // non-centered: map from local to global\n      else {\n        for (int i=vstart; i < vend; i++) {\n          mju_mulMatVec3(d->flexvert_xpos+3*i, d->xmat+9*m->flex_vertbodyid[i], m->flex_vert+3*i);\n          mju_addTo3(d->flexvert_xpos+3*i, d->xpos+3*m->flex_vertbodyid[i]);\n        }\n      }\n    }\n\n    // trilinear interpolation\n    else {\n      mjtNum nodexpos[mjMAXFLEXNODES];\n      if (m->flex_centered[f]) {\n        for (int i=nstart; i < nend; i++) {\n          mju_copy3(nodexpos + 3*(i-nstart), d->xpos + 3*m->flex_nodebodyid[i]);\n        }\n      } else {\n        for (int i=nstart; i < nend; i++) {\n          int j = i - nstart;\n          mju_mulMatVec3(nodexpos + 3*j, d->xmat + 9*m->flex_nodebodyid[i], m->flex_node + 3*i);\n          mju_addTo3(nodexpos + 3*j, d->xpos + 3*m->flex_nodebodyid[i]);\n        }\n      }\n\n      for (int i=vstart; i < vend; i++) {\n        mju_zero3(d->flexvert_xpos+3*i);\n        mjtNum* coord = m->flex_vert0 + 3*i;\n        for (int j=0; j < nend-nstart; j++) {\n          mjtNum coef = (j&1 ? coord[2] : 1-coord[2]) *\n                        (j&2 ? coord[1] : 1-coord[1]) *\n                        (j&4 ? coord[0] : 1-coord[0]);\n          mju_addToScl3(d->flexvert_xpos+3*i, nodexpos+3*j, coef);\n        }\n      }\n    }\n  }\n\n  // compute flex element aabb\n  for (int f=0; f < m->nflex; f++) {\n    int dim = m->flex_dim[f];\n\n    // process elements of this flex\n    int elemnum = m->flex_elemnum[f];\n    for (int e=0; e < elemnum; e++) {\n      const int* edata = m->flex_elem + m->flex_elemdataadr[f] + e*(dim+1);\n      const mjtNum* vert = d->flexvert_xpos + 3*m->flex_vertadr[f];\n\n      // compute min and max along each global axis\n      mjtNum xmin[3], xmax[3];\n      mju_copy3(xmin, vert+3*edata[0]);\n      mju_copy3(xmax, vert+3*edata[0]);\n      for (int i=1; i <= dim; i++) {\n        for (int j=0; j < 3; j++) {\n          mjtNum value = vert[3*edata[i]+j];\n          xmin[j] = mju_min(xmin[j], value);\n          xmax[j] = mju_max(xmax[j], value);\n        }\n      }\n\n      // compute aabb (center, size)\n      int base = m->flex_elemadr[f] + e;\n      d->flexelem_aabb[6*base+0] = 0.5*(xmax[0]+xmin[0]);\n      d->flexelem_aabb[6*base+1] = 0.5*(xmax[1]+xmin[1]);\n      d->flexelem_aabb[6*base+2] = 0.5*(xmax[2]+xmin[2]);\n      d->flexelem_aabb[6*base+3] = 0.5*(xmax[0]-xmin[0]) + m->flex_radius[f];\n      d->flexelem_aabb[6*base+4] = 0.5*(xmax[1]-xmin[1]) + m->flex_radius[f];\n      d->flexelem_aabb[6*base+5] = 0.5*(xmax[2]-xmin[2]) + m->flex_radius[f];\n    }\n  }\n\n  // update flex bhv_aabb_dyn if needed\n  if (!mjDISABLED(mjDSBL_MIDPHASE)) {\n    for (int f=0; f < m->nflex; f++) {\n      if (m->flex_bvhadr[f] >= 0) {\n        int flex_bvhadr = m->flex_bvhadr[f];\n        int flex_bvhnum = m->flex_bvhnum[f];\n\n        // copy element aabbs to bhv leaf aabbs\n        for (int i=flex_bvhadr; i < flex_bvhadr+flex_bvhnum; i++) {\n          if (m->bvh_nodeid[i] >= 0) {\n            mju_copy(d->bvh_aabb_dyn + 6*(i - m->nbvhstatic),\n                     d->flexelem_aabb + 6*(m->flex_elemadr[f] + m->bvh_nodeid[i]), 6);\n          }\n        }\n\n        // update dynamic BVH\n        mj_updateDynamicBVH(m, d, m->flex_bvhadr[f], m->flex_bvhnum[f]);\n      }\n    }\n  }\n\n  // allocate space\n  mj_markStack(d);\n  mjtNum* jac1 = mjSTACKALLOC(d, 3*nv, mjtNum);\n  mjtNum* jac2 = mjSTACKALLOC(d, 3*nv, mjtNum);\n  mjtNum* jacdif = mjSTACKALLOC(d, 3*nv, mjtNum);\n  int* chain = issparse ? mjSTACKALLOC(d, nv, int) : NULL;\n\n  // clear Jacobian: sparse or dense\n  if (issparse) {\n    mju_zeroInt(rowadr, m->nflexedge);\n    mju_zeroInt(rownnz, m->nflexedge);\n  } else {\n    mju_zero(J, m->nflexedge*nv);\n  }\n\n  // compute lengths and Jacobians of edges\n  for (int f=0; f < m->nflex; f++) {\n    // skip if edges cannot generate forces\n    if (m->flex_rigid[f] || m->flex_interp[f]) {\n      continue;\n    }\n\n    // skip Jacobian if no built-in passive force is needed\n    int skipjacobian = !m->flex_edgeequality[f] &&\n                       !m->flex_edgedamping[f] &&\n                       !m->flex_edgestiffness[f] &&\n                       !m->flex_damping[f];\n\n    // process edges of this flex\n    int vbase = m->flex_vertadr[f];\n    int ebase = m->flex_edgeadr[f];\n    for (int e=0; e < m->flex_edgenum[f]; e++) {\n      int v1 = m->flex_edge[2*(ebase+e)];\n      int v2 = m->flex_edge[2*(ebase+e)+1];\n      int b1 = m->flex_vertbodyid[vbase+v1];\n      int b2 = m->flex_vertbodyid[vbase+v2];\n      mjtNum* pos1 = d->flexvert_xpos + 3*(vbase+v1);\n      mjtNum* pos2 = d->flexvert_xpos + 3*(vbase+v2);\n\n      // vec = unit vector from v1 to v2, compute edge length\n      mjtNum vec[3];\n      mju_sub3(vec, pos2, pos1);\n      d->flexedge_length[ebase+e] = mju_normalize3(vec);\n\n      // skip Jacobian if not needed\n      if (skipjacobian) {\n        continue;\n      }\n\n      // sparse edge Jacobian\n      if (issparse) {\n        // set rowadr\n        if (ebase+e > 0) {\n          rowadr[ebase+e] = rowadr[ebase+e-1] + rownnz[ebase+e-1];\n        }\n\n        // get endpoint Jacobians, subtract\n        int NV = mj_jacDifPair(m, d, chain, b1, b2, pos1, pos2,\n                               jac1, jac2, jacdif, NULL, NULL, NULL);\n\n        // no dofs: skip\n        if (!NV) {\n          continue;\n        }\n\n        // apply chain rule to compute edge Jacobian\n        mju_mulMatTVec(J + rowadr[ebase+e], jacdif, vec, 3, NV);\n\n        // copy sparsity info\n        rownnz[ebase+e] = NV;\n        mju_copyInt(d->flexedge_J_colind + rowadr[ebase+e], chain, NV);\n      }\n\n      // dense edge Jacobian\n      else {\n        // get endpoint Jacobians, subtract\n        mj_jac(m, d, jac1, NULL, pos1, b1);\n        mj_jac(m, d, jac2, NULL, pos2, b2);\n        mju_sub(jacdif, jac2, jac1, 3*nv);\n\n        // apply chain rule to compute edge Jacobian\n        mju_mulMatTVec(J + (ebase+e)*nv, jacdif, vec, 3, nv);\n      }\n    }\n  }\n\n  mj_freeStack(d);\n}"
+        }
+      ],
+      "mj_kinematics": [
+        {
+          "body_sha256": "6410b4a8ade2149674ac9a188aa21905e05672ecb51bf5f863b14d8aa241550c",
+          "data_field_tokens": [
+            "geom_xmat",
+            "geom_xpos",
+            "mocap_pos",
+            "mocap_quat",
+            "qpos",
+            "site_xmat",
+            "site_xpos",
+            "xanchor",
+            "xaxis",
+            "ximat",
+            "xipos",
+            "xmat",
+            "xpos",
+            "xquat"
+          ],
+          "end_line": 178,
+          "lexical_call_identifiers": [
+            "mjERROR",
+            "mj_local2Global",
+            "mju_addTo3",
+            "mju_addToScl3",
+            "mju_axisAngle2Quat",
+            "mju_copy3",
+            "mju_copy4",
+            "mju_mulMatVec3",
+            "mju_mulQuat",
+            "mju_normalize4",
+            "mju_quat2Mat",
+            "mju_rotVecQuat",
+            "mju_sub3",
+            "mju_unit4",
+            "mju_zero",
+            "mju_zero3"
+          ],
+          "model_field_tokens": [
+            "body_ipos",
+            "body_iquat",
+            "body_jntadr",
+            "body_jntnum",
+            "body_mocapid",
+            "body_parentid",
+            "body_pos",
+            "body_quat",
+            "body_sameframe",
+            "geom_bodyid",
+            "geom_pos",
+            "geom_quat",
+            "geom_sameframe",
+            "jnt_axis",
+            "jnt_pos",
+            "jnt_qposadr",
+            "jnt_type",
+            "nbody",
+            "ngeom",
+            "nsite",
+            "qpos0",
+            "site_bodyid",
+            "site_pos",
+            "site_quat",
+            "site_sameframe"
+          ],
+          "name": "mj_kinematics",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+            "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+          },
+          "source_relative": "src/engine/engine_core_smooth.c",
+          "start_line": 38,
+          "verbatim": "void mj_kinematics(const mjModel* m, mjData* d) {\n  int nbody = m->nbody, nsite = m->nsite, ngeom = m->ngeom;\n\n  // set world position and orientation\n  mju_zero3(d->xpos);\n  mju_unit4(d->xquat);\n  mju_zero3(d->xipos);\n  mju_zero(d->xmat, 9);\n  mju_zero(d->ximat, 9);\n  d->xmat[0] = d->xmat[4] = d->xmat[8] = 1;\n  d->ximat[0] = d->ximat[4] = d->ximat[8] = 1;\n\n  // compute global cartesian positions and orientations of all bodies\n  for (int i=1; i < nbody; i++) {\n    mjtNum xpos[3], xquat[4];\n    int jntadr = m->body_jntadr[i];\n    int jntnum = m->body_jntnum[i];\n\n    // free joint\n    if (jntnum == 1 && m->jnt_type[jntadr] == mjJNT_FREE) {\n      // get qpos address\n      int qadr = m->jnt_qposadr[jntadr];\n\n      // copy pos and quat from qpos\n      mju_copy3(xpos, d->qpos+qadr);\n      mju_copy4(xquat, d->qpos+qadr+3);\n      mju_normalize4(xquat);\n\n      // assign xanchor and xaxis\n      mju_copy3(d->xanchor+3*jntadr, xpos);\n      mju_copy3(d->xaxis+3*jntadr, m->jnt_axis+3*jntadr);\n    }\n\n    // regular or no joint\n    else {\n      int pid = m->body_parentid[i];\n\n      // get body pos and quat: from model or mocap\n      mjtNum *bodypos, *bodyquat, quat[4];\n      if (m->body_mocapid[i] >= 0) {\n        bodypos = d->mocap_pos + 3*m->body_mocapid[i];\n        mju_copy4(quat, d->mocap_quat + 4*m->body_mocapid[i]);\n        mju_normalize4(quat);\n        bodyquat = quat;\n      } else {\n        bodypos = m->body_pos+3*i;\n        bodyquat = m->body_quat+4*i;\n      }\n\n      // apply fixed translation and rotation relative to parent\n      if (pid) {\n        mju_mulMatVec3(xpos, d->xmat+9*pid, bodypos);\n        mju_addTo3(xpos, d->xpos+3*pid);\n        mju_mulQuat(xquat, d->xquat+4*pid, bodyquat);\n      } else {\n        // parent is the world\n        mju_copy3(xpos, bodypos);\n        mju_copy4(xquat, bodyquat);\n      }\n\n      // accumulate joints, compute xpos and xquat for this body\n      mjtNum xanchor[3], xaxis[3];\n      for (int j=0; j < jntnum; j++) {\n        // get joint id, qpos address, joint type\n        int jid = jntadr + j;\n        int qadr = m->jnt_qposadr[jid];\n        mjtJoint jtype = m->jnt_type[jid];\n\n        // compute axis in global frame; ball jnt_axis is (0,0,1), set by compiler\n        mju_rotVecQuat(xaxis, m->jnt_axis+3*jid, xquat);\n\n        // compute anchor in global frame\n        mju_rotVecQuat(xanchor, m->jnt_pos+3*jid, xquat);\n        mju_addTo3(xanchor, xpos);\n\n        // apply joint transformation\n        switch (jtype) {\n        case mjJNT_SLIDE:\n          mju_addToScl3(xpos, xaxis, d->qpos[qadr] - m->qpos0[qadr]);\n          break;\n\n        case mjJNT_BALL:\n        case mjJNT_HINGE:\n          {\n            // compute local quaternion rotation\n            mjtNum qloc[4];\n            if (jtype == mjJNT_BALL) {\n              mju_copy4(qloc, d->qpos+qadr);\n              mju_normalize4(qloc);\n            } else {\n              mju_axisAngle2Quat(qloc, m->jnt_axis+3*jid, d->qpos[qadr] - m->qpos0[qadr]);\n            }\n\n            // apply rotation\n            mju_mulQuat(xquat, xquat, qloc);\n\n            // correct for off-center rotation\n            mjtNum vec[3];\n            mju_rotVecQuat(vec, m->jnt_pos+3*jid, xquat);\n            mju_sub3(xpos, xanchor, vec);\n          }\n          break;\n\n        default:\n          mjERROR(\"unknown joint type %d\", jtype);    // SHOULD NOT OCCUR\n        }\n\n        // assign xanchor and xaxis\n        mju_copy3(d->xanchor+3*jid, xanchor);\n        mju_copy3(d->xaxis+3*jid, xaxis);\n      }\n    }\n\n    // assign xquat and xpos, construct xmat\n    mju_normalize4(xquat);\n    mju_copy4(d->xquat+4*i, xquat);\n    mju_copy3(d->xpos+3*i, xpos);\n    mju_quat2Mat(d->xmat+9*i, xquat);\n  }\n\n  // compute/copy Cartesian positions and orientations of body inertial frames\n  for (int i=1; i < nbody; i++) {\n    mj_local2Global(d, d->xipos+3*i, d->ximat+9*i,\n                    m->body_ipos+3*i, m->body_iquat+4*i,\n                    i, m->body_sameframe[i]);\n  }\n\n  // compute/copy Cartesian positions and orientations of geoms\n  for (int i=0; i < ngeom; i++) {\n    mj_local2Global(d, d->geom_xpos+3*i, d->geom_xmat+9*i,\n                    m->geom_pos+3*i, m->geom_quat+4*i,\n                    m->geom_bodyid[i], m->geom_sameframe[i]);\n  }\n\n  // compute/copy Cartesian positions and orientations of sites\n  for (int i=0; i < nsite; i++) {\n    mj_local2Global(d, d->site_xpos+3*i, d->site_xmat+9*i,\n                    m->site_pos+3*i, m->site_quat+4*i,\n                    m->site_bodyid[i], m->site_sameframe[i]);\n  }\n}"
+        }
+      ],
+      "mj_makeM": [],
+      "mj_subtreeVel": [
+        {
+          "body_sha256": "6df96e85c1765080fb49f36fd73db3ce6f2a6ae7ea1fa039d433afa8547e926a",
+          "data_field_tokens": [
+            "subtree_angmom",
+            "subtree_com",
+            "subtree_linvel",
+            "ximat",
+            "xipos"
+          ],
+          "end_line": 1964,
+          "lexical_call_identifiers": [
+            "mjMAX",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_markStack",
+            "mj_objectVelocity",
+            "mju_addTo3",
+            "mju_cross",
+            "mju_mulMatTVec3",
+            "mju_mulMatVec3",
+            "mju_scl3",
+            "mju_sub3"
+          ],
+          "model_field_tokens": [
+            "body_inertia",
+            "body_mass",
+            "body_parentid",
+            "body_subtreemass",
+            "nbody"
+          ],
+          "name": "mj_subtreeVel",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+            "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+          },
+          "source_relative": "src/engine/engine_core_smooth.c",
+          "start_line": 1903,
+          "verbatim": "void mj_subtreeVel(const mjModel* m, mjData* d) {\n  int nbody = m->nbody;\n  mjtNum dx[3], dv[3], dp[3], dL[3];\n  mj_markStack(d);\n  mjtNum* body_vel = mjSTACKALLOC(d, 6*m->nbody, mjtNum);\n\n  // bodywise quantities\n  for (int i=0; i < nbody; i++) {\n    // compute and save body velocity\n    mj_objectVelocity(m, d, mjOBJ_BODY, i, body_vel+6*i, 0);\n\n    // body linear momentum\n    mju_scl3(d->subtree_linvel+3*i, body_vel+6*i+3, m->body_mass[i]);\n\n    // body angular momentum\n    mju_mulMatTVec3(dv, d->ximat+9*i, body_vel+6*i);\n    dv[0] *= m->body_inertia[3*i];\n    dv[1] *= m->body_inertia[3*i+1];\n    dv[2] *= m->body_inertia[3*i+2];\n    mju_mulMatVec3(d->subtree_angmom+3*i, d->ximat+9*i, dv);\n  }\n\n  // subtree linvel\n  for (int i=nbody-1; i >= 0; i--) {\n    // non-world: add linear momentum to parent\n    if (i) {\n      mju_addTo3(d->subtree_linvel+3*m->body_parentid[i], d->subtree_linvel+3*i);\n    }\n\n    // convert linear momentum to linear velocity\n    mju_scl3(d->subtree_linvel+3*i, d->subtree_linvel+3*i,\n             1/mjMAX(mjMINVAL, m->body_subtreemass[i]));\n  }\n\n  // subtree angmom\n  for (int i=nbody-1; i > 0; i--) {\n    int parent = m->body_parentid[i];\n\n    // momentum wrt body i\n    mju_sub3(dx, d->xipos+3*i, d->subtree_com+3*i);\n    mju_sub3(dv, body_vel+6*i+3, d->subtree_linvel+3*i);\n    mju_scl3(dp, dv, m->body_mass[i]);\n    mju_cross(dL, dx, dp);\n\n    // add to subtree i\n    mju_addTo3(d->subtree_angmom+3*i, dL);\n\n    // add to parent\n    mju_addTo3(d->subtree_angmom+3*parent, d->subtree_angmom+3*i);\n\n    // momentum wrt parent\n    mju_sub3(dx, d->subtree_com+3*i, d->subtree_com+3*parent);\n    mju_sub3(dv, d->subtree_linvel+3*i, d->subtree_linvel+3*parent);\n    mju_scl3(dv, dv, m->body_subtreemass[i]);\n    mju_cross(dL, dx, dv);\n\n    // add to parent\n    mju_addTo3(d->subtree_angmom+3*parent, dL);\n  }\n\n  mj_freeStack(d);\n}"
+        }
+      ],
+      "mj_tendon": [
+        {
+          "body_sha256": "04abdb1be680b0ea64b37e2b4aad9ac0d8f592bb35051e2720981824cfde6f15",
+          "data_field_tokens": [
+            "geom_xmat",
+            "geom_xpos",
+            "qpos",
+            "site_xpos",
+            "ten_J",
+            "ten_J_colind",
+            "ten_J_rowadr",
+            "ten_J_rownnz",
+            "ten_length",
+            "ten_wrapadr",
+            "ten_wrapnum",
+            "wrap_obj",
+            "wrap_xpos"
+          ],
+          "end_line": 860,
+          "lexical_call_identifiers": [
+            "mjERROR",
+            "mjSTACKALLOC",
+            "mj_freeStack",
+            "mj_isSparse",
+            "mj_jac",
+            "mj_jacDifPair",
+            "mj_markStack",
+            "mju_addToScl",
+            "mju_combineSparse",
+            "mju_copy",
+            "mju_copy3",
+            "mju_dist3",
+            "mju_mulMatTVec",
+            "mju_normalize3",
+            "mju_round",
+            "mju_sub",
+            "mju_sub3",
+            "mju_wrap",
+            "mju_zero",
+            "mju_zero3",
+            "mju_zeroInt"
+          ],
+          "model_field_tokens": [
+            "geom_bodyid",
+            "geom_size",
+            "jnt_dofadr",
+            "jnt_qposadr",
+            "nsite",
+            "ntendon",
+            "nv",
+            "site_bodyid",
+            "tendon_adr",
+            "tendon_num",
+            "wrap_objid",
+            "wrap_prm",
+            "wrap_type"
+          ],
+          "name": "mj_tendon",
+          "source": {
+            "archive_sha256": "608cd202ac5066096fdc7e5adb322aca2fe7b4d118543a7c4b54dc183a6b3b54",
+            "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.0/src/engine/engine_core_smooth.c",
+            "path": "/tmp/specola-extraction-20260906/mujoco-adapter-completion-source/source/3.3.0/src/engine/engine_core_smooth.c",
+            "sha256": "0988714d5a4c501c221694c295cce17d34528b13e6dee17470ba6ddddcc17a83"
+          },
+          "source_relative": "src/engine/engine_core_smooth.c",
+          "start_line": 651,
+          "verbatim": "void mj_tendon(const mjModel* m, mjData* d) {\n  int issparse = mj_isSparse(m), nv = m->nv, nten = m->ntendon;\n  int *rownnz = d->ten_J_rownnz, *rowadr = d->ten_J_rowadr, *colind = d->ten_J_colind;\n  mjtNum *L = d->ten_length, *J = d->ten_J;\n\n  if (!nten) {\n    return;\n  }\n\n  // allocate stack arrays\n  int *chain = NULL, *buf_ind = NULL;\n  mjtNum *jac1, *jac2, *jacdif, *tmp, *sparse_buf = NULL;\n  mj_markStack(d);\n  jac1 = mjSTACKALLOC(d, 3*nv, mjtNum);\n  jac2 = mjSTACKALLOC(d, 3*nv, mjtNum);\n  jacdif = mjSTACKALLOC(d, 3*nv, mjtNum);\n  tmp = mjSTACKALLOC(d, nv, mjtNum);\n  if (issparse) {\n    chain = mjSTACKALLOC(d, nv, int);\n    buf_ind = mjSTACKALLOC(d, nv, int);\n    sparse_buf = mjSTACKALLOC(d, nv, mjtNum);\n  }\n\n  // clear results\n  mju_zero(L, nten);\n\n  // clear Jacobian: sparse or dense\n  if (issparse) {\n    mju_zeroInt(rownnz, nten);\n  } else {\n    mju_zero(J, nten*nv);\n  }\n\n  // loop over tendons\n  int wrapcount = 0;\n  for (int i=0; i < nten; i++) {\n    // initialize tendon path\n    int adr = m->tendon_adr[i];\n    d->ten_wrapadr[i] = wrapcount;\n    d->ten_wrapnum[i] = 0;\n    int tendon_num = m->tendon_num[i];\n\n    // sparse Jacobian row init\n    if (issparse) {\n      rowadr[i] = (i > 0 ? rowadr[i-1] + rownnz[i-1] : 0);\n    }\n\n    // process fixed tendon\n    if (m->wrap_type[adr] == mjWRAP_JOINT) {\n      // process all defined joints\n      for (int j=0; j < tendon_num; j++) {\n        // get joint id\n        int k = m->wrap_objid[adr+j];\n\n        // add to length\n        L[i] += m->wrap_prm[adr+j] * d->qpos[m->jnt_qposadr[k]];\n\n        // add to moment\n        if (issparse) {\n          rownnz[i] = mju_combineSparse(J+rowadr[i], &m->wrap_prm[adr+j], 1, 1,\n                                        rownnz[i], 1,\n                                        colind+rowadr[i], &m->jnt_dofadr[k],\n                                        sparse_buf, buf_ind);\n        }\n\n        // add to moment: dense\n        else {\n          J[i*nv + m->jnt_dofadr[k]] = m->wrap_prm[adr+j];\n        }\n      }\n\n      continue;\n    }\n\n    // process spatial tendon\n    mjtNum divisor = 1;\n    int wraptype, j = 0;\n    while (j < tendon_num-1) {\n      // get 1st and 2nd object\n      int type0 = m->wrap_type[adr+j+0];\n      int type1 = m->wrap_type[adr+j+1];\n      int id0 = m->wrap_objid[adr+j+0];\n      int id1 = m->wrap_objid[adr+j+1];\n\n      // pulley\n      if (type0 == mjWRAP_PULLEY || type1 == mjWRAP_PULLEY) {\n        // get divisor, insert obj=-2\n        if (type0 == mjWRAP_PULLEY) {\n          divisor = m->wrap_prm[adr+j];\n          mju_zero3(d->wrap_xpos+wrapcount*3);\n          d->wrap_obj[wrapcount] = -2;\n          d->ten_wrapnum[i]++;\n          wrapcount++;\n        }\n\n        // move to next\n        j++;\n        continue;\n      }\n\n      // init sequence; assume it starts with site\n      mjtNum wlen = -1;\n      int wrapid = -1;\n      mjtNum wpnt[12];\n      mju_copy3(wpnt, d->site_xpos+3*id0);\n      int wbody[4];\n      wbody[0] = m->site_bodyid[id0];\n\n      // second object is geom: process site-geom-site\n      if (type1 == mjWRAP_SPHERE || type1 == mjWRAP_CYLINDER) {\n        // reassign, get 2nd site info\n        wraptype = type1;\n        wrapid = id1;\n        type1 = m->wrap_type[adr+j+2];\n        id1 = m->wrap_objid[adr+j+2];\n\n        // do wrapping, possibly get 2 extra points (wlen>=0)\n        int sideid = mju_round(m->wrap_prm[adr+j+1]);\n        if (sideid < -1 || sideid >= m->nsite) {\n          mjERROR(\"invalid sideid %d in wrap_prm\", sideid);  // SHOULD NOT OCCUR\n        }\n\n        wlen = mju_wrap(wpnt+3, d->site_xpos+3*id0, d->site_xpos+3*id1,\n                        d->geom_xpos+3*wrapid, d->geom_xmat+9*wrapid, m->geom_size[3*wrapid],\n                        wraptype, (sideid >= 0 ? d->site_xpos+3*sideid : 0));\n      } else {\n        wraptype = mjWRAP_NONE;\n      }\n\n      // complete sequence, accumulate lengths\n      if (wlen < 0) {\n        mju_copy3(wpnt+3, d->site_xpos+3*id1);\n        wbody[1] = m->site_bodyid[id1];\n        L[i] += mju_dist3(wpnt, wpnt+3) / divisor;\n      } else {\n        mju_copy3(wpnt+9, d->site_xpos+3*id1);\n        wbody[1] = wbody[2] = m->geom_bodyid[wrapid];\n        wbody[3] = m->site_bodyid[id1];\n        L[i] += (mju_dist3(wpnt, wpnt+3) + wlen + mju_dist3(wpnt+6, wpnt+9)) / divisor;\n      }\n\n      // accumulate moments if consecutive points are in different bodies\n      for (int k=0; k < (wlen < 0 ? 1 : 3); k++) {\n        if (wbody[k] != wbody[k+1]) {\n          // get 3D position difference, normalize\n          mjtNum dif[3];\n          mju_sub3(dif, wpnt+3*k+3, wpnt+3*k);\n          mju_normalize3(dif);\n\n          // sparse\n          if (issparse) {\n            // get endpoint Jacobians, subtract\n            int NV = mj_jacDifPair(m, d, chain,\n                                   wbody[k], wbody[k+1], wpnt+3*k, wpnt+3*k+3,\n                                   jac1, jac2, jacdif, NULL, NULL, NULL);\n\n            // no dofs: skip\n            if (!NV) {\n              continue;\n            }\n\n            // apply chain rule to compute tendon Jacobian\n            mju_mulMatTVec(tmp, jacdif, dif, 3, NV);\n\n            // add to existing\n            rownnz[i] = mju_combineSparse(J+rowadr[i], tmp, 1, 1/divisor,\n                                          rownnz[i], NV, colind+rowadr[i],\n                                          chain, sparse_buf, buf_ind);\n          }\n\n          // dense\n          else {\n            // get endpoint Jacobians, subtract\n            mj_jac(m, d, jac1, 0, wpnt+3*k, wbody[k]);\n            mj_jac(m, d, jac2, 0, wpnt+3*k+3, wbody[k+1]);\n            mju_sub(jacdif, jac2, jac1, 3*nv);\n\n            // apply chain rule to compute tendon Jacobian\n            mju_mulMatTVec(tmp, jacdif, dif, 3, nv);\n\n            // add to existing\n            mju_addToScl(J + i*nv, tmp, 1/divisor, nv);\n          }\n        }\n      }\n\n      // assign to wrap\n      mju_copy(d->wrap_xpos+wrapcount*3, wpnt, (wlen < 0 ? 3 : 9));\n      d->wrap_obj[wrapcount] = -1;\n      if (wlen >= 0) {\n        d->wrap_obj[wrapcount+1] = d->wrap_obj[wrapcount+2] = wrapid;\n      }\n      d->ten_wrapnum[i] += (wlen < 0 ? 1 : 3);\n      wrapcount += (wlen < 0 ? 1 : 3);\n\n      // advance\n      j += (wraptype != mjWRAP_NONE ? 2 : 1);\n\n      // assign last site before pulley or tendon end\n      if (j == tendon_num-1 || m->wrap_type[adr+j+1] == mjWRAP_PULLEY) {\n        mju_copy3(d->wrap_xpos+wrapcount*3, d->site_xpos+3*id1);\n        d->wrap_obj[wrapcount] = -1;\n        d->ten_wrapnum[i]++;\n        wrapcount++;\n      }\n    }\n  }\n\n  mj_freeStack(d);\n}"
+        }
+      ],
+      "mj_tendonArmature": []
+    },
+    "stored_state_semantics": "Scratch completion does not redefine copied qacc, controls, forces, constraints or raw timers as fresh physical state. Keep native stored-field extraction bound to untouched source data.",
+    "version": "3.3.0"
+  },
+  "images": [
+    {
+      "additional_ranges": [],
+      "default_timer": "not_defined_or_installed_by_pinned_wrapper_source",
+      "imports": {
+        "__errno_location": [
+          {
+            "addend": 0,
+            "offset": 2859952,
+            "relocation_type": 7,
+            "symbol_index": 33
+          }
+        ]
+      },
+      "relative_path": "mujoco/_structs.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "bd64b971adbf5872a82b0c1391a1f2681e475c807c3b5edf51be0a8b7d4a4125",
+      "timer_policy": "Actual native mjcb_time must be null; nonnull native timer remains unresolved.",
+      "version": "3.3.0"
+    }
+  ],
+  "source_artifacts": [
+    {
+      "name": "timer-profiles.json",
+      "sha256": "8349d3a4147a6402506d75ded3405625a517c1387e33610f4829bda9bee9a4c6"
+    },
+    {
+      "name": "completion-and-timer-contract.json",
+      "sha256": "899ac6287630fd68df8d12bae82b3f85b9909d3c1d5bb162e38c3577932cb61a"
+    },
+    {
+      "name": "timer-additional-ranges.json",
+      "sha256": "50f5a4455fc9c00d943e1b3a855d5bd839c8759ba7778743180a05f6ed61c953"
+    }
+  ],
+  "version": "3.3.0"
+}

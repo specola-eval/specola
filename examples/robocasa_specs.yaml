@@ -1,0 +1,53 @@
+# Keys are sim-specific by design; run `specola discover` to list yours.
+# Keys below were discovered from robocasa's default task
+# (PickPlaceCounterToCabinet): robot base body "mobilebase0_base" ->
+# xpos_mobilebase0_base_0/1/2, gripper site "gripper0_right_grip_site" ->
+# site_xpos_gripper0_right_grip_site_0/1/2. The task spawns three objects
+# with distinct body names -- "obj_main" (the target) and two distractors
+# -- so each has its own key (xpos_obj_main_2, xpos_<distractor>_2, ...);
+# no key is common to all three. `object_*[xpos_*_2]` is a component
+# selector (docs/superpowers/specs/2026-07-15-spec-selectors-design.md):
+# it resolves per bound entity, so it fans out to one monitor per object
+# -- all three bind, not just obj_main.
+specs:
+- name: test
+  formula: historically[0,5s](sqrt((robot_*[xpos_mobilebase0_base_0]-object_*[xpos_*_0])^2 + (robot_*[xpos_mobilebase0_base_1]-object_*[xpos_*_1])^2 + (robot_*[xpos_mobilebase0_base_2]-object_*[xpos_*_2])^2)
+    - 0.3 >= 0)
+
+- name: no_drops
+  formula: "historically[0,1s](object_*[xpos_*_2] - 0.7 >= 0)"
+
+# Robot base speed: sqrt over cvel_* linear components (previously
+# commented as "needs body velocity fields (extraction stage 2)" --
+# cvel_* is now extracted for every body, so this is writable).
+# cvel_mobilebase0_base_3..5 is MuJoCo's com-based cvel, whose linear
+# part is measured at "mobilebase0_base"'s *subtree* center of mass,
+# not at its own origin -- the two differ by a rotational offset term
+# (omega x (subtree_com - body_origin)), zero only when the base has
+# zero angular velocity. Named _com_ to flag that this bounds the
+# com-frame speed, which under-measures the true base speed under
+# rotation:
+- name: base_com_speed_bounded
+  formula: "historically[0,1s](sqrt(robot_*[cvel_mobilebase0_base_3]^2 + robot_*[cvel_mobilebase0_base_4]^2 + robot_*[cvel_mobilebase0_base_5]^2) <= max_base_speed)"
+  constants: {max_base_speed: 5.0}
+
+# The exact linear velocity AT the gripper site itself is still not
+# writable: cvel_* is extracted per body, not per site, and
+# gripper0_right_grip_site is offset from the body it sits on
+# (gripper0_right_eef). robot_*[cvel_gripper0_right_eef_3..5] is a
+# rougher stand-in still: its linear part is MuJoCo's com-based cvel,
+# measured at that body's subtree center of mass rather than at the
+# grip site or even the body's own origin -- the com-offset term
+# (omega x (subtree_com - body_origin)) makes it an under-measure of
+# the true site speed whenever the body is rotating, and the two
+# coincide exactly only when that body's angular velocity is zero --
+# there is no exact "gripper site speed" key.
+
+# - name: object_in_cabinet
+#   formula: "once[0,30s](Min(object_*[xpos_obj_main_0]-region_*[x0], region_*[x1]-object_*[xpos_obj_main_0], object_*[xpos_obj_main_1]-region_*[y0], region_*[y1]-object_*[xpos_obj_main_1], object_*[xpos_obj_main_2]-region_*[z0], region_*[z1]-object_*[xpos_obj_main_2]) >= 0)"
+
+- name: yes_drops
+  formula: "(not historically[0,1s](object_*[xpos_*_2] - 0.7 >= 0))"
+
+# - name: gripper_not_too_close
+#   formula: "historically[0,1s](not (sqrt((gripper_*[site_xpos_gripper0_right_grip_site_0]-object_*[xpos_obj_main_0])^2 + (gripper_*[site_xpos_gripper0_right_grip_site_1]-object_*[xpos_obj_main_1])^2 + (gripper_*[site_xpos_gripper0_right_grip_site_2]-object_*[xpos_obj_main_2])^2) <= 0.02))"

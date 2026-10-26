@@ -1,0 +1,68 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+*.yaml.bak
+
+# agent-native-design MCP tool runtime state (not part of this repo; its
+# presence as an untracked dir was making every extraction_profile.py
+# specola_commit spuriously -dirty)
+.agent-native/
+
+# Vendored external repository (installed separately; not part of this package)
+LIBERO/
+
+# Experiment outputs
+/results/
+/examples/results/
+benchmarks/results/*
+!benchmarks/results/README.md
+!benchmarks/results/*.json
+!benchmarks/results/carla_certification_row_tests.log
+!benchmarks/results/spec_intent_source_evidence.jsonl
+!benchmarks/results/spec_intent_evidence/
+!benchmarks/results/spec_intent_evidence/*.json
+!benchmarks/results/spec_intent_logs/
+!benchmarks/results/spec_intent_logs/check/
+!benchmarks/results/spec_intent_logs/check/libero/
+!benchmarks/results/spec_intent_logs/check/libero/*.log
+!benchmarks/results/spec_intent_logs/check/metaworld/
+!benchmarks/results/spec_intent_logs/check/metaworld/*.log
+!benchmarks/results/spec_intent_logs/runtime/
+!benchmarks/results/spec_intent_logs/runtime/libero/
+!benchmarks/results/spec_intent_logs/runtime/libero/*.log
+!benchmarks/results/spec_intent_logs/runtime/metaworld/
+!benchmarks/results/spec_intent_logs/runtime/metaworld/*.log
+!benchmarks/results/spec_intent_logs/capability/
+!benchmarks/results/spec_intent_logs/capability/*.log
+!benchmarks/results/spec_intent_source_audits/
+!benchmarks/results/spec_intent_source_audits/*
+
+# Editor state
+.vscode/
+PanGPA.log
+
+# Isolated implementation worktrees
+.worktrees/
+
+# Ad-hoc archives
+*.zip
+
+# Test and coverage artifacts
+.coverage
+htmlcov/
+.hypothesis/
+
+# Claude Code local settings
+.claude/settings.local.json*
+**/.claude/settings.local.json*
+
+# Serena MCP per-project config/cache
+.serena/
+!benchmarks/results/x3_replay/
+!benchmarks/results/x3_replay/**
+!benchmarks/results/extraction/
+!benchmarks/results/extraction/**
+.venv/

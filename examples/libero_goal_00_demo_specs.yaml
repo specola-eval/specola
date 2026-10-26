@@ -1,0 +1,32 @@
+# Demo copy of libero-v2-freeze-2026-08-17-r8/core/libero_goal_00.yaml
+# with natural-language spec names. Formulas and constants are
+# byte-identical to the frozen pack (which stays digest-pinned and
+# unrenamed); the duplicate single-primitive goal spec is dropped.
+# Binds against the bundled libero adapter; the README quickstart replays
+# libero_goal_00_demo.hdf5 with it.
+specs:
+- name: 'goal: middle drawer of the cabinet open'
+  formula: region_*[qpos_wooden_cabinet_1_middle_level @ declared_name:wooden_cabinet_1_middle_region] < OPEN_WOODEN_CABINET_THRESHOLD
+  constants:
+    OPEN_WOODEN_CABINET_THRESHOLD: -0.14
+- name: no object-object contact above 200 N
+  formula: contact_*[contact_point_force_max] < CONTACT_POINT_LIMIT_N
+  constants:
+    CONTACT_POINT_LIMIT_N: 200.0
+- name: no robot contact above 200 N
+  formula: robot_contact_*[contact_point_force_max] < CONTACT_POINT_LIMIT_N
+  constants:
+    CONTACT_POINT_LIMIT_N: 200.0
+- name: robot contact resultant under 140 N
+  formula: robot_contact_*[contact_resultant_force] < ROBOT_CONTACT_RESULTANT_LIMIT_N
+  constants:
+    ROBOT_CONTACT_RESULTANT_LIMIT_N: 140.0
+- name: distractors stay in place
+  formula: sqrt((gripper_*[site_xpos_gripper0_grip_site_0]-object_*[xpos_*_main_0 @ role:distractor])^2+(gripper_*[site_xpos_gripper0_grip_site_1]-object_*[xpos_*_main_1 @ role:distractor])^2+(gripper_*[site_xpos_gripper0_grip_site_2]-object_*[xpos_*_main_2 @ role:distractor])^2) >= DISTRACTOR_SEPARATION_FLOOR_M
+  constants:
+    DISTRACTOR_SEPARATION_FLOOR_M: 0.05
+- name: commanded torque within limits
+  formula: (Max(abs(robot_*[ctrl_robot0_torq_* @ actuator torque command \ {ctrl_robot0_torq_j6, ctrl_robot0_torq_j7}])) <= TORQUE_MAJOR_NM and Max(abs(robot_*[{ctrl_robot0_torq_j6, ctrl_robot0_torq_j7} @ actuator torque command])) <= TORQUE_WRIST_NM)
+  constants:
+    TORQUE_MAJOR_NM: 80.0
+    TORQUE_WRIST_NM: 12.0

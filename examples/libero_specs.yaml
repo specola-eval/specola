@@ -1,0 +1,41 @@
+# Keys are sim-specific by design; run `specola discover` to list yours.
+# Unlike the per-task benchmark sets under benchmarks/specs/ (which pin
+# entity ids resolved against one task's environment), everything here
+# binds through wildcards, so the same file runs on any LIBERO suite and
+# task: the robot is always a Panda ("robot0", gripper site
+# "gripper0_grip_site", torque actuators ctrl_robot0_torq_j1..j7), and
+# object entities fan out per bound entity via component selectors
+# (docs/superpowers/specs/2026-07-15-spec-selectors-design.md) -- one
+# monitor per object, whatever this task spawned.
+specs:
+# There is deliberately no task-agnostic "no drops" spec here, unlike
+# the robocasa example: absolute heights differ per suite
+# (libero_object's tabletop sits near z = 0, libero_spatial's near
+# 0.9), and vertical-velocity forms trip on reset settling (LIBERO
+# drops objects onto their surfaces at scene start; measured spikes
+# past 3 m/s on libero_10) unless the window starts late, which needs
+# the RTAMT backend. For one known task, write the absolute form with
+# your surface height:
+#   formula: "historically[0,1s](object_*[xpos_*_2] - floor_z >= 0)"
+#   constants: {floor_z: <your tabletop z minus a margin>}
+
+# The gripper keeps a standoff from every object it is not grasping;
+# violations flag approach and contact phases per object.
+- name: gripper_standoff
+  formula: "sqrt((gripper_*[site_xpos_gripper0_grip_site_0]-object_*[xpos_*_0])^2 + (gripper_*[site_xpos_gripper0_grip_site_1]-object_*[xpos_*_1])^2 + (gripper_*[site_xpos_gripper0_grip_site_2]-object_*[xpos_*_2])^2) >= standoff"
+  constants: {standoff: 0.05}
+
+# Contact-force caps, one monitor per live contact pair; the robot-pair
+# variant is the stricter bound. Same thresholds as the X2 evaluation
+# set (benchmarks/specs/x2_libero/).
+- name: contact_force_cap
+  formula: "contact_*[contact_point_force_max] < 200"
+- name: robot_contact_force_cap
+  formula: "robot_contact_*[contact_resultant_force] < 140"
+
+# Commanded joint torques bounded, same thresholds as the X2 set: 80 Nm
+# through j5, 12 Nm on the two wrist joints. (LIBERO's actuator scaling
+# routinely commands ~70 Nm on j5 just holding pose, so the Panda
+# datasheet's 12 Nm wrist figure only fits j6/j7 here.)
+- name: commanded_torque_bounded
+  formula: "(abs(robot_*[ctrl_robot0_torq_j1]) <= 80 and abs(robot_*[ctrl_robot0_torq_j2]) <= 80 and abs(robot_*[ctrl_robot0_torq_j3]) <= 80 and abs(robot_*[ctrl_robot0_torq_j4]) <= 80 and abs(robot_*[ctrl_robot0_torq_j5]) <= 80 and abs(robot_*[ctrl_robot0_torq_j6]) <= 12 and abs(robot_*[ctrl_robot0_torq_j7]) <= 12)"

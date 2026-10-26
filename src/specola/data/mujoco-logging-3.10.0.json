@@ -1,0 +1,48 @@
+{
+  "engine_sha256": "872b2954e9760b1df122e3c807a907ff806e1980099b00e15789ae67e08b75d5",
+  "objects": {
+    "env_checked": {
+      "binding": "LOCAL",
+      "kind": "OBJECT",
+      "section": "27",
+      "size": 1,
+      "symbol": "env_checked.llvm.6548747383495900549",
+      "value": 5748272,
+      "visibility": "HIDDEN"
+    },
+    "global_log_handler": {
+      "binding": "LOCAL",
+      "kind": "OBJECT",
+      "section": "26",
+      "size": 8,
+      "symbol": "global_log_handler.llvm.6548747383495900549",
+      "value": 5714328,
+      "visibility": "HIDDEN"
+    },
+    "log_config": {
+      "binding": "LOCAL",
+      "kind": "OBJECT",
+      "section": "26",
+      "size": 1032,
+      "symbol": "log_config.llvm.6548747383495900549",
+      "value": 5714336,
+      "visibility": "HIDDEN"
+    }
+  },
+  "policy": "Read ordinary local objects only. Never add image bias to STT_TLS. Do not initialize global logging. Reject possible wake with uninitialized config or enabled sleep topic.",
+  "source_artifacts": [
+    {
+      "name": "IMPLEMENTATION.md",
+      "sha256": "0e36f8eca6f7b6237b01feca3fd3e75abc660888abfc3b571769cebd8272618c"
+    },
+    {
+      "name": "logging-symbols.json",
+      "sha256": "9c3ebf5e1b09da30e81072af35fa0777f03262dbc6260cc137d3d240aaf014f2"
+    },
+    {
+      "name": "custody.json",
+      "sha256": "595e2a58800371597f714a1c8b062633ef200c5c2aa02cc5d3a96597a6222186"
+    }
+  ],
+  "version": "3.10.0"
+}

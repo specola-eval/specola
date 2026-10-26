@@ -1,0 +1,40 @@
+# Query configuration for RoboDojo's sampled pair distances.
+#
+# Without one, the robodojo adapter forms no mesh_pair entities (or, with
+# --distmax / ROBODOJO_DISTMAX, every robot-object, object-object and
+# arm-arm pair over every arm link). With this population every such pair
+# over the listed links is formed: `specola discover` and `specola check`
+# list them all, and so does the first observation of a run. After it, a run
+# reads only the pairs your specifications can bind, so pick pairs in the
+# specification (examples/robodojo_specs.yaml selects the two arm-bowl0
+# pairs with `@ b:bowl0`). Pairs whose bounding spheres cannot meet within
+# distmax are never queried at all.
+#
+# distmax is the clearance horizon in metres: a pair further apart reports
+# mesh_distance_sampled = distmax and mesh_distance_clipped = 1.
+# robot_links restricts which arm links take part (link6 is the wrist,
+# link7 and link8 the fingers on the ARX X5). Uncomment population: all to
+# read every formed pair on every observation, for example to record them.
+# Pass with --queries on discover, check and run, or to
+# Monitor.watch(queries=...).
+schema: specola.queries.v1
+populations:
+- binding: robodojo.mesh_pair
+  arguments:
+    distmax: 0.05
+    robot_links: [link6, link7, link8]
+    # population: all
+# Naming pairs instead narrows the population itself: only the named pairs
+# are formed, in discovery as well, and every one is read whatever the
+# specifications bind. Operands name entities by label, as `specola
+# discover` lists them. Entity IDs then differ from a discover run without
+# these instances, so take pinned mesh_pair_<id> IDs from a discover run
+# with this same file.
+instances: []
+# instances:
+# - binding: robodojo.mesh_pair
+#   id: left_arm_bowl0
+#   operands:
+#     a: {kind: entity, name: left_arm}
+#     b: {kind: entity, name: bowl0}
+#   arguments: {}

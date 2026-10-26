@@ -1,0 +1,16 @@
+# Keys are sim-specific by design; run `specola discover` to list yours:
+#   specola discover --sim carla
+# Keys below are what the carla adapter reports against a CARLA 0.9.16
+# server (src/specola/adapters/carla.py): velocity_x/y/z in m/s in CARLA's
+# world frame, and speed_limit in km/h, CARLA's own unit for
+# Vehicle.get_speed_limit(). Vehicles are a dynamic class: a fresh server
+# has none at reset, so `specola check` reports this spec as waiting, and
+# it binds each vehicle as it appears. `specola run` in its default
+# --mode random spawns an autopilot fleet; under --mode hold it binds only
+# the traffic another client has spawned. The speed is written out
+# component by component: `check` refuses sum() over a selector of a
+# dynamic class, whose components are not known before it is populated.
+specs:
+- name: vehicle_within_speed_limit
+  formula: "historically[0,1s](vehicle_*[speed_limit]
+             - 3.6 * sqrt(vehicle_*[velocity_x]^2 + vehicle_*[velocity_y]^2 + vehicle_*[velocity_z]^2) >= 0)"

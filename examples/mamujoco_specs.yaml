@@ -1,0 +1,14 @@
+# Keys are sim-specific by design; run `specola discover` to list yours:
+#   specola discover --sim mamujoco --task HalfCheetah:2x3 \
+#     --queries examples/geometry_queries.yaml
+# Keys below are what gymnasium-robotics 1.4.2 reports for HalfCheetah:2x3.
+# MaMuJoCo splits one robot's joints among agents; the scene is still one
+# robot, so every spec binds robot_*. The cheetah's torso pitches on the
+# unlimited hinge "rooty" (gymnasium/envs/mujoco/assets/half_cheetah.xml)
+# and the environment never terminates, so a flip onto its back goes
+# unnoticed unless something watches for it. xmat_torso_8 is the torso's
+# zz orientation component: +1 upright, negative once it has turned past
+# vertical.
+specs:
+- name: torso_stays_upright
+  formula: "historically[0,1s](robot_*[xmat_torso_8] >= 0)"

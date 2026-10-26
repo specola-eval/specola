@@ -1,0 +1,570 @@
+{
+  "coalescence_by_image": {},
+  "distribution_metadata": {
+    "sha256": "a22e2f1149ae2d3f09729e14a72ca0dde7c38184512c52cc24f68aabd3edb632"
+  },
+  "distribution_record": {
+    "sha256": "1fcb698500914fb7ede94ea8549873419b26679cb12de214cf0a71642eacb0e7"
+  },
+  "engine_id": "mujoco/libmujoco.so.3.3.1",
+  "environment": "robocasa",
+  "geometry_enum": {
+    "collision_initializers_match_dimension": true,
+    "enum_members": [
+      {
+        "name": "mjGEOM_PLANE",
+        "value": 0
+      },
+      {
+        "name": "mjGEOM_HFIELD",
+        "value": 1
+      },
+      {
+        "name": "mjGEOM_SPHERE",
+        "value": 2
+      },
+      {
+        "name": "mjGEOM_CAPSULE",
+        "value": 3
+      },
+      {
+        "name": "mjGEOM_ELLIPSOID",
+        "value": 4
+      },
+      {
+        "name": "mjGEOM_CYLINDER",
+        "value": 5
+      },
+      {
+        "name": "mjGEOM_BOX",
+        "value": 6
+      },
+      {
+        "name": "mjGEOM_MESH",
+        "value": 7
+      },
+      {
+        "name": "mjGEOM_SDF",
+        "value": 8
+      }
+    ],
+    "mjNGEOMTYPES": 9,
+    "source": {
+      "archive_sha256": "199457f83e15ddd14bf45e6cb089dc20f56c78a3975a84c424f4a67d59f1be66",
+      "bytes": 72717,
+      "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.1/include/mujoco/mjmodel.h",
+      "relative_path": "include/mujoco/mjmodel.h",
+      "sha256": "a314eca14b6abf5d74039b111741f61c3ec7555e09db1e0ae05b5a07ccc81ce8",
+      "version": "3.3.1"
+    }
+  },
+  "images": [
+    {
+      "binding_plan_count": 12,
+      "engine_facing_before_table_projection": 12,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "librt.so.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._callbacks",
+      "relative_path": "mujoco/_callbacks.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2242,
+      "sha256": "3793f8fd181e87c775d1b2f8725754487fba59ea98a3f89367fcc7cb1ff89c15"
+    },
+    {
+      "binding_plan_count": 7,
+      "engine_facing_before_table_projection": 7,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._constants",
+      "relative_path": "mujoco/_constants.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 1535,
+      "sha256": "c1922da45df7391260e4e85ac99234673187f6fdc01bacb2125fce7281af018d"
+    },
+    {
+      "binding_plan_count": 0,
+      "engine_facing_before_table_projection": 0,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._enums",
+      "relative_path": "mujoco/_enums.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 4708,
+      "sha256": "d7a24e60d0d126738cdca46332c309ea1df093fd6899e0b93e51a17b31235403"
+    },
+    {
+      "binding_plan_count": 0,
+      "engine_facing_before_table_projection": 0,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._errors",
+      "relative_path": "mujoco/_errors.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 1529,
+      "sha256": "562d8e7bc15bc959ec8879f00663b4dc14f92ff24907a23457f54fab261beaf2"
+    },
+    {
+      "binding_plan_count": 251,
+      "engine_facing_before_table_projection": 251,
+      "needed": [
+        "librt.so.1",
+        "libpthread.so.0",
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._functions",
+      "relative_path": "mujoco/_functions.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2064,
+      "sha256": "0e90ecae77668c463c1d3cb98e39ddab2b1cff43b0d77454005580cc168871bc"
+    },
+    {
+      "binding_plan_count": 28,
+      "engine_facing_before_table_projection": 28,
+      "needed": [
+        "librt.so.1",
+        "libpthread.so.0",
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._render",
+      "relative_path": "mujoco/_render.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2472,
+      "sha256": "60b1862a514482806c78b2aa37bdbf54d0070bfd512dca5f9faddd4ef67b351c"
+    },
+    {
+      "binding_plan_count": 9,
+      "engine_facing_before_table_projection": 9,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "librt.so.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._rollout",
+      "relative_path": "mujoco/_rollout.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2362,
+      "sha256": "3e6762194f5092981b5070fbbf71a67d4431302ad6d4e7f62f90bc9e3dd24741"
+    },
+    {
+      "binding_plan_count": 74,
+      "engine_facing_before_table_projection": 74,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "librt.so.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._simulate",
+      "relative_path": "mujoco/_simulate.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 2661,
+      "sha256": "f698eea41034f21578daa082fbdb877225ca19a509ce6fe634a40a30e62dec9e"
+    },
+    {
+      "binding_plan_count": 90,
+      "engine_facing_before_table_projection": 90,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "librt.so.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._specs",
+      "relative_path": "mujoco/_specs.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 3359,
+      "sha256": "a1d8f8bf4bf6210ccb94138f809f0e8a78645eadf30e06d5119752067d5368d5"
+    },
+    {
+      "binding_plan_count": 33,
+      "engine_facing_before_table_projection": 33,
+      "needed": [
+        "librt.so.1",
+        "libpthread.so.0",
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2"
+      ],
+      "object_coalescence": [],
+      "python_module": "mujoco._structs",
+      "relative_path": "mujoco/_structs.cpython-311-x86_64-linux-gnu.so",
+      "relocation_count": 4236,
+      "sha256": "2472779f6663ce725423c7e0883ae0865b6bcbe7435c94ff434e3253559954d0"
+    },
+    {
+      "binding_plan_count": 239,
+      "engine_facing_before_table_projection": 264,
+      "needed": [
+        "libdl.so.2",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/libmujoco.so.3.3.1",
+      "relocation_count": 6306,
+      "sha256": "e5ad1f81436875347cb3bd9d824f5dafe434c220e8a5ebcf3c6208baeac06059"
+    },
+    {
+      "binding_plan_count": 6,
+      "engine_facing_before_table_projection": 6,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libactuator.so",
+      "relocation_count": 1343,
+      "sha256": "ca1bc3cf04ac40779049c802b7d1a2178cdfde6240799e45a611178fbf0bead9"
+    },
+    {
+      "binding_plan_count": 24,
+      "engine_facing_before_table_projection": 24,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libelasticity.so",
+      "relocation_count": 2089,
+      "sha256": "c2490ba6c009b24e8d737772cc735a1c224b67757577b0f555cdb1f087f4990d"
+    },
+    {
+      "binding_plan_count": 19,
+      "engine_facing_before_table_projection": 19,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "libpthread.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "librt.so.1"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libsdf.so",
+      "relocation_count": 3032,
+      "sha256": "5c3314d8b31857e17aff54427457bb70e0adc641559f2a11f2c1c558aaa7adef"
+    },
+    {
+      "binding_plan_count": 24,
+      "engine_facing_before_table_projection": 24,
+      "needed": [
+        "libmujoco.so.3.3.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2",
+        "libdl.so.2",
+        "libpthread.so.0"
+      ],
+      "object_coalescence": [],
+      "python_module": null,
+      "relative_path": "mujoco/plugin/libsensor.so",
+      "relocation_count": 2079,
+      "sha256": "d0113512f326a1e50de846cfa28c52c4f466ba18e1f831e45202d495c320033f"
+    }
+  ],
+  "initializer_source": {
+    "archive_sha256": "199457f83e15ddd14bf45e6cb089dc20f56c78a3975a84c424f4a67d59f1be66",
+    "bytes": 66413,
+    "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.1/src/engine/engine_collision_driver.c",
+    "relative_path": "src/engine/engine_collision_driver.c",
+    "sha256": "76322c68275ce72b4c9a1f93d1aa7ed14f7ae1d8770b6b18b7f641e030e435a3",
+    "version": "3.3.1"
+  },
+  "input_sha256": "c2c79377916df577ae764116337a3028fc0e6c550520ffb71d1ed123e8f1f4ab",
+  "native_runtime_status": "unmeasured; static files and source only",
+  "object_coalescence": [],
+  "package_init": {
+    "matches_version_matched_archive": true,
+    "sha256": "aafd7a99c2689b4b2e684eeadd3fc84aa45a458d7b9982dbc90c634045589bed",
+    "source": {
+      "archive_sha256": "199457f83e15ddd14bf45e6cb089dc20f56c78a3975a84c424f4a67d59f1be66",
+      "bytes": 6991,
+      "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.1/python/mujoco/__init__.py",
+      "relative_path": "python/mujoco/__init__.py",
+      "sha256": "aafd7a99c2689b4b2e684eeadd3fc84aa45a458d7b9982dbc90c634045589bed",
+      "version": "3.3.1"
+    }
+  },
+  "query_and_tls_exports": [
+    {
+      "binding": "STB_GLOBAL",
+      "index": 225,
+      "kind": "STT_FUNC",
+      "name": "_mjPRIVATE__set_tls_warning_fn",
+      "section": 14,
+      "size": 25,
+      "value": 2209600,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 393,
+      "kind": "STT_FUNC",
+      "name": "mj_geomDistance",
+      "section": 14,
+      "size": 1413,
+      "value": 2187424,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 394,
+      "kind": "STT_FUNC",
+      "name": "_mjPRIVATE__set_tls_error_fn",
+      "section": 14,
+      "size": 25,
+      "value": 2209536,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 621,
+      "kind": "STT_FUNC",
+      "name": "_mjPRIVATE__get_tls_error_fn",
+      "section": 14,
+      "size": 22,
+      "value": 2209504,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 714,
+      "kind": "STT_FUNC",
+      "name": "_mjPRIVATE__get_tls_warning_fn",
+      "section": 14,
+      "size": 22,
+      "value": 2209568,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    },
+    {
+      "binding": "STB_GLOBAL",
+      "index": 756,
+      "kind": "STT_FUNC",
+      "name": "mj_copyData",
+      "section": 14,
+      "size": 8523,
+      "value": 1899776,
+      "version_index": "VER_NDX_GLOBAL",
+      "visibility": "STV_DEFAULT"
+    }
+  ],
+  "record_entries_examined_for_elf_magic": 133,
+  "source_initializer": [
+    null,
+    null,
+    "mjc_PlaneSphere",
+    "mjc_PlaneCapsule",
+    "mjc_PlaneConvex",
+    "mjc_PlaneCylinder",
+    "mjc_PlaneBox",
+    "mjc_PlaneConvex",
+    "mjc_PlaneConvex",
+    null,
+    null,
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_ConvexHField",
+    "mjc_HFieldSDF",
+    null,
+    null,
+    "mjc_SphereSphere",
+    "mjc_SphereCapsule",
+    "mjc_Convex",
+    "mjc_SphereCylinder",
+    "mjc_SphereBox",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    "mjc_CapsuleCapsule",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_CapsuleBox",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_BoxBox",
+    "mjc_Convex",
+    "mjc_SDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_Convex",
+    "mjc_MeshSDF",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "mjc_SDF"
+  ],
+  "static_plan_summary": {
+    "coalesced_slots": 0,
+    "coalescence_policies": 0,
+    "distinct_plan_addresses": 897,
+    "original_engine_facing": 841,
+    "original_relocations": 42017,
+    "planned_imports_after_table_projection": 816,
+    "strict_weak_self_slots": 10,
+    "table_positions": 81
+  },
+  "trusted_registration_boundary": "Trusted producer initialization may predate adapter construction. Retain native modules/classes/callables/raw descriptors and current mapped targets; ordinary replacement and subsequent drift fail. No historical pybind heap or resident-code attestation.",
+  "trusted_registration_boundary_source": "/tmp/specola-extraction-20260906/mujoco-runtime-guard-inputs/production-inputs-3.8.1.json",
+  "version": "3.3.1",
+  "wrapper_source_routes": {
+    "binding_target_boundary": "Trusted producer initialization; retain exact registered objects. Current relocation checks do not inspect historical pybind heap captures.",
+    "copy_native_call": {
+      "end_line": 879,
+      "source": {
+        "archive_sha256": "199457f83e15ddd14bf45e6cb089dc20f56c78a3975a84c424f4a67d59f1be66",
+        "bytes": 39887,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.1/python/mujoco/structs_wrappers.cc",
+        "relative_path": "python/mujoco/structs_wrappers.cc",
+        "sha256": "92b2afa42aa6570fbaa93083b7b67ebc8876704f21826d7d31c16ba0b2d33a6f",
+        "version": "3.3.1"
+      },
+      "start_line": 876,
+      "verbatim": "\nraw::MjData* MjDataWrapper::Copy() const {\n  const raw::MjModel* m = model_->get();\n  return InterceptMjErrors(mj_copyData)(NULL, m, this->ptr_);\n"
+    },
+    "copy_route": "public mj_copyData skipped; use MjData.__copy__ route",
+    "distance": {
+      "end_line": 571,
+      "source": {
+        "archive_sha256": "199457f83e15ddd14bf45e6cb089dc20f56c78a3975a84c424f4a67d59f1be66",
+        "bytes": 61563,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.1/python/mujoco/functions.cc",
+        "relative_path": "python/mujoco/functions.cc",
+        "sha256": "123162b3d8667933918a99e294fad245b7cb96e0dcec9149d66f045348c221fd",
+        "version": "3.3.1"
+      },
+      "start_line": 559,
+      "verbatim": "  Def<traits::mj_geomDistance>(\n      pymodule,\n      [](const raw::MjModel* m, const raw::MjData* d,\n         int geom1, int geom2, mjtNum distmax,\n         std::optional<Eigen::Ref<EigenArrayXX>> fromto) {\n        if (fromto.has_value() && fromto->size() != 6) {\n          throw py::type_error(\"fromto should be of size 6\");\n        }\n        return InterceptMjErrors(::mj_geomDistance)(\n            m, d, geom1, geom2, distmax,\n            fromto.has_value() ? fromto->data() : nullptr);\n      });\n  Def<traits::mj_differentiatePos>(\n"
+    },
+    "generic_registration": {
+      "end_line": 174,
+      "source": {
+        "archive_sha256": "199457f83e15ddd14bf45e6cb089dc20f56c78a3975a84c424f4a67d59f1be66",
+        "bytes": 7964,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.1/python/mujoco/functions.h",
+        "relative_path": "python/mujoco/functions.h",
+        "sha256": "cc5e643cd58cb5c5181f3f11323334076b571d920a9a081a741c4759e2246b2a",
+        "version": "3.3.1"
+      },
+      "start_line": 166,
+      "verbatim": "template <typename MjTraits>\nMUJOCO_ALWAYS_INLINE\nstatic constexpr void Def(::pybind11::module_& m) {\n  WithNamedArgs(MjTraits::param_names).def(\n      m, MjTraits::name,\n      util::UnwrapArgs(InterceptMjErrors(MjTraits::GetFunc())),\n      ::pybind11::doc(MjTraits::doc),\n      ::pybind11::call_guard<::pybind11::gil_scoped_release>());\n}\n"
+    },
+    "public_copy": {
+      "end_line": 132,
+      "source": {
+        "archive_sha256": "199457f83e15ddd14bf45e6cb089dc20f56c78a3975a84c424f4a67d59f1be66",
+        "bytes": 61563,
+        "official_url": "https://github.com/google-deepmind/mujoco/blob/3.3.1/python/mujoco/functions.cc",
+        "relative_path": "python/mujoco/functions.cc",
+        "sha256": "123162b3d8667933918a99e294fad245b7cb96e0dcec9149d66f045348c221fd",
+        "version": "3.3.1"
+      },
+      "start_line": 132,
+      "verbatim": "  // Skipped: mj_copyData (have MjData.__copy__, memory managed by MjData)\n"
+    },
+    "version": "3.3.1"
+  }
+}

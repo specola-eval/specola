@@ -1,0 +1,154 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "specola"
+version = "0.2.0"
+description = "Signal Temporal Logic runtime monitoring for multi-entity robotic systems."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Immanuel Ampomah Mensah" },
+]
+keywords = [
+    "signal-temporal-logic", "stl", "runtime-verification",
+    "robotics", "robosuite", "robocasa", "mujoco", "formal-methods",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.22",
+    "sympy>=1.10",
+    "PyYAML>=6.0",
+    "jsonschema>=4.23,<5",
+    "tomli>=2.0; python_version < '3.11'",
+    "rich>=14.3.4,<15",
+    "textual>=8.2.8,<9; python_version >= '3.9'",
+    "textual>=6.2.1,<7; python_version < '3.9'",
+]
+
+[project.optional-dependencies]
+native-extraction = ["pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
+producer-inventory = ["libclang==18.1.1"]
+rtamt = ["rtamt>=0.3.4"]
+# The MuJoCo-family adapters read the installed MuJoCo image through
+# pyelftools at every reset (native-extraction above); a simulator extra
+# without it installs an adapter that cannot start.
+# RoboCasa is not on PyPI, and it runs on robosuite's master branch, which
+# differs from PyPI's robosuite 1.5.2. Install both from their GitHub
+# checkouts first, as RoboCasa's README says (docs/install.md); this extra
+# adds only what Specola needs beside them. RoboCasa 1.0.1 pins and asserts
+# mujoco==3.3.1, a reviewed build (see the MuJoCo note below).
+robocasa = ["h5py", "mujoco==3.3.1",
+            "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
+libero   = ["h5py",   # LIBERO itself: pip install hf-libero (see adapters/libero.py)
+            "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
+# The MuJoCo geometry reader accepts only the MuJoCo builds it has reviewed
+# (adapters/mujoco_queries.py, _REVIEWED: 3.3.0, 3.3.1, 3.8.1, 3.10.0), so
+# each MuJoCo-family extra pins one of them. Simulator versions are the ones
+# the fresh-install checks ran (docs/evidence/fresh-install-*-2026-10-13.md).
+# The reader's native profiles (data/mujoco-native-*.json) record Linux
+# x86_64 cpython-311 wheels for 3.3.0, 3.3.1 and 3.10.0 (cpython-312 for
+# 3.8.1); on another Python the extra installs and the adapter refuses to
+# start, and an extra cannot refuse a Python version, so docs/install.md
+# says it. metaworld 3.1.1 itself requires mujoco==3.3.0.
+metaworld = ["metaworld==3.1.1", "mujoco==3.3.0", "gymnasium==1.3.0",
+             "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
+# dm_control 1.0.43 requires mujoco>=3.10.0; 3.10.0 is the reviewed build.
+dmcontrol = ["dm_control==1.0.43", "mujoco==3.10.0",
+             "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
+# gymnasium-robotics accepts any mujoco>=2.2.0; 3.10.0 is the reviewed build
+# the mamujoco environment runs.
+mamujoco = ["gymnasium-robotics==1.4.2", "mujoco==3.10.0", "gymnasium==1.3.0",
+            "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
+report = ["pandas", "pyarrow"]
+# RoboDojo: install RoboDojo (its scripts/install.sh builds the conda env
+# with Isaac Sim 5.1, Isaac Lab, torch and warp), then this extra inside
+# that env. The adapter's own imports come from that stack; this extra adds
+# the dashboard and the report command.
+robodojo = ["flask>=3.1,<4", "flask-socketio>=5.5,<6", "python-socketio>=5.16,<6",
+            "Pillow>=9", "pandas", "pyarrow"]
+# PyBullet's wheel carries the engine and its URDF assets (pybullet_data).
+pybullet = ["pybullet==3.2.7"]
+# CARLA: the client library only. The server is a separate download that
+# must be the same version (docs/install.md).
+carla = ["carla==0.9.16"]
+# Isaac Lab: install Isaac Sim 6.0.1 and Isaac Lab from its checkout first
+# (docs/install.md); torch, warp and pxr come from that stack. Like
+# robodojo, this extra adds the dashboard and the report command.
+isaaclab = ["flask>=3.1,<4", "flask-socketio>=5.5,<6", "python-socketio>=5.16,<6",
+            "Pillow>=9", "pandas", "pyarrow"]
+web = [
+    "flask>=3.1,<4",
+    "flask-socketio>=5.5,<6",
+    "python-socketio>=5.16,<6",
+    # JPEG encoder for camera frames: the recorder probes cv2 then PIL
+    # and records no frames when neither exists. Simulator envs often
+    # ship cv2; Pillow covers the ones that do not (e.g. pybullet).
+    "Pillow>=9",
+]
+dev = ["pytest", "pytest-cov", "hypothesis", "rtamt>=0.3.4",
+       # Seven test modules import pandas, pyarrow or h5py at collection.
+       "pandas", "pyarrow", "h5py",
+       "flask>=3.1,<4", "flask-socketio>=5.5,<6", "python-socketio>=5.16,<6",
+       # Lets Python socket.io clients (dashboard_live_check) upgrade to
+       # websocket like a browser instead of staying on long-polling.
+       "websocket-client>=1.7"]
+
+[project.scripts]
+specola = "specola.cli:main"
+
+# Adapter discovery: each value is a module whose import registers the
+# adapter via specola.registry.register(). Third-party packages add
+# their own entries to this group; no specola code changes needed.
+[project.entry-points."specola.adapters"]
+mock     = "specola.adapters.fake"
+robocasa = "specola.adapters.robocasa"
+libero   = "specola.adapters.libero"
+metaworld = "specola.adapters.metaworld"
+dataset   = "specola.adapters.dataset"
+pybullet  = "specola.adapters.pybullet"
+dmcontrol = "specola.adapters.dmcontrol"
+mamujoco  = "specola.adapters.mamujoco"
+isaaclab  = "specola.adapters.isaaclab"
+carla     = "specola.adapters.carla"
+robodojo  = "specola.adapters.robodojo"
+
+[tool.setuptools]
+# Ships both files in the wheel's dist-info directory. setuptools>=77 warns
+# that this key is deprecated in favour of project.license-files (due
+# 2027-02-18, as for the license table above), but project.license-files
+# needs setuptools>=77, which needs Python>=3.9, and requires-python is
+# >=3.8. Move both together when 3.8 support ends.
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# ROS system installs leak broken pytest plugins through PYTHONPATH.
+# -rs: always print skip reasons, so a skipped suite (e.g. binding parity
+# when hypothesis is absent) is loud in every run, never silent.
+addopts = "-p no:launch_testing -p no:launch_ros -rs"
+markers = [
+    "robocasa: requires a RoboCasa/robosuite installation",
+    "libero: requires a LIBERO installation",
+    "metaworld: requires a Meta-World installation",
+    "mujoco: requires a MuJoCo installation",
+    "pybullet: requires a PyBullet installation",
+    "dmcontrol: requires a dm_control installation",
+    "behavior: requires OmniGibson (BEHAVIOR-1K) and its assets",
+    "robodojo: requires a RoboDojo checkout and its Isaac Sim stack",
+    "nvenc: requires an NVIDIA GPU with h264_nvenc encoding",
+]
+
+[tool.setuptools.package-data]
+specola = ["*.yaml", "data/*.json", "dashboard/static/*", "dashboard/static/brand/*", "dashboard/static/vendor/*", "dashboard/static/vendor/fonts/*"]

@@ -1,0 +1,247 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\powerset}{\mathcal{P}}
+\newcommand{\Specola}{\textsc{Specola}}
+\newcommand{\Err}{\mathsf{Err}}
+\newcommand{\SpReset}{\mathsf{reset}}
+\newcommand{\SpObserve}{\mathsf{observe}}
+\newcommand{\SpScope}{\mathsf{scope}}
+\newcommand{\sem}[1]{\mathopen{[\![}#1\mathclose{]\!]}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{obligation}{Obligation}
+\newtheorem{theorem}{Conditional guarantee}
+
+\title{Draft Formal Contract for Specola Adapters and Monitors}
+\author{Working note for maintainer review}
+\date{August 15, 2026}
+
+\begin{document}
+\maketitle
+
+\paragraph{Status.}
+This is a proposed mathematical presentation of the accepted adapter-fidelity
+design.  It is a review artifact, not a claim that the Python implementations
+have been formally verified.  Section~\ref{sec:scope} records the maintainer's
+accepted distinction between complete author-facing extraction and mandatory
+exact projection during monitoring.
+
+\section{Objects and boundaries}
+
+Let $\Sigma$ be a pinned simulator producer and let $D$ be the explicitly
+declared configuration and scene domain for one certification row.  A native
+snapshot is $x\in X_{\Sigma,D}$.  A monitor observation is $o\in O$ and
+contains a time/index pair, a finite entity map, optional spatial vectors,
+scalar properties, component tags, and discovery metadata.
+
+\begin{definition}[Manifest]
+A semantic manifest $\mu$ is a finite family of field records.  Each record
+states a native source accessor, producer provenance, owner/address
+population, lifecycle predicate, value transformation, unit, coordinate
+frame, exact or approximate relation, author-visible key, tags, and discovery
+rule.
+\end{definition}
+
+The manifest defines the intended projection $\Pi_\mu:X_{\Sigma,D}\to O$.
+It is therefore the semantic bridge between native state and the trace seen by
+the monitor.  Simulator validity with respect to the physical world, and the
+adequacy of an authored formula for a human intent, lie outside this bridge.
+
+\section{Adapter as a stateful transducer}
+
+\begin{definition}[Adapter transducer]
+For a fixed manifest $\mu$, an adapter is modeled as the Mealy-style
+transducer
+\[
+  \mathcal{A}_\mu=(Q,q_0,I,O\cup\Err,\delta,\lambda),
+\]
+where
+\[
+  I = \{\SpReset,\SpObserve\}\cup
+      \{\SpScope(R):R\in\powerset(K_\mu)\}.
+\]
+Here $K_\mu$ is the finite author-key population declared by $\mu$,
+$\delta:Q\times I\times X_{\Sigma,D}\to Q$ is the state transition, and
+$\lambda:Q\times I\times X_{\Sigma,D}\to O\cup\Err$ is the output
+function.  The state $Q$ may contain identity maps, prior time/index values,
+tracking history, extraction scope, and backend caches; it need not be finite.
+\end{definition}
+
+This transducer model buys an explicit account of history-dependent behavior.
+Reset, entity-ID reuse, dynamic populations, partial observations, scope
+changes, and cache invalidation cannot be specified by a stateless function
+$X\to O$.  The transducer alone is not the fidelity contract: an arbitrary
+Mealy machine may emit an arbitrary trace.  Fidelity is the refinement
+relation below plus trace-level obligations.
+
+\section{Snapshot refinement}
+
+For a native snapshot $x$, let $\mathsf{App}_\mu(x)$ be the manifest records
+whose lifecycle predicates hold.  Let $\mathsf{Keys}(o)$ be the emitted
+author-key addresses, including entity ownership.
+
+\begin{definition}[Snapshot refinement]
+An observation $o$ refines $x$ under $\mu$, written $o\preceq_\mu x$, iff:
+\begin{align}
+  \text{soundness:}\quad
+  &\forall a\in\mathsf{Keys}(o),\;\exists! f\in\mathsf{App}_\mu(x)
+    \text{ such that }a=\mathsf{addr}_f(x)
+    \land o[a]\;\mathcal{R}_f\;\mathsf{transform}_f(x), \\
+  \text{completeness:}\quad
+  &\mathsf{Keys}(o)=
+    \{\mathsf{addr}_f(x):f\in\mathsf{App}_\mu(x),
+      \mathsf{disposition}(f)=\mathsf{included}\}, \\
+  \text{metadata:}\quad
+  &\forall a\in\mathsf{Keys}(o),\;
+    \mathsf{metadata}_o(a)=\mathsf{metadata}_\mu(a).
+\end{align}
+For an exact record, $\mathcal{R}_f$ is equality after the declared conversion.
+For an approximate record, $\mathcal{R}_f$ is the approximation relation
+written in the manifest.  Unknown relations do not pass as approximations.
+\end{definition}
+
+The uniqueness requirement prevents two records from silently claiming the
+same author address.  Completeness applies to the canonical unscoped
+observation; lifecycle-inapplicable fields are not silently reclassified as
+excluded.
+
+\section{Inventory closure}
+
+Every certification row names a finite native candidate denominator $F$ and
+an enumeration procedure.  Investigation records form the disjoint partition
+\[
+  F = I_F\mathbin{\dot\cup}E_F\mathbin{\dot\cup}U_F,
+\]
+where candidates are included, categorically excluded, or unresolved.
+Certification requires totality, disjointness, and $U_F=\varnothing$.
+Absence from a search result, lack of demand from current formulas, and
+unknown semantics are not exclusions.
+
+\section{Trace refinement and failure behavior}
+
+For native trace $\sigma=x_0x_1\ldots x_n$, let
+$\mathcal{A}_\mu(\sigma)=o_0o_1\ldots o_n$.  Trace refinement requires
+$o_t\preceq_\mu x_t$ at every observed step and all of the following:
+
+\begin{enumerate}
+  \item reset establishes a fresh episode identity namespace;
+  \item timestep is nonnegative and strictly increasing after reset;
+  \item observation time is finite and nondecreasing;
+  \item an entity ID retains one class within the episode;
+  \item vector dimensions, scalar domains, tracking state, and dynamic names
+        satisfy the structural adapter contract at every appearance;
+  \item declared discovery and runtime materialization agree with the manifest;
+  \item an accepted but unsupported or unclassified native kind produces a
+        contextual error rather than a plausible partial observation.
+\end{enumerate}
+
+Errors are therefore part of the transducer codomain.  For an out-of-domain
+input, $\lambda(q,i,x)=\Err(e)$ is faithful when $e$ identifies the violated
+boundary.  Silent omission is not faithful failure.
+
+\section{Scope and criterion independence}
+\label{sec:scope}
+
+Let $\pi_R$ delete author fields outside requested key set $R$ while
+preserving time, identity, surviving values, and semantics.  Discovery,
+specification authoring, manifests, and completeness inventories use the
+unscoped transducer $\mathcal{A}_{\mu,\top}$ and therefore expose every
+applicable included field.  After specifications compile, monitoring supplies
+the union $R$ of their required components.  Every certified adapter must then
+satisfy
+\[
+  \mathcal{A}_{\mu,R}(h,x)
+  =\pi_R(\mathcal{A}_{\mu,\top}(h,x)).
+\]
+This is an exact comparison over equivalent producer histories.  Scope is a
+read, transfer, and materialization optimization only: it may delete
+unrequested fields but cannot redefine surviving values, metadata, identity,
+time, or lifecycle.  Ignoring an explicit monitoring scope is incomplete
+implementation, not a second conforming mode.
+
+For criterion object $c$, criterion independence requires
+\[
+  \mathcal{A}_{\mu,R}(h,x;c_1)
+  =\mathcal{A}_{\mu,R}(h,x;c_2)
+\]
+for equivalent histories and arbitrary benchmark reward, success, verdict,
+or authored-formula objects $c_1,c_2$.  A native criterion may be used by an
+external oracle, but not as production observed state.
+
+\section{Capability obligations}
+
+Conditional profiles are selected by the accepted native domain and audited
+surface, not by an adapter's self-selected flag.  Rigid body, articulation,
+deformable state, deformable topology, contact, and physical sensor profiles
+are mandatory when their candidate populations are applicable.  The same rule
+applies to camera capture, rendering, scene geometry/poses, and automatic
+wrapping: when a capability is present and usable in the accepted subject and
+configuration, its profile is mandatory.  A conditional profile may be not
+applicable only with source-audited, exhaustive evidence that the capability
+is absent from that subject.  The adapter must not mutate the scene merely to
+make an absent capability present.
+
+Deformable state and topology are distinct.  Nodal positions and velocities
+do not establish element connectivity, rest configuration, or verified
+physics-to-render correspondence.
+
+\section{Monitor composition}
+
+Let $M_\varphi$ be the executable monitor for formula $\varphi$, and let
+$\sem{\varphi}$ denote the reference STL semantics over an
+observation trace.
+
+\begin{theorem}
+For a native trace $\sigma$ in the certified domain, if
+\[
+  \mathcal{A}_\mu(\sigma)=\Pi_\mu(\sigma)
+  \quad\text{and}\quad
+  M_\varphi(o)=\sem{\varphi}(o)
+  \text{ for every supported }o,
+\]
+then
+\[
+  M_\varphi(\mathcal{A}_\mu(\sigma))
+  =\sem{\varphi}(\Pi_\mu(\sigma)).
+\]
+\end{theorem}
+
+\begin{proof}
+Substitute $\Pi_\mu(\sigma)$ for $\mathcal{A}_\mu(\sigma)$ using adapter
+refinement, then apply monitor correctness to that observation trace.
+\end{proof}
+
+This composition is the useful guarantee: the reported verdict is correct for
+the manifest-defined projection of the pinned simulator trace.  It does not
+guarantee that the simulator matches the physical world, that the formula
+captures the research intent, or that an uncertified adapter row is faithful.
+
+\section{Executable evidence versus proof}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Layer & Required evidence & What it establishes \\
+\midrule
+Inventory & exhaustive classification and source pin & finite claimed surface \\
+Manifest & machine-readable records and parity checks & declared field meanings \\
+Adapter trace & enforcement, properties, differential oracle & measured refinement \\
+Monitor & native/RTAMT/oracle comparison & STL evaluation correctness \\
+Composition & both premises over the same trace domain & end-to-end trace verdict \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+An evidence label records how an obligation was checked; it is not itself a
+proof.  A certification result must be derived from a closed inventory and
+exact obligation coverage.  Callers cannot manufacture certification by
+supplying a Boolean or a list of unverified ``pass'' labels.
+
+\end{document}

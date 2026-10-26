@@ -1,0 +1,1568 @@
+{
+  "contracts": [
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos"
+      ],
+      "conditional_completion_dependencies": [],
+      "function": "mj_angmomMat",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_angmomMat(const mjModel* m, mjData* d, mjtNum* mat, int body)"
+      },
+      "native_usr": "c:@F@mj_angmomMat",
+      "outputs": [
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.2.mat[{row},{k}]"
+          },
+          "logical_result_path": "parameter.2.mat",
+          "native_parameter_name": "mat",
+          "native_parameter_ordinal": 2,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "mat",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "body",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 3,
+          "owner_kind": "body",
+          "role": "owner"
+        }
+      ],
+      "population": {
+        "count_field": "mjModel.nbody",
+        "include_static_world_unnamed_and_unused": true,
+        "object_types": {},
+        "owner_kind": "body"
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.subtree_com[body]\",\"source\":[{\"end_line\":818,\"end_offset\":21825,\"line\":753,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":19659,\"verbatim\":\"void mj_angmomMat(const mjModel* m, mjData* d, mjtNum* mat, int body) {\\n  int nv = m->nv;\\n  mj_markStack(d);\\n\\n  // stack allocations\\n  mjtNum* jacp = mjSTACKALLOC(d, 3*nv, mjtNum);\\n  mjtNum* jacr = mjSTACKALLOC(d, 3*nv, mjtNum);\\n  mjtNum* term1 = mjSTACKALLOC(d, 3*nv, mjtNum);\\n  mjtNum* term2 = mjSTACKALLOC(d, 3*nv, mjtNum);\\n\\n  // clear output\\n  mju_zero(mat, 3*nv);\\n\\n  // save the location of the subtree COM\\n  mjtNum subtree_com[3];\\n  mju_copy3(subtree_com, d->subtree_com+3*body);\\n\\n  for (int b=body; b < m->nbody; b++) {\\n    // end of body subtree, break from the loop\\n    if (b > body && m->body_parentid[b] < body) {\\n      break;\\n    }\\n\\n    // linear and angular velocity Jacobian of the body COM (inertial frame)\\n    mj_jacBodyCom(m, d, jacp, jacr, b);\\n\\n    // orientation of the COM (inertial) frame of b-th body\\n    mjtNum ximat[9];\\n    mji_copy9(ximat, d->ximat+9*b);\\n\\n    // save the inertia matrix of b-th body\\n    mjtNum inertia[9] = {0};\\n    inertia[0] = m->body_inertia[3*b+0];  // inertia(1,1)\\n    inertia[4] = m->body_inertia[3*b+1];  // inertia(2,2)\\n    inertia[8] = m->body_inertia[3*b+2];  // inertia(3,3)\\n\\n    // term1 = body angular momentum about self COM in world frame\\n    mjtNum tmp1[9], tmp2[9];\\n    mji_mulMatMat3(tmp1, ximat, inertia);          // tmp1  = ximat * inertia\\n    mju_mulMatMatT3(tmp2, tmp1, ximat);            // tmp2  = ximat * inertia * ximat^T\\n    mju_mulMatMat(term1, tmp2, jacr, 3, 3, nv);    // term1 = ximat * inertia * ximat^T * jacr\\n\\n    // location of body COM w.r.t subtree COM\\n    mjtNum com[3];\\n    mji_sub3(com, d->xipos+3*b, subtree_com);\\n\\n    // skew symmetric matrix representing body_com vector\\n    mjtNum com_mat[9] = {0};\\n    com_mat[1] = -com[2];\\n    com_mat[2] = com[1];\\n    com_mat[3] = com[2];\\n    com_mat[5] = -com[0];\\n    com_mat[6] = -com[1];\\n    com_mat[7] = com[0];\\n\\n    // term2 = moment of linear momentum\\n    mju_mulMatMat(term2, com_mat, jacp, 3, 3, nv);   // term2 = com_mat * jacp\\n    mju_scl(term2, term2, m->body_mass[b], 3 * nv);  // term2 = com_mat * jacp * mass\\n\\n    // mat += term1 + term2\\n    mju_addTo(mat, term1, 3*nv);\\n    mju_addTo(mat, term2, 3*nv);\\n  }\\n\\n  mj_freeStack(d);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native matrix H mapping qvel to angular momentum of the body subtree about its subtree center of mass, expressed in world axes. Native output component mat.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "body",
+          "quantity_id": "mujoco.query.mj_angmomMat.mat",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"rotational qvel columns are numerically rad/T; radians have base dimension 1\",\"general\":\"M*L^2/D_k\",\"rotation_column\":\"M*L^2\",\"translation_column\":\"M*L\"}"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    },
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos"
+      ],
+      "conditional_completion_dependencies": [],
+      "function": "mj_jacBody",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_jacBody(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int body)"
+      },
+      "native_usr": "c:@F@mj_jacBody",
+      "outputs": [
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.2.jacp[{row},{k}]"
+          },
+          "logical_result_path": "parameter.2.jacp",
+          "native_parameter_name": "jacp",
+          "native_parameter_ordinal": 2,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        },
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.3.jacr[{row},{k}]"
+          },
+          "logical_result_path": "parameter.3.jacr",
+          "native_parameter_name": "jacr",
+          "native_parameter_ordinal": 3,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "const mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacp",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacr",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 3,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "body",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 4,
+          "owner_kind": "body",
+          "role": "owner"
+        }
+      ],
+      "population": {
+        "count_field": "mjModel.nbody",
+        "include_static_world_unnamed_and_unused": true,
+        "object_types": {},
+        "owner_kind": "body"
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.xpos[body]\",\"source\":[{\"end_line\":230,\"end_offset\":5399,\"line\":228,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":5257,\"verbatim\":\"void mj_jacBody(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int body) {\\n  mj_jac(m, d, jacp, jacr, d->xpos+3*body, body);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the body-frame origin: translational velocity and body angular velocity from native generalized velocity. Native output component jacp.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "body",
+          "quantity_id": "mujoco.query.mj_jacBody.jacp",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"rotation columns are per native radian coordinate\",\"general\":\"L/D_k\",\"rotation_column\":\"L\",\"translation_column\":\"1\"}"
+        },
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.xpos[body]\",\"source\":[{\"end_line\":230,\"end_offset\":5399,\"line\":228,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":5257,\"verbatim\":\"void mj_jacBody(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int body) {\\n  mj_jac(m, d, jacp, jacr, d->xpos+3*body, body);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the body-frame origin: translational velocity and body angular velocity from native generalized velocity. Native output component jacr.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "body",
+          "quantity_id": "mujoco.query.mj_jacBody.jacr",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"angular output and rotational input use radians\",\"general\":\"1/D_k\",\"rotation_column\":\"1\",\"translation_column\":\"1/L\"}"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    },
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos"
+      ],
+      "conditional_completion_dependencies": [],
+      "function": "mj_jacBodyCom",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_jacBodyCom(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int body)"
+      },
+      "native_usr": "c:@F@mj_jacBodyCom",
+      "outputs": [
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.2.jacp[{row},{k}]"
+          },
+          "logical_result_path": "parameter.2.jacp",
+          "native_parameter_name": "jacp",
+          "native_parameter_ordinal": 2,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        },
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.3.jacr[{row},{k}]"
+          },
+          "logical_result_path": "parameter.3.jacr",
+          "native_parameter_name": "jacr",
+          "native_parameter_ordinal": 3,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "const mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacp",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacr",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 3,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "body",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 4,
+          "owner_kind": "body",
+          "role": "owner"
+        }
+      ],
+      "population": {
+        "count_field": "mjModel.nbody",
+        "include_static_world_unnamed_and_unused": true,
+        "object_types": {},
+        "owner_kind": "body"
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.xipos[body]\",\"source\":[{\"end_line\":236,\"end_offset\":5577,\"line\":234,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":5431,\"verbatim\":\"void mj_jacBodyCom(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int body) {\\n  mj_jac(m, d, jacp, jacr, d->xipos+3*body, body);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the body inertial center: translational velocity and body angular velocity from native generalized velocity. Native output component jacp.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "body",
+          "quantity_id": "mujoco.query.mj_jacBodyCom.jacp",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"rotation columns are per native radian coordinate\",\"general\":\"L/D_k\",\"rotation_column\":\"L\",\"translation_column\":\"1\"}"
+        },
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.xipos[body]\",\"source\":[{\"end_line\":236,\"end_offset\":5577,\"line\":234,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":5431,\"verbatim\":\"void mj_jacBodyCom(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int body) {\\n  mj_jac(m, d, jacp, jacr, d->xipos+3*body, body);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the body inertial center: translational velocity and body angular velocity from native generalized velocity. Native output component jacr.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "body",
+          "quantity_id": "mujoco.query.mj_jacBodyCom.jacr",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"angular output and rotational input use radians\",\"general\":\"1/D_k\",\"rotation_column\":\"1\",\"translation_column\":\"1/L\"}"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    },
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos"
+      ],
+      "conditional_completion_dependencies": [],
+      "function": "mj_jacGeom",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_jacGeom(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int geom)"
+      },
+      "native_usr": "c:@F@mj_jacGeom",
+      "outputs": [
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.2.jacp[{row},{k}]"
+          },
+          "logical_result_path": "parameter.2.jacp",
+          "native_parameter_name": "jacp",
+          "native_parameter_ordinal": 2,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        },
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.3.jacr[{row},{k}]"
+          },
+          "logical_result_path": "parameter.3.jacr",
+          "native_parameter_name": "jacr",
+          "native_parameter_ordinal": 3,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "const mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacp",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacr",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 3,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "geom",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 4,
+          "owner_kind": "geom",
+          "role": "owner"
+        }
+      ],
+      "population": {
+        "count_field": "mjModel.ngeom",
+        "include_static_world_unnamed_and_unused": true,
+        "object_types": {},
+        "owner_kind": "geom"
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.geom_xpos[geom]\",\"source\":[{\"end_line\":270,\"end_offset\":6497,\"line\":268,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":6332,\"verbatim\":\"void mj_jacGeom(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int geom) {\\n  mj_jac(m, d, jacp, jacr, d->geom_xpos + 3*geom, m->geom_bodyid[geom]);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the geometry origin, rigidly attached to geom_bodyid: world translational and angular velocity from native generalized velocity. Native output component jacp.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "geom",
+          "quantity_id": "mujoco.query.mj_jacGeom.jacp",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"rotation columns are per native radian coordinate\",\"general\":\"L/D_k\",\"rotation_column\":\"L\",\"translation_column\":\"1\"}"
+        },
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.geom_xpos[geom]\",\"source\":[{\"end_line\":270,\"end_offset\":6497,\"line\":268,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":6332,\"verbatim\":\"void mj_jacGeom(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int geom) {\\n  mj_jac(m, d, jacp, jacr, d->geom_xpos + 3*geom, m->geom_bodyid[geom]);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the geometry origin, rigidly attached to geom_bodyid: world translational and angular velocity from native generalized velocity. Native output component jacr.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "geom",
+          "quantity_id": "mujoco.query.mj_jacGeom.jacr",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"angular output and rotational input use radians\",\"general\":\"1/D_k\",\"rotation_column\":\"1\",\"translation_column\":\"1/L\"}"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    },
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos"
+      ],
+      "conditional_completion_dependencies": [],
+      "function": "mj_jacSite",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_jacSite(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int site)"
+      },
+      "native_usr": "c:@F@mj_jacSite",
+      "outputs": [
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.2.jacp[{row},{k}]"
+          },
+          "logical_result_path": "parameter.2.jacp",
+          "native_parameter_name": "jacp",
+          "native_parameter_ordinal": 2,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        },
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.3.jacr[{row},{k}]"
+          },
+          "logical_result_path": "parameter.3.jacr",
+          "native_parameter_name": "jacr",
+          "native_parameter_ordinal": 3,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "const mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacp",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacr",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 3,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "site",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 4,
+          "owner_kind": "site",
+          "role": "owner"
+        }
+      ],
+      "population": {
+        "count_field": "mjModel.nsite",
+        "include_static_world_unnamed_and_unused": true,
+        "object_types": {},
+        "owner_kind": "site"
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.site_xpos[site]\",\"source\":[{\"end_line\":276,\"end_offset\":6690,\"line\":274,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":6525,\"verbatim\":\"void mj_jacSite(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int site) {\\n  mj_jac(m, d, jacp, jacr, d->site_xpos + 3*site, m->site_bodyid[site]);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the site origin, rigidly attached to site_bodyid: world translational and angular velocity from native generalized velocity. Native output component jacp.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "site",
+          "quantity_id": "mujoco.query.mj_jacSite.jacp",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"rotation columns are per native radian coordinate\",\"general\":\"L/D_k\",\"rotation_column\":\"L\",\"translation_column\":\"1\"}"
+        },
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"mjData.site_xpos[site]\",\"source\":[{\"end_line\":276,\"end_offset\":6690,\"line\":274,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":6525,\"verbatim\":\"void mj_jacSite(const mjModel* m, const mjData* d, mjtNum* jacp, mjtNum* jacr, int site) {\\n  mj_jac(m, d, jacp, jacr, d->site_xpos + 3*site, m->site_bodyid[site]);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native Jacobian at the site origin, rigidly attached to site_bodyid: world translational and angular velocity from native generalized velocity. Native output component jacr.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "site",
+          "quantity_id": "mujoco.query.mj_jacSite.jacr",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"angular output and rotational input use radians\",\"general\":\"1/D_k\",\"rotation_column\":\"1\",\"translation_column\":\"1/L\"}"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    },
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos"
+      ],
+      "conditional_completion_dependencies": [],
+      "function": "mj_jacSubtreeCom",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_jacSubtreeCom(const mjModel* m, mjData* d, mjtNum* jacp, int body)"
+      },
+      "native_usr": "c:@F@mj_jacSubtreeCom",
+      "outputs": [
+        {
+          "component_paths": {
+            "domain": "row=0,1,2; k=0..nv-1",
+            "flat_native_offset": "row*nv+k",
+            "path_template": "parameter.2.jacp[{row},{k}]"
+          },
+          "logical_result_path": "parameter.2.jacp",
+          "native_parameter_name": "jacp",
+          "native_parameter_ordinal": 2,
+          "schema_shape": [
+            3,
+            "mjModel.nv"
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "jacp",
+          "native_default": null,
+          "native_type": "mjtNum *",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "body",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 3,
+          "owner_kind": "body",
+          "role": "owner"
+        }
+      ],
+      "population": {
+        "count_field": "mjModel.nbody",
+        "include_static_world_unnamed_and_unused": true,
+        "object_types": {},
+        "owner_kind": "body"
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world Cartesian x/y/z rows; no output rotation into a local body frame\",\"columns\":\"native generalized velocity DOF order k=0..nv-1 with per-column native joint/type/component metadata\",\"native_index\":\"row-major address row*nv+k\",\"origin\":\"Native mass-weighted descendant body inertial centers, divided by stored body_subtreemass[body]\",\"source\":[{\"end_line\":264,\"end_offset\":6304,\"line\":240,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":5612,\"verbatim\":\"void mj_jacSubtreeCom(const mjModel* m, mjData* d, mjtNum* jacp, int body) {\\n  int nv = m->nv;\\n  mj_markStack(d);\\n  mjtNum* jacp_b = mjSTACKALLOC(d, 3*nv, mjtNum);\\n\\n  // clear output\\n  mju_zero(jacp, 3*nv);\\n\\n  // forward pass starting from body\\n  for (int b=body; b < m->nbody; b++) {\\n    // end of body subtree, break from the loop\\n    if (b > body && m->body_parentid[b] < body) {\\n      break;\\n    }\\n\\n    // b is in the body subtree, add mass-weighted Jacobian into jacp\\n    mj_jac(m, d, jacp_b, NULL, d->xipos+3*b, b);\\n    mju_addToScl(jacp, jacp_b, m->body_mass[b], 3*nv);\\n  }\\n\\n  // normalize by subtree mass\\n  mju_scl(jacp, jacp, 1/m->body_subtreemass[body], 3*nv);\\n\\n  mj_freeStack(d);\\n}\"},{\"end_line\":224,\"end_offset\":5229,\"line\":176,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":4043,\"verbatim\":\"void mj_jac(const mjModel* m, const mjData* d,\\n            mjtNum* jacp, mjtNum* jacr, const mjtNum point[3], int body) {\\n  int nv = m->nv;\\n  mjtNum offset[3];\\n\\n  // clear jacobians, compute offset if required\\n  if (jacp) {\\n    mju_zero(jacp, 3*nv);\\n    mju_sub3(offset, point, d->subtree_com+3*m->body_rootid[body]);\\n  }\\n  if (jacr) {\\n    mju_zero(jacr, 3*nv);\\n  }\\n\\n  // skip fixed bodies\\n  body = m->body_weldid[body];\\n\\n  // no movable body found: nothing to do\\n  if (!body) {\\n    return;\\n  }\\n\\n  // get last dof that affects this (as well as the original) body\\n  int i = m->body_dofadr[body] + m->body_dofnum[body] - 1;\\n\\n  // backward pass over dof ancestor chain\\n  while (i >= 0) {\\n    mjtNum* cdof = d->cdof+6*i;\\n\\n    // construct rotation jacobian\\n    if (jacr) {\\n      jacr[i+0*nv] = cdof[0];\\n      jacr[i+1*nv] = cdof[1];\\n      jacr[i+2*nv] = cdof[2];\\n    }\\n\\n    // construct translation jacobian (correct for rotation)\\n    if (jacp) {\\n      mjtNum tmp[3];\\n      mji_cross(tmp, cdof, offset);\\n      jacp[i+0*nv] = cdof[3] + tmp[0];\\n      jacp[i+1*nv] = cdof[4] + tmp[1];\\n      jacp[i+2*nv] = cdof[5] + tmp[2];\\n    }\\n\\n    // advance to parent dof\\n    i = m->dof_parentid[i];\\n  }\\n}\"},{\"end_line\":350,\"end_offset\":10924,\"line\":246,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_smooth.c\",\"sha256\":\"ddce34eee0c9d11e058b847d90b9fc10e437de157b81cd33987543994b4c7e9d\",\"start_offset\":7698,\"verbatim\":\"void mj_comPos(const mjModel* m, mjData* d) {\\n  int sleep_filter = mjENABLED(mjENBL_SLEEP) && d->nbody_awake < m->nbody;\\n  int nbody = sleep_filter ? d->nbody_awake : m->nbody;\\n  int nparent = sleep_filter ? d->nparent_awake : m->nbody;\\n\\n  // subtree_com: initialize with body moment\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mji_scl3(d->subtree_com+3*i, d->xipos+3*i, m->body_mass[i]);\\n  }\\n\\n  // subtree_com: accumulate to parent in backward pass\\n  for (int b=nparent-1; b >= 0; b--) {\\n    int i = sleep_filter ? d->parent_awake_ind[b] : b;\\n    if (!i) continue;\\n\\n    // accumulate moment to parent, rescale if sleeping\\n    int parent = m->body_parentid[i];\\n    if (sleep_filter && d->body_awake[i] == mjS_ASLEEP) {\\n      mjtNum child_moment[3];\\n      mji_scl3(child_moment, d->subtree_com+3*i, m->body_subtreemass[i]);\\n      mji_addTo3(d->subtree_com+3*parent, child_moment);\\n    } else {\\n      mji_addTo3(d->subtree_com+3*parent, d->subtree_com+3*i);\\n    }\\n  }\\n\\n  // subtree_com: normalize\\n  for (int b=0; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    if (m->body_subtreemass[i] < mjMINVAL) {\\n      mji_copy3(d->subtree_com+3*i, d->xipos+3*i);\\n    } else {\\n      mju_scl3(d->subtree_com + 3 * i, d->subtree_com + 3 * i,\\n               1.0 / m->body_subtreemass[i]);\\n    }\\n  }\\n\\n  // zero out CoM frame inertia for the world body\\n  mju_zero(d->cinert, 10);\\n\\n  // map inertias to frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    mjtNum offset[3];\\n    mji_sub3(offset, d->xipos+3*i, d->subtree_com+3*m->body_rootid[i]);\\n    mju_inertCom(d->cinert+10*i, m->body_inertia+3*i, d->ximat+9*i, offset, m->body_mass[i]);\\n  }\\n\\n  // map motion dofs to global frame centered at subtree_com\\n  for (int b=1; b < nbody; b++) {\\n    int i = sleep_filter ? d->body_awake_ind[b] : b;\\n\\n    int jntnum = m->body_jntnum[i];\\n    if (!jntnum) continue;\\n\\n    int start = m->body_jntadr[i];\\n    int end = start + jntnum;\\n    for (int j=start; j < end; j++) {\\n      // get cdof address\\n      int da = 6*m->jnt_dofadr[j];\\n\\n      // compute com-anchor vector\\n      mjtNum offset[3], axis[3];\\n      mji_sub3(offset, d->subtree_com+3*m->body_rootid[i], d->xanchor+3*j);\\n\\n      // create motion dof\\n      int skip = 0;\\n      switch ((mjtJoint) m->jnt_type[j]) {\\n      case mjJNT_FREE:\\n        // translation components: x, y, z in global frame\\n        mju_zero(d->cdof+da, 18);\\n        d->cdof[da+3+7*0] = 1;\\n        d->cdof[da+3+7*1] = 1;\\n        d->cdof[da+3+7*2] = 1;\\n\\n        // rotation components: same as ball\\n        skip = 18;\\n        mjFALLTHROUGH;\\n\\n      case mjJNT_BALL:\\n        for (int k=0; k < 3; k++) {\\n          // I_3 rotation in child frame (assume no subsequent rotations)\\n          axis[0] = d->xmat[9*i + k + 0];\\n          axis[1] = d->xmat[9*i + k + 3];\\n          axis[2] = d->xmat[9*i + k + 6];\\n\\n          mju_dofCom(d->cdof+da+skip+6*k, axis, offset);\\n        }\\n        break;\\n\\n      case mjJNT_SLIDE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, 0);\\n        break;\\n\\n      case mjJNT_HINGE:\\n        mju_dofCom(d->cdof+da, d->xaxis+3*j, offset);\\n        break;\\n      }\\n    }\\n  }\\n}\"}]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native mass-weighted sum of descendant inertial-center Jacobians divided by stored body_subtreemass[body]; world translational rows. Native output component jacp.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "each output[3,nv]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "Stored body_subtreemass[body]==0: native expression divides by zero with no branch. No mass-based owner omission or fabricated zeros. Native execution/floating-environment contract must allow the outcome; record raw nonfinite result if returned, otherwise explicit unresolved precondition.",
+              "id": "zero_subtree_mass",
+              "source": {
+                "end_line": 264,
+                "end_offset": 6304,
+                "line": 240,
+                "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c",
+                "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552",
+                "start_offset": 5612,
+                "verbatim": "void mj_jacSubtreeCom(const mjModel* m, mjData* d, mjtNum* jacp, int body) {\n  int nv = m->nv;\n  mj_markStack(d);\n  mjtNum* jacp_b = mjSTACKALLOC(d, 3*nv, mjtNum);\n\n  // clear output\n  mju_zero(jacp, 3*nv);\n\n  // forward pass starting from body\n  for (int b=body; b < m->nbody; b++) {\n    // end of body subtree, break from the loop\n    if (b > body && m->body_parentid[b] < body) {\n      break;\n    }\n\n    // b is in the body subtree, add mass-weighted Jacobian into jacp\n    mj_jac(m, d, jacp_b, NULL, d->xipos+3*b, b);\n    mju_addToScl(jacp, jacp_b, m->body_mass[b], 3*nv);\n  }\n\n  // normalize by subtree mass\n  mju_scl(jacp, jacp, 1/m->body_subtreemass[body], 3*nv);\n\n  mj_freeStack(d);\n}"
+              }
+            },
+            {
+              "condition": "nv==0 gives shape(3,0), retained as typed empty. Subtree normalization expression still evaluates; zero width does not waive its mass/floating-environment condition.",
+              "id": "empty_native_dof_domain",
+              "layout": "output[3,0]"
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "body",
+          "quantity_id": "mujoco.query.mj_jacSubtreeCom.jacp",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "{\"angular_annotation\":\"rotation columns are per native radian coordinate\",\"general\":\"L/D_k\",\"rotation_column\":\"L\",\"translation_column\":\"1\"}"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    },
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "flg_local": {
+            "maximum": 2147483647,
+            "minimum": -2147483648,
+            "type": "integer"
+          },
+          "objtype": {
+            "enum": [
+              1,
+              2,
+              5,
+              6,
+              7
+            ],
+            "type": "integer"
+          }
+        },
+        "required": [
+          "objtype",
+          "flg_local"
+        ],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos",
+        "mj_comVel",
+        "mj_rnePostConstraint"
+      ],
+      "conditional_completion_dependencies": [
+        {
+          "after": "mj_comPos",
+          "call": "mj_camlight",
+          "when": "objtype==mjOBJ_CAMERA"
+        }
+      ],
+      "function": "mj_objectAcceleration",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_objectAcceleration(const mjModel* m, const mjData* d,\n                                 int objtype, int objid, mjtNum res[6], int flg_local)"
+      },
+      "native_usr": "c:@F@mj_objectAcceleration",
+      "outputs": [
+        {
+          "component_paths": [
+            "parameter.4.res[0]",
+            "parameter.4.res[1]",
+            "parameter.4.res[2]",
+            "parameter.4.res[3]",
+            "parameter.4.res[4]",
+            "parameter.4.res[5]"
+          ],
+          "logical_result_path": "parameter.4.res",
+          "native_parameter_name": "res",
+          "native_parameter_ordinal": 4,
+          "schema_shape": [
+            6
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "const mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "objtype",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "argument"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "objid",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 3,
+          "owner_kind": "native_object",
+          "role": "owner"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "res",
+          "native_default": null,
+          "native_type": "mjtNum[6]",
+          "ordinal": 4,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "flg_local",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 5,
+          "owner_kind": null,
+          "role": "argument"
+        }
+      ],
+      "population": {
+        "object_types": {
+          "mjOBJ_BODY": {
+            "body_resolution": "objid",
+            "center_field": "mjData.xipos",
+            "enum_value": 1,
+            "orientation_field": "mjData.ximat",
+            "owner_kind": "body",
+            "population": {
+              "count_field": "mjModel.nbody",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < nbody"
+            }
+          },
+          "mjOBJ_CAMERA": {
+            "body_resolution": "mjModel.cam_bodyid[objid]",
+            "center_field": "mjData.cam_xpos",
+            "enum_value": 7,
+            "orientation_field": "mjData.cam_xmat",
+            "owner_kind": "camera",
+            "population": {
+              "count_field": "mjModel.ncam",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < ncam"
+            }
+          },
+          "mjOBJ_GEOM": {
+            "body_resolution": "mjModel.geom_bodyid[objid]",
+            "center_field": "mjData.geom_xpos",
+            "enum_value": 5,
+            "orientation_field": "mjData.geom_xmat",
+            "owner_kind": "geom",
+            "population": {
+              "count_field": "mjModel.ngeom",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < ngeom"
+            }
+          },
+          "mjOBJ_SITE": {
+            "body_resolution": "mjModel.site_bodyid[objid]",
+            "center_field": "mjData.site_xpos",
+            "enum_value": 6,
+            "orientation_field": "mjData.site_xmat",
+            "owner_kind": "site",
+            "population": {
+              "count_field": "mjModel.nsite",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < nsite"
+            }
+          },
+          "mjOBJ_XBODY": {
+            "body_resolution": "objid",
+            "center_field": "mjData.xpos",
+            "enum_value": 2,
+            "orientation_field": "mjData.xmat",
+            "owner_kind": "body",
+            "population": {
+              "count_field": "mjModel.nbody",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < nbody"
+            }
+          }
+        }
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world axes when flg_local==0; selected object orientation when flg_local!=0; native transform multiplies by its transpose\",\"camera_semantics\":\"For all cam_mode declarations this query shifts cam_bodyid spatial motion to the instantaneous cam_xpos and expresses it with cam_xmat. It does not differentiate target/track camera positioning or orientation modes.\",\"mocap_semantics\":\"No independent mocap trajectory derivative is computed; retain source static-body behavior even if mocap positions were externally changed.\",\"orientation_selector\":\"flg_local is a required signed C int; zero/nonzero are source branches, not a Python bool-only schema\",\"origin\":\"Selected native object center from object_types\",\"source\":[{\"end_line\":943,\"end_offset\":25139,\"line\":881,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":23426,\"verbatim\":\"void mj_objectAcceleration(const mjModel* m, const mjData* d,\\n                           int objtype, int objid, mjtNum res[6], int flg_local) {\\n  int bodyid = 0;\\n  const mjtNum *pos = 0, *rot = 0;\\n\\n  // body-inertial\\n  if (objtype == mjOBJ_BODY) {\\n    bodyid = objid;\\n    pos = d->xipos+3*objid;\\n    rot = (flg_local ? d->ximat+9*objid : 0);\\n  }\\n\\n  // body-regular\\n  else if (objtype == mjOBJ_XBODY) {\\n    bodyid = objid;\\n    pos = d->xpos+3*objid;\\n    rot = (flg_local ? d->xmat+9*objid : 0);\\n  }\\n\\n  // geom\\n  else if (objtype == mjOBJ_GEOM) {\\n    bodyid = m->geom_bodyid[objid];\\n    pos = d->geom_xpos+3*objid;\\n    rot = (flg_local ? d->geom_xmat+9*objid : 0);\\n  }\\n\\n  // site\\n  else if (objtype == mjOBJ_SITE) {\\n    bodyid = m->site_bodyid[objid];\\n    pos = d->site_xpos+3*objid;\\n    rot = (flg_local ? d->site_xmat+9*objid : 0);\\n  }\\n\\n  // camera\\n  else if (objtype == mjOBJ_CAMERA) {\\n    bodyid = m->cam_bodyid[objid];\\n    pos = d->cam_xpos+3*objid;\\n    rot = (flg_local ? d->cam_xmat+9*objid : 0);\\n  }\\n\\n  // object without spatial frame\\n  else {\\n    mjERROR(\\\"invalid object type %d\\\", objtype);\\n  }\\n\\n  // static body: quick return\\n  if (m->body_weldid[bodyid] == 0) {\\n    mju_zero(res, 6);\\n    return;\\n  }\\n\\n  // transform com-based acceleration to local frame\\n  mju_transformSpatial(res, d->cacc+6*bodyid, 0, pos, d->subtree_com+3*m->body_rootid[bodyid], rot);\\n\\n  // transform com-based velocity to local frame\\n  mjtNum vel[6];\\n  mju_transformSpatial(vel, d->cvel+6*bodyid, 0, pos, d->subtree_com+3*m->body_rootid[bodyid], rot);\\n\\n  // add Coriolis correction due to rotating frame:  acc_tran += vel_rot x vel_tran\\n  mjtNum correction[3];\\n  mji_cross(correction, vel, vel+3);\\n  mji_addTo3(res+3, correction);\\n}\"},{\"end_line\":504,\"end_offset\":14895,\"line\":478,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_util_spatial.c\",\"sha256\":\"c9f9b63ea23ae77f044c2a9d96c764fd10fc81e39e37d52ce3edfc5f79e3c55b\",\"start_offset\":14184,\"verbatim\":\"void mju_transformSpatial(mjtNum res[6], const mjtNum vec[6], int flg_force,\\n                          const mjtNum newpos[3], const mjtNum oldpos[3],\\n                          const mjtNum rotnew2old[9]) {\\n  mjtNum cros[3], dif[3], tran[6];\\n\\n  // apply translation\\n  mju_copy(tran, vec, 6);\\n  mji_sub3(dif, newpos, oldpos);\\n  if (flg_force) {\\n    mji_cross(cros, dif, vec+3);\\n    mji_sub3(tran, vec, cros);\\n  } else {\\n    mji_cross(cros, dif, vec);\\n    mji_sub3(tran+3, vec+3, cros);\\n  }\\n\\n  // if provided, apply old -> new rotation\\n  if (rotnew2old) {\\n    mji_mulMatTVec3(res, rotnew2old, tran);\\n    mji_mulMatTVec3(res+3, rotnew2old, tran+3);\\n  }\\n\\n  // otherwise copy\\n  else {\\n    mji_copy6(res, tran);\\n  }\\n}\"}],\"source_cframe_origin\":\"mjData.subtree_com[mjModel.body_rootid[bodyid]]\",\"vector_order\":[\"angular_x\",\"angular_y\",\"angular_z\",\"linear_x\",\"linear_y\",\"linear_z\"]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; snapshot qacc is held fixed and explicitly identified, without a forward-dynamics recomputation.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native object spatial acceleration evaluated from the snapshot native generalized acceleration qacc, with cacc gravity seed and velocity cross correction retained. Native output component res.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "res[6]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "mjModel.body_weldid[resolved_bodyid]==0; the native body explicitly zeros all six res components before return.",
+              "id": "native_static_zero",
+              "layout": "res[6]",
+              "source": {
+                "end_line": 943,
+                "end_offset": 25139,
+                "line": 881,
+                "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c",
+                "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552",
+                "start_offset": 23426,
+                "verbatim": "void mj_objectAcceleration(const mjModel* m, const mjData* d,\n                           int objtype, int objid, mjtNum res[6], int flg_local) {\n  int bodyid = 0;\n  const mjtNum *pos = 0, *rot = 0;\n\n  // body-inertial\n  if (objtype == mjOBJ_BODY) {\n    bodyid = objid;\n    pos = d->xipos+3*objid;\n    rot = (flg_local ? d->ximat+9*objid : 0);\n  }\n\n  // body-regular\n  else if (objtype == mjOBJ_XBODY) {\n    bodyid = objid;\n    pos = d->xpos+3*objid;\n    rot = (flg_local ? d->xmat+9*objid : 0);\n  }\n\n  // geom\n  else if (objtype == mjOBJ_GEOM) {\n    bodyid = m->geom_bodyid[objid];\n    pos = d->geom_xpos+3*objid;\n    rot = (flg_local ? d->geom_xmat+9*objid : 0);\n  }\n\n  // site\n  else if (objtype == mjOBJ_SITE) {\n    bodyid = m->site_bodyid[objid];\n    pos = d->site_xpos+3*objid;\n    rot = (flg_local ? d->site_xmat+9*objid : 0);\n  }\n\n  // camera\n  else if (objtype == mjOBJ_CAMERA) {\n    bodyid = m->cam_bodyid[objid];\n    pos = d->cam_xpos+3*objid;\n    rot = (flg_local ? d->cam_xmat+9*objid : 0);\n  }\n\n  // object without spatial frame\n  else {\n    mjERROR(\"invalid object type %d\", objtype);\n  }\n\n  // static body: quick return\n  if (m->body_weldid[bodyid] == 0) {\n    mju_zero(res, 6);\n    return;\n  }\n\n  // transform com-based acceleration to local frame\n  mju_transformSpatial(res, d->cacc+6*bodyid, 0, pos, d->subtree_com+3*m->body_rootid[bodyid], rot);\n\n  // transform com-based velocity to local frame\n  mjtNum vel[6];\n  mju_transformSpatial(vel, d->cvel+6*bodyid, 0, pos, d->subtree_com+3*m->body_rootid[bodyid], rot);\n\n  // add Coriolis correction due to rotating frame:  acc_tran += vel_rot x vel_tran\n  mjtNum correction[3];\n  mji_cross(correction, vel, vel+3);\n  mji_addTo3(res+3, correction);\n}"
+              }
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "native_object",
+          "quantity_id": "mujoco.query.mj_objectAcceleration.res",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "[{\"base_dimensions\":{\"L\":0,\"M\":0,\"T\":-2},\"indices\":[0,1,2],\"unit\":\"rad/T^2\"},{\"base_dimensions\":{\"L\":1,\"M\":0,\"T\":-2},\"indices\":[3,4,5],\"unit\":\"L/T^2\"}]"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    },
+    {
+      "argument_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "flg_local": {
+            "maximum": 2147483647,
+            "minimum": -2147483648,
+            "type": "integer"
+          },
+          "objtype": {
+            "enum": [
+              1,
+              2,
+              5,
+              6,
+              7
+            ],
+            "type": "integer"
+          }
+        },
+        "required": [
+          "objtype",
+          "flg_local"
+        ],
+        "type": "object"
+      },
+      "completion_dependencies": [
+        "mj_kinematics",
+        "mj_comPos",
+        "mj_comVel"
+      ],
+      "conditional_completion_dependencies": [
+        {
+          "after": "mj_comPos",
+          "call": "mj_camlight",
+          "when": "objtype==mjOBJ_CAMERA"
+        }
+      ],
+      "function": "mj_objectVelocity",
+      "header": {
+        "relative_path": "mujoco/include/mujoco/mujoco.h",
+        "sha256": "5f20d0b8f42ccd0b73eeb19ac7bdb6833093b47d9cd48c8b170adb000819b7f9",
+        "signature": "MJAPI void mj_objectVelocity(const mjModel* m, const mjData* d,\n                             int objtype, int objid, mjtNum res[6], int flg_local)"
+      },
+      "native_usr": "c:@F@mj_objectVelocity",
+      "outputs": [
+        {
+          "component_paths": [
+            "parameter.4.res[0]",
+            "parameter.4.res[1]",
+            "parameter.4.res[2]",
+            "parameter.4.res[3]",
+            "parameter.4.res[4]",
+            "parameter.4.res[5]"
+          ],
+          "logical_result_path": "parameter.4.res",
+          "native_parameter_name": "res",
+          "native_parameter_ordinal": 4,
+          "schema_shape": [
+            6
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "m",
+          "native_default": null,
+          "native_type": "const mjModel *",
+          "ordinal": 0,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "d",
+          "native_default": null,
+          "native_type": "const mjData *",
+          "ordinal": 1,
+          "owner_kind": null,
+          "role": "context"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "objtype",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 2,
+          "owner_kind": null,
+          "role": "argument"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "objid",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 3,
+          "owner_kind": "native_object",
+          "role": "owner"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "res",
+          "native_default": null,
+          "native_type": "mjtNum[6]",
+          "ordinal": 4,
+          "owner_kind": null,
+          "role": "output_buffer"
+        },
+        {
+          "default_evidence": "C declaration has no default; Def<Traits> binds names with pybind11::arg and no value; all caller arguments remain required.",
+          "name": "flg_local",
+          "native_default": null,
+          "native_type": "int",
+          "ordinal": 5,
+          "owner_kind": null,
+          "role": "argument"
+        }
+      ],
+      "population": {
+        "object_types": {
+          "mjOBJ_BODY": {
+            "body_resolution": "objid",
+            "center_field": "mjData.xipos",
+            "enum_value": 1,
+            "orientation_field": "mjData.ximat",
+            "owner_kind": "body",
+            "population": {
+              "count_field": "mjModel.nbody",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < nbody"
+            }
+          },
+          "mjOBJ_CAMERA": {
+            "body_resolution": "mjModel.cam_bodyid[objid]",
+            "center_field": "mjData.cam_xpos",
+            "enum_value": 7,
+            "orientation_field": "mjData.cam_xmat",
+            "owner_kind": "camera",
+            "population": {
+              "count_field": "mjModel.ncam",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < ncam"
+            }
+          },
+          "mjOBJ_GEOM": {
+            "body_resolution": "mjModel.geom_bodyid[objid]",
+            "center_field": "mjData.geom_xpos",
+            "enum_value": 5,
+            "orientation_field": "mjData.geom_xmat",
+            "owner_kind": "geom",
+            "population": {
+              "count_field": "mjModel.ngeom",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < ngeom"
+            }
+          },
+          "mjOBJ_SITE": {
+            "body_resolution": "mjModel.site_bodyid[objid]",
+            "center_field": "mjData.site_xpos",
+            "enum_value": 6,
+            "orientation_field": "mjData.site_xmat",
+            "owner_kind": "site",
+            "population": {
+              "count_field": "mjModel.nsite",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < nsite"
+            }
+          },
+          "mjOBJ_XBODY": {
+            "body_resolution": "objid",
+            "center_field": "mjData.xpos",
+            "enum_value": 2,
+            "orientation_field": "mjData.xmat",
+            "owner_kind": "body",
+            "population": {
+              "count_field": "mjModel.nbody",
+              "include_static_world_unnamed_and_unused": true,
+              "range": "0 <= objid < nbody"
+            }
+          }
+        }
+      },
+      "quantities": [
+        {
+          "exactness": "exact",
+          "frame": "{\"axes\":\"world axes when flg_local==0; selected object orientation when flg_local!=0; native transform multiplies by its transpose\",\"camera_semantics\":\"For all cam_mode declarations this query shifts cam_bodyid spatial motion to the instantaneous cam_xpos and expresses it with cam_xmat. It does not differentiate target/track camera positioning or orientation modes.\",\"mocap_semantics\":\"No independent mocap trajectory derivative is computed; retain source static-body behavior even if mocap positions were externally changed.\",\"orientation_selector\":\"flg_local is a required signed C int; zero/nonzero are source branches, not a Python bool-only schema\",\"origin\":\"Selected native object center from object_types\",\"source\":[{\"end_line\":877,\"end_offset\":23339,\"line\":824,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c\",\"sha256\":\"dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552\",\"start_offset\":22010,\"verbatim\":\"void mj_objectVelocity(const mjModel* m, const mjData* d,\\n                       int objtype, int objid, mjtNum res[6], int flg_local) {\\n  int bodyid = 0;\\n  const mjtNum *pos = 0, *rot = 0;\\n\\n  // body-inertial\\n  if (objtype == mjOBJ_BODY) {\\n    bodyid = objid;\\n    pos = d->xipos+3*objid;\\n    rot = (flg_local ? d->ximat+9*objid : 0);\\n  }\\n\\n  // body-regular\\n  else if (objtype == mjOBJ_XBODY) {\\n    bodyid = objid;\\n    pos = d->xpos+3*objid;\\n    rot = (flg_local ? d->xmat+9*objid : 0);\\n  }\\n\\n  // geom\\n  else if (objtype == mjOBJ_GEOM) {\\n    bodyid = m->geom_bodyid[objid];\\n    pos = d->geom_xpos+3*objid;\\n    rot = (flg_local ? d->geom_xmat+9*objid : 0);\\n  }\\n\\n  // site\\n  else if (objtype == mjOBJ_SITE) {\\n    bodyid = m->site_bodyid[objid];\\n    pos = d->site_xpos+3*objid;\\n    rot = (flg_local ? d->site_xmat+9*objid : 0);\\n  }\\n\\n  // camera\\n  else if (objtype == mjOBJ_CAMERA) {\\n    bodyid = m->cam_bodyid[objid];\\n    pos = d->cam_xpos+3*objid;\\n    rot = (flg_local ? d->cam_xmat+9*objid : 0);\\n  }\\n\\n  // object without spatial frame\\n  else {\\n    mjERROR(\\\"invalid object type %d\\\", objtype);\\n  }\\n\\n  // static body: quick return\\n  if (m->body_weldid[bodyid] == 0) {\\n    mju_zero(res, 6);\\n    return;\\n  }\\n\\n  // transform velocity\\n  mju_transformSpatial(res, d->cvel+6*bodyid, 0, pos, d->subtree_com+3*m->body_rootid[bodyid], rot);\\n}\"},{\"end_line\":504,\"end_offset\":14895,\"line\":478,\"path\":\"/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_util_spatial.c\",\"sha256\":\"c9f9b63ea23ae77f044c2a9d96c764fd10fc81e39e37d52ce3edfc5f79e3c55b\",\"start_offset\":14184,\"verbatim\":\"void mju_transformSpatial(mjtNum res[6], const mjtNum vec[6], int flg_force,\\n                          const mjtNum newpos[3], const mjtNum oldpos[3],\\n                          const mjtNum rotnew2old[9]) {\\n  mjtNum cros[3], dif[3], tran[6];\\n\\n  // apply translation\\n  mju_copy(tran, vec, 6);\\n  mji_sub3(dif, newpos, oldpos);\\n  if (flg_force) {\\n    mji_cross(cros, dif, vec+3);\\n    mji_sub3(tran, vec, cros);\\n  } else {\\n    mji_cross(cros, dif, vec);\\n    mji_sub3(tran+3, vec+3, cros);\\n  }\\n\\n  // if provided, apply old -> new rotation\\n  if (rotnew2old) {\\n    mji_mulMatTVec3(res, rotnew2old, tran);\\n    mji_mulMatTVec3(res+3, rotnew2old, tran+3);\\n  }\\n\\n  // otherwise copy\\n  else {\\n    mji_copy6(res, tran);\\n  }\\n}\"}],\"source_cframe_origin\":\"mjData.subtree_com[mjModel.body_rootid[bodyid]]\",\"vector_order\":[\"angular_x\",\"angular_y\",\"angular_z\",\"linear_x\",\"linear_y\",\"linear_z\"]}",
+          "freshness": "Detached evaluation after the exact minimal schedule from one coherent captured native input snapshot; no integration, new controls or task criteria are evaluated.",
+          "metadata_required": [
+            "native owner tuple and owner name if present",
+            "original native argument values and complete query configuration identity",
+            "component/axis/DOF native addresses, joint types and units",
+            "native dtype/byte-order/shape and validity",
+            "snapshot native state versus completed-query evaluation identity",
+            "required native completion function sequence and versioned source identities"
+          ],
+          "native_meaning": "Native owning-body spatial velocity shifted to the declared object center and expressed in the caller-selected world or native object orientation. Native output component res.",
+          "outcomes": [
+            {
+              "condition": "Allocated output, valid source/owner/model/type identity and declared dependency custody; preserve all returned floating bytes including signed zero.",
+              "id": "native_value",
+              "layout": "res[6]"
+            },
+            {
+              "condition": "Native call returned NaN or infinity; retain exact array payload and explicit nonfinite validity, not success-as-finite or invented zero.",
+              "id": "native_nonfinite",
+              "layout": "same dtype/shape as native_value"
+            },
+            {
+              "condition": "Identity, input ownership, allocation, initialization, native integer arithmetic bounds or completion/effect custody cannot be established; do not call and do not fabricate a result.",
+              "id": "unresolved_precondition"
+            },
+            {
+              "condition": "mjModel.body_weldid[resolved_bodyid]==0; the native body explicitly zeros all six res components before return.",
+              "id": "native_static_zero",
+              "layout": "res[6]",
+              "source": {
+                "end_line": 877,
+                "end_offset": 23339,
+                "line": 824,
+                "path": "/tmp/specola-extraction-20260906/mujoco-address-logical-semantic-inputs/source/3.10.0/src/engine/engine_core_util.c",
+                "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552",
+                "start_offset": 22010,
+                "verbatim": "void mj_objectVelocity(const mjModel* m, const mjData* d,\n                       int objtype, int objid, mjtNum res[6], int flg_local) {\n  int bodyid = 0;\n  const mjtNum *pos = 0, *rot = 0;\n\n  // body-inertial\n  if (objtype == mjOBJ_BODY) {\n    bodyid = objid;\n    pos = d->xipos+3*objid;\n    rot = (flg_local ? d->ximat+9*objid : 0);\n  }\n\n  // body-regular\n  else if (objtype == mjOBJ_XBODY) {\n    bodyid = objid;\n    pos = d->xpos+3*objid;\n    rot = (flg_local ? d->xmat+9*objid : 0);\n  }\n\n  // geom\n  else if (objtype == mjOBJ_GEOM) {\n    bodyid = m->geom_bodyid[objid];\n    pos = d->geom_xpos+3*objid;\n    rot = (flg_local ? d->geom_xmat+9*objid : 0);\n  }\n\n  // site\n  else if (objtype == mjOBJ_SITE) {\n    bodyid = m->site_bodyid[objid];\n    pos = d->site_xpos+3*objid;\n    rot = (flg_local ? d->site_xmat+9*objid : 0);\n  }\n\n  // camera\n  else if (objtype == mjOBJ_CAMERA) {\n    bodyid = m->cam_bodyid[objid];\n    pos = d->cam_xpos+3*objid;\n    rot = (flg_local ? d->cam_xmat+9*objid : 0);\n  }\n\n  // object without spatial frame\n  else {\n    mjERROR(\"invalid object type %d\", objtype);\n  }\n\n  // static body: quick return\n  if (m->body_weldid[bodyid] == 0) {\n    mju_zero(res, 6);\n    return;\n  }\n\n  // transform velocity\n  mju_transformSpatial(res, d->cvel+6*bodyid, 0, pos, d->subtree_com+3*m->body_rootid[bodyid], rot);\n}"
+              }
+            }
+          ],
+          "output_sink": "structured",
+          "owner_kind": "native_object",
+          "quantity_id": "mujoco.query.mj_objectVelocity.res",
+          "transformation": "Identity copy of the complete typed native output; retain native order and nonfinite payloads.",
+          "unit": "[{\"base_dimensions\":{\"L\":0,\"M\":0,\"T\":-1},\"indices\":[0,1,2],\"unit\":\"rad/T\"},{\"base_dimensions\":{\"L\":1,\"M\":0,\"T\":-1},\"indices\":[3,4,5],\"unit\":\"L/T\"}]"
+        }
+      ],
+      "source": [
+        {
+          "identity": "https://raw.githubusercontent.com/google-deepmind/mujoco/3.10.0/python/mujoco/functions.cc",
+          "sha256": "b4e9735e9e514b07359c95340ccc95acd7172a7653b7d80f25bc74209c9e6287"
+        },
+        {
+          "identity": "mujoco/3.10.0/src/engine/engine_core_util.c",
+          "sha256": "dfee2f2334a2315df5f934dbeb74303e76bcfc29ac85957bb17200d815b21552"
+        }
+      ]
+    }
+  ],
+  "scope": "Source-declared eight spatial query families; not the complete producer API inventory. No runtime acceptance is conferred by this input.",
+  "source_artifacts": [
+    {
+      "name": "contracts-3.10.0.json",
+      "sha256": "138bee1d28c2f986ed96ad705d708b3ac0bbf09a7aae59fd20c51d910d50ab3a"
+    },
+    {
+      "name": "quantities-3.10.0.json",
+      "sha256": "e511fee74c253a1bc961dbc4b34dc986d631e0bba46f31c59b5d08529e10e109"
+    },
+    {
+      "name": "MANIFEST.json",
+      "sha256": "e44557e946e7a1a9ae28d52ec6ec4bfc2168643b580c3c52725b7a6dd9854b1b"
+    }
+  ],
+  "version": "3.10.0"
+}

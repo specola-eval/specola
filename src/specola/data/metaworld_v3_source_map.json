@@ -1,0 +1,2698 @@
+{
+  "metaworld_version": "3.1.1",
+  "schema_version": 1,
+  "source_artifact": "benchmarks/metaworld_success_criteria.json",
+  "source_artifact_schema_version": 2,
+  "source_sha256": "143e4426a40be875cf82532beba2f1cb04c0cc56786b8e302bf58a816dbb2eee",
+  "task_count": 50,
+  "tasks": [
+    {
+      "class": "metaworld.envs.sawyer_assembly_peg_v3.SawyerNutAssemblyEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.site('RoundNut-8').xpos",
+        "source_file": "envs/sawyer_assembly_peg_v3.py",
+        "source_line": 104
+      },
+      "objects": [
+        {
+          "accessor": "self.data.site('RoundNut-8').xpos",
+          "declared_name": "RoundNut-8",
+          "index": 0,
+          "kind": "site",
+          "source_file": "envs/sawyer_assembly_peg_v3.py",
+          "source_line": 105,
+          "sources": [
+            {
+              "kind": "site",
+              "name": "RoundNut-8"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('RoundNut').xquat",
+        "source_file": "envs/sawyer_assembly_peg_v3.py",
+        "source_line": 107
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('RoundNut').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_assembly_peg_v3.py",
+          "source_line": 108,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "RoundNut"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "assembly-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_basketball_v3.SawyerBasketballEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('bsktball')",
+        "source_file": "envs/sawyer_basketball_v3.py",
+        "source_line": 103
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('bsktball')",
+          "declared_name": "bsktball",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_basketball_v3.py",
+          "source_line": 104,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "bsktball"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('bsktball').xquat",
+        "source_file": "envs/sawyer_basketball_v3.py",
+        "source_line": 106
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('bsktball').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_basketball_v3.py",
+          "source_line": 107,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "bsktball"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "basketball-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_bin_picking_v3.SawyerBinPickingEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_bin_picking_v3.py",
+        "source_line": 125
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_bin_picking_v3.py",
+          "source_line": 126,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('obj').xquat",
+        "source_file": "envs/sawyer_bin_picking_v3.py",
+        "source_line": 128
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('obj').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_bin_picking_v3.py",
+          "source_line": 129,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "bin-picking-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_box_close_v3.SawyerBoxCloseEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('top_link')",
+        "source_file": "envs/sawyer_box_close_v3.py",
+        "source_line": 101
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('top_link')",
+          "declared_name": "top_link",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_box_close_v3.py",
+          "source_line": 102,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "top_link"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('top_link').xquat",
+        "source_file": "envs/sawyer_box_close_v3.py",
+        "source_line": 104
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('top_link').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_box_close_v3.py",
+          "source_line": 105,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "top_link"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "box-close-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_button_press_topdown_v3.SawyerButtonPressTopdownEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('button') + np.array([0.0, 0.0, 0.193])",
+        "source_file": "envs/sawyer_button_press_topdown_v3.py",
+        "source_line": 92
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('button') + np.array([0.0, 0.0, 0.193])",
+          "declared_name": "button",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_button_press_topdown_v3.py",
+          "source_line": 93,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('button').xquat",
+        "source_file": "envs/sawyer_button_press_topdown_v3.py",
+        "source_line": 95
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('button').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_button_press_topdown_v3.py",
+          "source_line": 96,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "button-press-topdown-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_button_press_topdown_wall_v3.SawyerButtonPressTopdownWallEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('button') + np.array([0.0, 0.0, 0.193])",
+        "source_file": "envs/sawyer_button_press_topdown_wall_v3.py",
+        "source_line": 94
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('button') + np.array([0.0, 0.0, 0.193])",
+          "declared_name": "button",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_button_press_topdown_wall_v3.py",
+          "source_line": 95,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('button').xquat",
+        "source_file": "envs/sawyer_button_press_topdown_wall_v3.py",
+        "source_line": 97
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('button').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_button_press_topdown_wall_v3.py",
+          "source_line": 98,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "button-press-topdown-wall-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_button_press_v3.SawyerButtonPressEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('button') + np.array([0.0, -0.193, 0.0])",
+        "source_file": "envs/sawyer_button_press_v3.py",
+        "source_line": 92
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('button') + np.array([0.0, -0.193, 0.0])",
+          "declared_name": "button",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_button_press_v3.py",
+          "source_line": 93,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('button').xquat",
+        "source_file": "envs/sawyer_button_press_v3.py",
+        "source_line": 95
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('button').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_button_press_v3.py",
+          "source_line": 96,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "button-press-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_button_press_wall_v3.SawyerButtonPressWallEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('button') + np.array([0.0, -0.193, 0.0])",
+        "source_file": "envs/sawyer_button_press_wall_v3.py",
+        "source_line": 94
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('button') + np.array([0.0, -0.193, 0.0])",
+          "declared_name": "button",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_button_press_wall_v3.py",
+          "source_line": 95,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('button').xquat",
+        "source_file": "envs/sawyer_button_press_wall_v3.py",
+        "source_line": 97
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('button').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_button_press_wall_v3.py",
+          "source_line": 98,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "button"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "button-press-wall-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_coffee_button_v3.SawyerCoffeeButtonEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('buttonStart')",
+        "source_file": "envs/sawyer_coffee_button_v3.py",
+        "source_line": 101
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('buttonStart')",
+          "declared_name": "buttonStart",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_coffee_button_v3.py",
+          "source_line": 102,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "buttonStart"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.array([1.0, 0.0, 0.0, 0.0])",
+        "source_file": "envs/sawyer_coffee_button_v3.py",
+        "source_line": 104
+      },
+      "orientations": [
+        {
+          "accessor": "np.array([1.0, 0.0, 0.0, 0.0])",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "constant_1_0_0_0_unattributed",
+          "source_file": "envs/sawyer_coffee_button_v3.py",
+          "source_line": 105,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "coffee-button-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_coffee_pull_v3.SawyerCoffeePullEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_coffee_pull_v3.py",
+        "source_line": 103
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_coffee_pull_v3.py",
+          "source_line": 104,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('mug').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_coffee_pull_v3.py",
+        "source_line": 106
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('mug').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_coffee_pull_v3.py",
+          "source_line": 108,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "mug"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "coffee-pull-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_coffee_push_v3.SawyerCoffeePushEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_coffee_push_v3.py",
+        "source_line": 103
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_coffee_push_v3.py",
+          "source_line": 104,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('mug').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_coffee_push_v3.py",
+        "source_line": 106
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('mug').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_coffee_push_v3.py",
+          "source_line": 108,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "mug"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "coffee-push-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_dial_turn_v3.SawyerDialTurnEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('dial').copy() + np.array([np.sin(self.data.joint('knob_Joint_1').qpos).item(), -np.cos(self.data.joint('knob_Joint_1').qpos).item(), 0.0]) * 0.05",
+        "source_file": "envs/sawyer_dial_turn_v3.py",
+        "source_line": 87
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('dial').copy() + np.array([np.sin(self.data.joint('knob_Joint_1').qpos).item(), -np.cos(self.data.joint('knob_Joint_1').qpos).item(), 0.0]) * 0.05",
+          "declared_name": "dial",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_dial_turn_v3.py",
+          "source_line": 98,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "dial"
+            },
+            {
+              "kind": "joint",
+              "name": "knob_Joint_1"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('dial').xquat",
+        "source_file": "envs/sawyer_dial_turn_v3.py",
+        "source_line": 100
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('dial').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_dial_turn_v3.py",
+          "source_line": 101,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "dial"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "dial-turn-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_disassemble_peg_v3.SawyerNutDisassembleEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('RoundNut-8')",
+        "source_file": "envs/sawyer_disassemble_peg_v3.py",
+        "source_line": 105
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('RoundNut-8')",
+          "declared_name": "RoundNut-8",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_disassemble_peg_v3.py",
+          "source_line": 106,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "RoundNut-8"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('RoundNut').xquat",
+        "source_file": "envs/sawyer_disassemble_peg_v3.py",
+        "source_line": 108
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('RoundNut').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_disassemble_peg_v3.py",
+          "source_line": 109,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "RoundNut"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "disassemble-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_door_close_v3.SawyerDoorCloseEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('handle').xpos.copy()",
+        "source_file": "envs/sawyer_door_close_v3.py",
+        "source_line": 67
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('handle').xpos.copy()",
+          "declared_name": "handle",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_door_close_v3.py",
+          "source_line": 68,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "handle"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('handle').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_door_close_v3.py",
+        "source_line": 70
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('handle').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_door_close_v3.py",
+          "source_line": 71,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "handle"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "door-close-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_door_lock_v3.SawyerDoorLockEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('lockStartLock')",
+        "source_file": "envs/sawyer_door_lock_v3.py",
+        "source_line": 102
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('lockStartLock')",
+          "declared_name": "lockStartLock",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_door_lock_v3.py",
+          "source_line": 103,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "lockStartLock"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('door_link').xquat",
+        "source_file": "envs/sawyer_door_lock_v3.py",
+        "source_line": 105
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('door_link').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_door_lock_v3.py",
+          "source_line": 106,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "door_link"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "door-lock-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_door_v3.SawyerDoorEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('handle').xpos.copy()",
+        "source_file": "envs/sawyer_door_v3.py",
+        "source_line": 97
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('handle').xpos.copy()",
+          "declared_name": "handle",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_door_v3.py",
+          "source_line": 98,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "handle"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('handle').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_door_v3.py",
+        "source_line": 100
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('handle').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_door_v3.py",
+          "source_line": 101,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "handle"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "door-open-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_door_unlock_v3.SawyerDoorUnlockEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('lockStartUnlock')",
+        "source_file": "envs/sawyer_door_unlock_v3.py",
+        "source_line": 100
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('lockStartUnlock')",
+          "declared_name": "lockStartUnlock",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_door_unlock_v3.py",
+          "source_line": 101,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "lockStartUnlock"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('door_link').xquat",
+        "source_file": "envs/sawyer_door_unlock_v3.py",
+        "source_line": 103
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('door_link').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_door_unlock_v3.py",
+          "source_line": 104,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "door_link"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "door-unlock-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_drawer_close_v3.SawyerDrawerCloseEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('drawer_link') + np.array([0.0, -0.16, 0.05])",
+        "source_file": "envs/sawyer_drawer_close_v3.py",
+        "source_line": 92
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('drawer_link') + np.array([0.0, -0.16, 0.05])",
+          "declared_name": "drawer_link",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_drawer_close_v3.py",
+          "source_line": 93,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "drawer_link"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.zeros(4)",
+        "source_file": "envs/sawyer_drawer_close_v3.py",
+        "source_line": 95
+      },
+      "orientations": [
+        {
+          "accessor": "np.zeros(4)",
+          "index": 0,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_drawer_close_v3.py",
+          "source_line": 96,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "drawer-close-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_drawer_open_v3.SawyerDrawerOpenEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('drawer_link') + np.array([0.0, -0.16, 0.0])",
+        "source_file": "envs/sawyer_drawer_open_v3.py",
+        "source_line": 93
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('drawer_link') + np.array([0.0, -0.16, 0.0])",
+          "declared_name": "drawer_link",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_drawer_open_v3.py",
+          "source_line": 94,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "drawer_link"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('drawer_link').xquat",
+        "source_file": "envs/sawyer_drawer_open_v3.py",
+        "source_line": 96
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('drawer_link').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_drawer_open_v3.py",
+          "source_line": 97,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "drawer_link"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "drawer-open-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_faucet_close_v3.SawyerFaucetCloseEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleStartClose') + np.array([0.0, 0.0, -0.01])",
+        "source_file": "envs/sawyer_faucet_close_v3.py",
+        "source_line": 101
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleStartClose') + np.array([0.0, 0.0, -0.01])",
+          "declared_name": "handleStartClose",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_faucet_close_v3.py",
+          "source_line": 102,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleStartClose"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('faucetBase').xquat",
+        "source_file": "envs/sawyer_faucet_close_v3.py",
+        "source_line": 98
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('faucetBase').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_faucet_close_v3.py",
+          "source_line": 99,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "faucetBase"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "faucet-close-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_faucet_open_v3.SawyerFaucetOpenEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleStartOpen') + np.array([0.0, 0.0, -0.01])",
+        "source_file": "envs/sawyer_faucet_open_v3.py",
+        "source_line": 97
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleStartOpen') + np.array([0.0, 0.0, -0.01])",
+          "declared_name": "handleStartOpen",
+          "index": 0,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_faucet_open_v3.py",
+          "source_line": 98,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleStartOpen"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('faucetBase').xquat",
+        "source_file": "envs/sawyer_faucet_open_v3.py",
+        "source_line": 100
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('faucetBase').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_faucet_open_v3.py",
+          "source_line": 101,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "faucetBase"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "faucet-open-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_hammer_v3.SawyerHammerEnvV3",
+      "object_method": {
+        "normalized_return_expression": "np.hstack((self.get_body_com('hammer').copy(), self.get_body_com('nail_link').copy()))",
+        "source_file": "envs/sawyer_hammer_v3.py",
+        "source_line": 91
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('hammer').copy()",
+          "declared_name": "hammer",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_hammer_v3.py",
+          "source_line": 93,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "hammer"
+            }
+          ]
+        },
+        {
+          "accessor": "self.get_body_com('nail_link').copy()",
+          "declared_name": "nail_link",
+          "index": 1,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_hammer_v3.py",
+          "source_line": 93,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "nail_link"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.hstack((self.data.body('hammer').xquat, self.data.body('nail_link').xquat))",
+        "source_file": "envs/sawyer_hammer_v3.py",
+        "source_line": 96
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('hammer').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_hammer_v3.py",
+          "source_line": 98,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "hammer"
+            }
+          ]
+        },
+        {
+          "accessor": "self.data.body('nail_link').xquat",
+          "index": 1,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_hammer_v3.py",
+          "source_line": 98,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "nail_link"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "hammer-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_hand_insert_v3.SawyerHandInsertEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_hand_insert_v3.py",
+        "source_line": 102
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_hand_insert_v3.py",
+          "source_line": 103,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('obj').xquat",
+        "source_file": "envs/sawyer_hand_insert_v3.py",
+        "source_line": 105
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('obj').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_hand_insert_v3.py",
+          "source_line": 106,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "hand-insert-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_handle_press_side_v3.SawyerHandlePressSideEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleStart')",
+        "source_file": "envs/sawyer_handle_press_side_v3.py",
+        "source_line": 106
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleStart')",
+          "declared_name": "handleStart",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_handle_press_side_v3.py",
+          "source_line": 107,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleStart"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.zeros(4)",
+        "source_file": "envs/sawyer_handle_press_side_v3.py",
+        "source_line": 109
+      },
+      "orientations": [
+        {
+          "accessor": "np.zeros(4)",
+          "index": 0,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_handle_press_side_v3.py",
+          "source_line": 110,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "handle-press-side-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_handle_press_v3.SawyerHandlePressEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleStart')",
+        "source_file": "envs/sawyer_handle_press_v3.py",
+        "source_line": 93
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleStart')",
+          "declared_name": "handleStart",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_handle_press_v3.py",
+          "source_line": 94,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleStart"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.zeros(4)",
+        "source_file": "envs/sawyer_handle_press_v3.py",
+        "source_line": 96
+      },
+      "orientations": [
+        {
+          "accessor": "np.zeros(4)",
+          "index": 0,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_handle_press_v3.py",
+          "source_line": 97,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "handle-press-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_handle_pull_side_v3.SawyerHandlePullSideEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleCenter')",
+        "source_file": "envs/sawyer_handle_pull_side_v3.py",
+        "source_line": 96
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleCenter')",
+          "declared_name": "handleCenter",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_handle_pull_side_v3.py",
+          "source_line": 97,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleCenter"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.zeros(4)",
+        "source_file": "envs/sawyer_handle_pull_side_v3.py",
+        "source_line": 99
+      },
+      "orientations": [
+        {
+          "accessor": "np.zeros(4)",
+          "index": 0,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_handle_pull_side_v3.py",
+          "source_line": 100,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "handle-pull-side-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_handle_pull_v3.SawyerHandlePullEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleRight')",
+        "source_file": "envs/sawyer_handle_pull_v3.py",
+        "source_line": 95
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleRight')",
+          "declared_name": "handleRight",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_handle_pull_v3.py",
+          "source_line": 96,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleRight"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.zeros(4)",
+        "source_file": "envs/sawyer_handle_pull_v3.py",
+        "source_line": 98
+      },
+      "orientations": [
+        {
+          "accessor": "np.zeros(4)",
+          "index": 0,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_handle_pull_v3.py",
+          "source_line": 99,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "handle-pull-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_lever_pull_v3.SawyerLeverPullEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('leverStart')",
+        "source_file": "envs/sawyer_lever_pull_v3.py",
+        "source_line": 106
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('leverStart')",
+          "declared_name": "leverStart",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_lever_pull_v3.py",
+          "source_line": 107,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "leverStart"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_lever_pull_v3.py",
+        "source_line": 109
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_lever_pull_v3.py",
+          "source_line": 111,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "lever-pull-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_peg_insertion_side_v3.SawyerPegInsertionSideEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('pegGrasp')",
+        "source_file": "envs/sawyer_peg_insertion_side_v3.py",
+        "source_line": 130
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('pegGrasp')",
+          "declared_name": "pegGrasp",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_peg_insertion_side_v3.py",
+          "source_line": 131,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "pegGrasp"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.site('pegGrasp').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_peg_insertion_side_v3.py",
+        "source_line": 133
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.site('pegGrasp').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_peg_insertion_side_v3.py",
+          "source_line": 135,
+          "sources": [
+            {
+              "kind": "site_rotation_matrix",
+              "name": "pegGrasp"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "peg-insert-side-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_peg_unplug_side_v3.SawyerPegUnplugSideEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('pegEnd')",
+        "source_file": "envs/sawyer_peg_unplug_side_v3.py",
+        "source_line": 90
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('pegEnd')",
+          "declared_name": "pegEnd",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_peg_unplug_side_v3.py",
+          "source_line": 91,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "pegEnd"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('plug1').xquat",
+        "source_file": "envs/sawyer_peg_unplug_side_v3.py",
+        "source_line": 93
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('plug1').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_peg_unplug_side_v3.py",
+          "source_line": 94,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "plug1"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "peg-unplug-side-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_pick_out_of_hole_v3.SawyerPickOutOfHoleEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_pick_out_of_hole_v3.py",
+        "source_line": 105
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_pick_out_of_hole_v3.py",
+          "source_line": 106,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('obj').xquat",
+        "source_file": "envs/sawyer_pick_out_of_hole_v3.py",
+        "source_line": 108
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('obj').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_pick_out_of_hole_v3.py",
+          "source_line": 109,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "pick-out-of-hole-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_pick_place_v3.SawyerPickPlaceEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_pick_place_v3.py",
+        "source_line": 121
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_pick_place_v3.py",
+          "source_line": 122,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_pick_place_v3.py",
+        "source_line": 124
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_pick_place_v3.py",
+          "source_line": 125,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "pick-place-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_pick_place_wall_v3.SawyerPickPlaceWallEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('objGeom').xpos",
+        "source_file": "envs/sawyer_pick_place_wall_v3.py",
+        "source_line": 118
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('objGeom').xpos",
+          "declared_name": "objGeom",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_pick_place_wall_v3.py",
+          "source_line": 119,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_pick_place_wall_v3.py",
+        "source_line": 121
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_pick_place_wall_v3.py",
+          "source_line": 122,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "pick-place-wall-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_plate_slide_back_side_v3.SawyerPlateSlideBackSideEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('puck').xpos",
+        "source_file": "envs/sawyer_plate_slide_back_side_v3.py",
+        "source_line": 107
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('puck').xpos",
+          "declared_name": "puck",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_plate_slide_back_side_v3.py",
+          "source_line": 108,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_plate_slide_back_side_v3.py",
+        "source_line": 110
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_plate_slide_back_side_v3.py",
+          "source_line": 112,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "plate-slide-back-side-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_plate_slide_back_v3.SawyerPlateSlideBackEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('puck').xpos",
+        "source_file": "envs/sawyer_plate_slide_back_v3.py",
+        "source_line": 92
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('puck').xpos",
+          "declared_name": "puck",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_plate_slide_back_v3.py",
+          "source_line": 93,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_plate_slide_back_v3.py",
+        "source_line": 95
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_plate_slide_back_v3.py",
+          "source_line": 97,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "plate-slide-back-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_plate_slide_side_v3.SawyerPlateSlideSideEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('puck').xpos",
+        "source_file": "envs/sawyer_plate_slide_side_v3.py",
+        "source_line": 92
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('puck').xpos",
+          "declared_name": "puck",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_plate_slide_side_v3.py",
+          "source_line": 93,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_plate_slide_side_v3.py",
+        "source_line": 95
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_plate_slide_side_v3.py",
+          "source_line": 97,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "plate-slide-side-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_plate_slide_v3.SawyerPlateSlideEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('puck').xpos",
+        "source_file": "envs/sawyer_plate_slide_v3.py",
+        "source_line": 94
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('puck').xpos",
+          "declared_name": "puck",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_plate_slide_v3.py",
+          "source_line": 95,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_plate_slide_v3.py",
+        "source_line": 97
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('puck').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_plate_slide_v3.py",
+          "source_line": 99,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "puck"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "plate-slide-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_push_back_v3.SawyerPushBackEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('objGeom').xpos",
+        "source_file": "envs/sawyer_push_back_v3.py",
+        "source_line": 101
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('objGeom').xpos",
+          "declared_name": "objGeom",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_push_back_v3.py",
+          "source_line": 102,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_push_back_v3.py",
+        "source_line": 104
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_push_back_v3.py",
+          "source_line": 105,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "push-back-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_push_v3.SawyerPushEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_push_v3.py",
+        "source_line": 120
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_push_v3.py",
+          "source_line": 121,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_push_v3.py",
+        "source_line": 116
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_push_v3.py",
+          "source_line": 118,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "push-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_push_wall_v3.SawyerPushWallEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.geom('objGeom').xpos",
+        "source_file": "envs/sawyer_push_wall_v3.py",
+        "source_line": 121
+      },
+      "objects": [
+        {
+          "accessor": "self.data.geom('objGeom').xpos",
+          "declared_name": "objGeom",
+          "index": 0,
+          "kind": "geom_frame",
+          "source_file": "envs/sawyer_push_wall_v3.py",
+          "source_line": 122,
+          "sources": [
+            {
+              "kind": "geom_frame",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_push_wall_v3.py",
+        "source_line": 124
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_push_wall_v3.py",
+          "source_line": 126,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "push-wall-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_reach_v3.SawyerReachEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_reach_v3.py",
+        "source_line": 100
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_reach_v3.py",
+          "source_line": 101,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_reach_v3.py",
+        "source_line": 103
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_reach_v3.py",
+          "source_line": 105,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "reach-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_reach_wall_v3.SawyerReachWallEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_reach_wall_v3.py",
+        "source_line": 102
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_reach_wall_v3.py",
+          "source_line": 103,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_reach_wall_v3.py",
+        "source_line": 105
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_reach_wall_v3.py",
+          "source_line": 107,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "reach-wall-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_shelf_place_v3.SawyerShelfPlaceEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_shelf_place_v3.py",
+        "source_line": 102
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_shelf_place_v3.py",
+          "source_line": 103,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_shelf_place_v3.py",
+        "source_line": 105
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_shelf_place_v3.py",
+          "source_line": 107,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "shelf-place-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_soccer_v3.SawyerSoccerEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('soccer_ball')",
+        "source_file": "envs/sawyer_soccer_v3.py",
+        "source_line": 102
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('soccer_ball')",
+          "declared_name": "soccer_ball",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_soccer_v3.py",
+          "source_line": 103,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "soccer_ball"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.body('soccer_ball').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_soccer_v3.py",
+        "source_line": 105
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.body('soccer_ball').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_soccer_v3.py",
+          "source_line": 107,
+          "sources": [
+            {
+              "kind": "body_rotation_matrix",
+              "name": "soccer_ball"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "soccer-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_stick_pull_v3.SawyerStickPullEnvV3",
+      "object_method": {
+        "normalized_return_expression": "np.hstack((self.get_body_com('stick').copy(), self._get_site_pos('insertion')))",
+        "source_file": "envs/sawyer_stick_pull_v3.py",
+        "source_line": 107
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('stick').copy()",
+          "declared_name": "stick",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_stick_pull_v3.py",
+          "source_line": 110,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "stick"
+            }
+          ]
+        },
+        {
+          "accessor": "self._get_site_pos('insertion')",
+          "declared_name": "insertion",
+          "index": 1,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_stick_pull_v3.py",
+          "source_line": 111,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "insertion"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.hstack((Rotation.from_matrix(self.data.body('stick').xmat.reshape(3, 3)).as_quat(), np.array([0.0, 0.0, 0.0, 0.0])))",
+        "source_file": "envs/sawyer_stick_pull_v3.py",
+        "source_line": 115
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.body('stick').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_stick_pull_v3.py",
+          "source_line": 119,
+          "sources": [
+            {
+              "kind": "body_rotation_matrix",
+              "name": "stick"
+            }
+          ]
+        },
+        {
+          "accessor": "np.array([0.0, 0.0, 0.0, 0.0])",
+          "index": 1,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_stick_pull_v3.py",
+          "source_line": 120,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "stick-pull-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_stick_push_v3.SawyerStickPushEnvV3",
+      "object_method": {
+        "normalized_return_expression": "np.hstack((self.get_body_com('stick').copy(), self._get_site_pos('insertion') + np.array([0.0, 0.09, 0.0])))",
+        "source_file": "envs/sawyer_stick_push_v3.py",
+        "source_line": 102
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('stick').copy()",
+          "declared_name": "stick",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_stick_push_v3.py",
+          "source_line": 105,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "stick"
+            }
+          ]
+        },
+        {
+          "accessor": "self._get_site_pos('insertion') + np.array([0.0, 0.09, 0.0])",
+          "declared_name": "insertion",
+          "index": 1,
+          "kind": "derived_expression",
+          "source_file": "envs/sawyer_stick_push_v3.py",
+          "source_line": 106,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "insertion"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.hstack((Rotation.from_matrix(self.data.body('stick').xmat.reshape(3, 3)).as_quat(), np.array([0.0, 0.0, 0.0, 0.0])))",
+        "source_file": "envs/sawyer_stick_push_v3.py",
+        "source_line": 110
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.body('stick').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_stick_push_v3.py",
+          "source_line": 114,
+          "sources": [
+            {
+              "kind": "body_rotation_matrix",
+              "name": "stick"
+            }
+          ]
+        },
+        {
+          "accessor": "np.array([0.0, 0.0, 0.0, 0.0])",
+          "index": 1,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_stick_push_v3.py",
+          "source_line": 115,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "stick-push-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_sweep_into_goal_v3.SawyerSweepIntoGoalEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.get_body_com('obj')",
+        "source_file": "envs/sawyer_sweep_into_goal_v3.py",
+        "source_line": 98
+      },
+      "objects": [
+        {
+          "accessor": "self.get_body_com('obj')",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_com",
+          "source_file": "envs/sawyer_sweep_into_goal_v3.py",
+          "source_line": 99,
+          "sources": [
+            {
+              "kind": "body_com",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+        "source_file": "envs/sawyer_sweep_into_goal_v3.py",
+        "source_line": 94
+      },
+      "orientations": [
+        {
+          "accessor": "Rotation.from_matrix(self.data.geom('objGeom').xmat.reshape(3, 3)).as_quat()",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "scipy_xyzw",
+          "source_file": "envs/sawyer_sweep_into_goal_v3.py",
+          "source_line": 96,
+          "sources": [
+            {
+              "kind": "geom_rotation_matrix",
+              "name": "objGeom"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "sweep-into-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_sweep_v3.SawyerSweepEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self.data.body('obj').xpos",
+        "source_file": "envs/sawyer_sweep_v3.py",
+        "source_line": 96
+      },
+      "objects": [
+        {
+          "accessor": "self.data.body('obj').xpos",
+          "declared_name": "obj",
+          "index": 0,
+          "kind": "body_frame",
+          "source_file": "envs/sawyer_sweep_v3.py",
+          "source_line": 97,
+          "sources": [
+            {
+              "kind": "body_frame",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "self.data.body('obj').xquat",
+        "source_file": "envs/sawyer_sweep_v3.py",
+        "source_line": 93
+      },
+      "orientations": [
+        {
+          "accessor": "self.data.body('obj').xquat",
+          "index": 0,
+          "is_zero_placeholder": false,
+          "representation": "mujoco_wxyz",
+          "source_file": "envs/sawyer_sweep_v3.py",
+          "source_line": 94,
+          "sources": [
+            {
+              "kind": "body_quaternion",
+              "name": "obj"
+            }
+          ]
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "sweep-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_window_close_v3.SawyerWindowCloseEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleCloseStart')",
+        "source_file": "envs/sawyer_window_close_v3.py",
+        "source_line": 107
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleCloseStart')",
+          "declared_name": "handleCloseStart",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_window_close_v3.py",
+          "source_line": 108,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleCloseStart"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.zeros(4)",
+        "source_file": "envs/sawyer_window_close_v3.py",
+        "source_line": 110
+      },
+      "orientations": [
+        {
+          "accessor": "np.zeros(4)",
+          "index": 0,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_window_close_v3.py",
+          "source_line": 111,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "window-close-v3"
+    },
+    {
+      "class": "metaworld.envs.sawyer_window_open_v3.SawyerWindowOpenEnvV3",
+      "object_method": {
+        "normalized_return_expression": "self._get_site_pos('handleOpenStart')",
+        "source_file": "envs/sawyer_window_open_v3.py",
+        "source_line": 103
+      },
+      "objects": [
+        {
+          "accessor": "self._get_site_pos('handleOpenStart')",
+          "declared_name": "handleOpenStart",
+          "index": 0,
+          "kind": "site_helper",
+          "source_file": "envs/sawyer_window_open_v3.py",
+          "source_line": 104,
+          "sources": [
+            {
+              "kind": "site_helper",
+              "name": "handleOpenStart"
+            }
+          ]
+        }
+      ],
+      "orientation_method": {
+        "normalized_return_expression": "np.zeros(4)",
+        "source_file": "envs/sawyer_window_open_v3.py",
+        "source_line": 106
+      },
+      "orientations": [
+        {
+          "accessor": "np.zeros(4)",
+          "index": 0,
+          "is_zero_placeholder": true,
+          "representation": "zero_placeholder",
+          "source_file": "envs/sawyer_window_open_v3.py",
+          "source_line": 107,
+          "sources": []
+        }
+      ],
+      "target": {
+        "accessor": "self._get_pos_goal()",
+        "owner": "metaworld.sawyer_xyz_env.SawyerXYZEnv._get_pos_goal",
+        "return_expression": "self._target_pos",
+        "source_file": "sawyer_xyz_env.py",
+        "source_line": 473
+      },
+      "task": "window-open-v3"
+    }
+  ]
+}

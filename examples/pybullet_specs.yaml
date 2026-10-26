@@ -1,0 +1,21 @@
+# Keys are sim-specific by design; run `specola discover` to list yours:
+#   specola discover --sim pybullet \
+#     --task "plane.urdf@fixed,kuka_iiwa/model.urdf@fixed,cube_small.urdf"
+# Keys below are what PyBullet reports for that scene (pybullet_data
+# assets): the KUKA's joints -> jointpos_/jointvel_/jointtorque_
+# lbr_iiwa_joint_1..7; per-entity quantities are entity-generic
+# (basepos_0..2, contactforce), so cube_stays_up binds every object in
+# the scene — load a second cube and it is monitored with no spec
+# change. The selector `all: jointvel_*` bounds each joint velocity
+# individually. The plane matters: without it the cube free-falls and
+# cube_stays_up is violated by design.
+specs:
+- name: joints_stay_slow
+  formula: "historically[0,2s](robot_*[all: jointvel_*] <= limit)"
+  constants: {limit: 2.0}
+
+- name: cube_stays_up
+  formula: "historically[0,2s](object_*[basepos_2] >= -0.1)"
+
+- name: arm_eventually_settles
+  formula: "once[0,2s](robot_*[jointvel_lbr_iiwa_joint_1] <= 0.01)"

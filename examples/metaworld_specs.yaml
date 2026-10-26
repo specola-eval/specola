@@ -1,0 +1,44 @@
+# Keys are sim-specific by design; run `specola discover` to list yours.
+# Keys below use Meta-World's declarations for the default task
+# (pick-place-v3): _get_pos_objects() -> object_pos_0/1/2,
+# _get_pos_goal() -> target_pos_0/1/2, and gripper site "endEffector" ->
+# site_xpos_endeffector_0/1/2. pick-place-v3 declares exactly one object,
+# so `object_*[object_pos_N]` below fans out to a single monitor here -- the
+# selector (docs/superpowers/specs/2026-07-15-spec-selectors-design.md)
+# is used for portability: the same spec text keeps working, unedited,
+# on any Meta-World task whose declared object source is named differently.
+specs:
+- name: object_above_table
+  formula: "historically[0,1s](object_*[object_pos_2] >= -0.01)"
+
+# Gripper speed: sqrt over cvel_* linear components (previously
+# commented as "needs body velocity fields (extraction stage 2)" --
+# cvel_* is now extracted for every body, so this is writable). "hand"
+# is the body carrying the endEffector site; cvel_hand_3..5 is MuJoCo's
+# com-based cvel, whose linear part is measured at "hand"'s *subtree*
+# center of mass, not at endEffector or even at "hand"'s own origin --
+# the two differ by a rotational offset term
+# (omega x (subtree_com - body_origin)), which is exactly zero only
+# when "hand" has zero angular velocity. Named _com_ to flag that this
+# bounds the com-frame speed, which under-measures the true hand speed
+# under rotation. There is no exact "gripper site speed" key.
+# `@ body com-frame linear velocity` selects exactly cvel_hand_3..5 (not
+# the angular triplet cvel_hand_0..2, a different group) and sum(...)^2
+# maps the square elementwise over the selector's expansion before the
+# aggregate is summed -- one line instead of three explicit indices.
+- name: hand_com_speed_bounded
+  formula: "historically[0,1s](sqrt(sum(robot_*[cvel_hand_* @ body com-frame linear velocity]^2)) <= max_hand_speed)"
+  constants: {max_hand_speed: 5.0}
+
+# Meta-World does not declare a semantic region or a universal success
+# radius. This threshold is the exact pick-place-v3 success comparison from
+# benchmarks/metaworld_success_criteria.json:
+# envs/sawyer_pick_place_v3.py:98,
+# norm(object position - target position) <= 0.07.
+- name: object_reaches_pick_place_target
+  formula: "once[0,2s](sqrt((object_*[object_pos_0]-target_*[target_pos_0])^2 + (object_*[object_pos_1]-target_*[target_pos_1])^2 + (object_*[object_pos_2]-target_*[target_pos_2])^2) <= pick_place_success_distance)"
+  constants: {pick_place_success_distance: 0.07}
+
+- name: reach_object
+  formula: "once[0,2s](sqrt((gripper_*[site_xpos_endeffector_0]-object_*[object_pos_0])^2 + (gripper_*[site_xpos_endeffector_1]-object_*[object_pos_1])^2 + (gripper_*[site_xpos_endeffector_2]-object_*[object_pos_2])^2) <= reach_dist)"
+  constants: {reach_dist: 0.10}
