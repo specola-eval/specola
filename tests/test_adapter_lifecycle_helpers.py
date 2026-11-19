@@ -56,7 +56,7 @@ def _counting(env):
 
 
 def _autoreset_class():
-    import gymnasium.wrappers as w
+    w = pytest.importorskip("gymnasium.wrappers")
 
     return getattr(w, "Autoreset", None) or getattr(w, "AutoResetWrapper")
 

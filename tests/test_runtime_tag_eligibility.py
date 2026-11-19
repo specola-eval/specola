@@ -83,6 +83,9 @@ def _capabilities(declared_tags=_DECLARED_TAGS) -> AdapterCapabilities:
             "robot_contact": VocabularyMode.CLOSED,
         },
         component_tags_by_class=tags_by_class,
+        # Contact pairs appear and disappear during an episode; without
+        # this a pair-free reset catalogue is an unbound static slot.
+        runtime_populated_classes=frozenset({"robot_contact"}),
     )
 
 

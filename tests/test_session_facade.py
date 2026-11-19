@@ -70,6 +70,7 @@ def test_watch_does_not_reset_the_simulator(specs_file):
 
 
 def test_parquet_schema(specs_file, tmp_path):
+    pytest.importorskip("pyarrow")      # the report or dev extra
     pd = pytest.importorskip("pandas")
     monitor = Monitor(specs_file, results_dir=str(tmp_path / "r"))
     session, _ = _run_episode(monitor, meta={"train_step": 30000})
@@ -314,6 +315,7 @@ def test_bad_specs_fail_at_construction(tmp_path):
 
 
 def test_golden_parquet_schema_superset(specs_file, tmp_path):
+    pytest.importorskip("pyarrow")      # the report or dev extra
     """Refactor guard: every historical column survives with its name."""
     pd = pytest.importorskip("pandas")
     monitor = Monitor(specs_file, results_dir=str(tmp_path / "r"))

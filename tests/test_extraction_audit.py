@@ -39,7 +39,13 @@ def test_audit_uses_the_distribution_denominator_without_importing_adapters(monk
 
 
 def test_unused_added_registration_remains_in_the_audit_denominator(monkeypatch):
+    from pathlib import Path
+
     from specola.conformance import audit
+
+    if Path(__file__).parents[1].resolve() not in Path(audit.__file__).resolve().parents:
+        pytest.skip("source reconciliation needs specola imported from this "
+                    "checkout (pip install -e . or PYTHONPATH=src)")
 
     declarations = tuple(sorted(bundled_adapter_declarations() + (
         AdapterDeclaration("unused_new_native", "specola.adapters.unused_new_native"),

@@ -179,6 +179,8 @@ commit, after the adapter works as your own module.
 7. **Example specification.** Add `examples/<name>_specs.yaml`, whose
    specifications bind on the default task; `specola check` on it is part
    of the done checklist.
+   The `benchmarks/` paths in this checklist exist in the development
+   repository only; a release snapshot does not include them.
 8. **Stale-source window.** Any `src/` change stales the
    diagnostic-catalogue pins: add a `date:` / `checkpoint:` / `reason:`
    entry to `benchmarks/diagnostic_catalogue/STALE_SOURCE.md`, as a bare

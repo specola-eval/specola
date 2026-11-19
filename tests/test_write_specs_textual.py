@@ -172,9 +172,11 @@ def test_workspace_launches_and_quits_headless(tmp_path):
                 "#size_warning",
             ):
                 assert app.query_one(selector)
+            # Signal and unit/frame: the component was folded into the
+            # signal cell.
             assert len(
                 app.query_one("#signals", DataTable).columns
-            ) == 3
+            ) == 2
             # One column, holding the whole reference: the palette
             # replaced a four-column entity/key mapping table.
             assert len(

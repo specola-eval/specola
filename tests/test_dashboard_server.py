@@ -644,6 +644,11 @@ def test_owned_transport_shutdown_joins_tasks_and_rebinds(tmp_path, transport):
     import socketio
     import time
 
+    if transport == "polling":
+        # python-socketio's long-polling client needs requests, which
+        # none of the extras install.
+        pytest.importorskip("requests")
+
     server = DashboardServer(_recording(tmp_path), mode="view")
     url = server.start(0)
     client = socketio.Client()

@@ -17,6 +17,12 @@ from specola.conformance import authority
 
 
 ROOT = Path(__file__).parents[1].resolve()
+if ROOT not in Path(authority.__file__).resolve().parents:
+    # The custody record hashes adapter sources under the repository
+    # root. A wheel installed into site-packages has them elsewhere.
+    pytest.skip(
+        "needs specola imported from this checkout (pip install -e . or "
+        "PYTHONPATH=src)", allow_module_level=True)
 _REAL_ITER_ENTRY_POINTS = authority._iter_entry_points
 
 

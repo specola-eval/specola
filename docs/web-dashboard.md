@@ -247,8 +247,9 @@ Licences and provenance: `static/vendor/NOTICE.txt`.
 
 ## Checking the dashboard
 
-Two harnesses under `benchmarks/`, both runnable against any recording
-that carries a discovery sidecar:
+Two harnesses under `benchmarks/` in the development repository (release
+snapshots do not include them), both runnable against any recording that
+carries a discovery sidecar:
 
     python benchmarks/workbench_browser_check.py --recording <recording>
 

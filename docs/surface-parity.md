@@ -17,7 +17,11 @@ replay landed. The history of what changed between the first measurement
 (2026-10-02) and this one is at the end of the page.
 
 Each cell is one CLI command run in the adapter's own conda environment
-by `benchmarks/parity_audit/audit.py`. The driver assigns a provisional
+by `benchmarks/parity_audit/audit.py`. That driver, the renderer and the
+`benchmarks/replay_fidelity.py` harness named in the commands below are
+part of the development repository; a release snapshot does not include
+them, so the commands record how each value was obtained and are not
+runnable from a snapshot. The driver assigns a provisional
 value by fixed rules; the final value was assigned by reading the log
 and record of each cell, under the rules in the
 audit plan.

@@ -306,6 +306,10 @@ def test_save_can_retry_an_interrupted_write(tmp_path, monkeypatch):
 # -- D6: browser drafts compile in a killable child ---------------------------
 
 def _mock_discovery(tmp_path):
+    # The draft worker belongs to the dashboard, which needs the web extra
+    # (Python 3.9 or later).
+    pytest.importorskip("flask")
+    pytest.importorskip("flask_socketio")
     from specola.discovery_capture import discovery_payload
 
     captured = []
@@ -317,6 +321,7 @@ def _mock_discovery(tmp_path):
 
 
 def test_draft_worker_matches_the_in_process_check(tmp_path):
+    pytest.importorskip("flask")                 # the web extra
     from specola.authoring import CheckContext, DraftChecker, check_draft
     from specola.dashboard.server import DiscoverySnapshot
 
@@ -365,6 +370,7 @@ def test_draft_worker_is_killed_at_its_time_limit(tmp_path):
 
 
 def test_spec_check_socket_uses_the_worker(tmp_path):
+    pytest.importorskip("flask")                 # the web extra
     from specola.dashboard.recording import RecordingWriter
     from specola.dashboard.server import DashboardServer
 
@@ -411,6 +417,7 @@ def test_spec_check_socket_uses_the_worker(tmp_path):
 
 def test_socket_drafts_are_refused_when_the_worker_cannot_start(
         tmp_path, monkeypatch):
+    pytest.importorskip("flask")                 # the web extra
     """No fallback to compiling browser text in the dashboard process."""
     import subprocess
 
