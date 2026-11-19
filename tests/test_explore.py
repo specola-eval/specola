@@ -264,8 +264,13 @@ def test_bracketed_reference_renders_verbatim_and_help_restores_it():
 
     async def exercise():
         async with app.run_test() as pilot:
-            await pilot.pause(0.3)
-            before = str(app.query_one("#authoring_content").render())
+            # The selector forms resolve off the event loop; a fixed
+            # 0.3 s was not enough on a loaded machine.
+            for _ in range(100):
+                await pilot.pause(0.1)
+                before = str(app.query_one("#authoring_content").render())
+                if not before.startswith("Resolving"):
+                    break
             assert "[" in before
             assert "]" in before
 
