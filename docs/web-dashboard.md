@@ -26,7 +26,12 @@ specola discover --sim robocasa --web
 
 `discover --web` announces its URL on **stderr**, so `--format json`
 keeps stdout to itself and the two compose: with both flags the document
-is written first, then the browser opens. It serves until Ctrl-C.
+is written first, then the browser opens. Close the last dashboard tab or
+press Ctrl-C to exit. The server owns the run's lifetime: when the last
+tab has been closed for two seconds, or the HTTP server itself fails, a
+live episode is asked to stop, its recording is finalized and the
+episode is saved as truncated. A server failure therefore ends the run
+rather than leaving the monitor stepping with no viewer.
 
 Without an explicit `--ui`, the terminal shows a one-line notice plus the
 final summary while `--web` serves the dashboard. The browser is the
@@ -39,7 +44,8 @@ identically with all three `--ui` modes.
 
 - `--web [PORT]`: enable the dashboard and choose a port. The default is
   8090; `0` picks a free port. After the run ends the process keeps
-  serving until Ctrl-C, so batch jobs should not pass `--web`.
+  serving until you close the last tab or press Ctrl-C, so batch jobs should
+  not pass `--web`.
 - `--web-cameras NAME[,NAME...]|all`: choose cameras. The default is the
   adapter's default camera; `all` records every named camera.
 - `--web-size WxH`: set the capture size. The default is 1280×720.
@@ -106,7 +112,9 @@ environment's USD meshes. Without them the dashboard simply has no 3D
 panel; everything else is unchanged.
 
 Live viewing, scrub-back, and replay all use these files. Closing the
-browser does not stop recording. An interrupted run remains readable,
+last tab stops a live run (see [Stop and close a
+session](#stop-and-close-a-session)); the recording up to that step is
+finalized. An interrupted run remains readable,
 although its manifest has no final status.
 
 ### Browser support for video recordings
@@ -137,7 +145,8 @@ with a `Web warning: ... continuing without dashboard` line.
 ## Use the dashboard
 
 - The scrub bar detaches you from the live head; the LIVE button
-  re-attaches. In replay, play/pause and a rate selector appear.
+  re-attaches. In replay, play/pause and a rate selector appear;
+  pressing play at the last step restarts from the first.
 - Click a specification to plot only its bindings. Click a binding to open
   its inspector and emphasize its series. Click it again or press Escape
   to return to the full view.
@@ -213,9 +222,19 @@ looks-versus-speed dial:
 because what you want to reach is often not in the one you are looking
 at: a spec name while browsing the scene, a class while watching the
 monitor. It lists views, specs, bindings and entity classes, jumps to
-whichever you pick, and reads its entries from the rendered trees at open
-time rather than from a parallel index, so there is nothing that can go
-stale against the run.
+whichever you pick, and reads its entries at open time rather than from
+a parallel index, so there is nothing that can go stale against the run.
+Specs and bindings come from the run itself, so one that the filter box
+or a state chip hides in the tree is still listed.
+
+## Draft validation
+
+**Validate** and **Save file…** compile what you typed in a separate
+process, not in the one running the simulator. A draft that takes more
+than 30 seconds or 4 GiB to compile is stopped and reported as such; the
+run is not affected. The first validation of an episode loads the scene
+into that process and is slower than the ones after it (about 17 s
+against 1.4 s on a RoboCasa kitchen).
 
 ## Fonts
 
@@ -246,3 +265,22 @@ errors of its own. It exits non-zero on failure.
 times connect-to-`run_meta`, a seek and a transitions page through the
 socket, so a change to the dashboard can be compared against another
 checkout rather than argued about.
+
+## Stop and close a session
+
+Select **Stop run** to end simulation and monitoring, release the simulator,
+and keep the recording open for replay and timeline scrubbing. The status
+changes to `stopped`; an interrupted episode is recorded as `truncated`.
+
+Close the last connected dashboard tab to release its listening port. The
+server waits two seconds for a reconnect, so a refresh within that interval
+preserves the session. Another connected tab keeps the server open. A server
+that has never had a viewer remains available. A lost connection that lasts
+beyond the grace interval also ends the session. This applies to `run --web`,
+`discover --web` and `view`.
+
+Closing the last tab during a run requests Stop and releases the listener.
+The simulator and recorder finish cleanup on their owning threads. If a
+native step cannot finish, the command reports abandonment without claiming
+that mutable results were finalized. You can reopen a finalized recording
+with `specola view <recording-directory>`.

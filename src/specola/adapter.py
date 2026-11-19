@@ -164,6 +164,8 @@ class MonitorObservation:
         default_factory=dict
     )
     extraction: Optional[ExtractionObservation] = None
+    # Immutable producer operands from this observation, separate from native scalars.
+    function_inputs: object = None
 
 
 class SimulatorAdapter(ABC):
@@ -274,6 +276,7 @@ class SimulatorAdapter(ABC):
 
         self._last_observation: Optional[MonitorObservation] = None
         self._query_configuration = QueryConfiguration.empty()
+        self._catalog_only_reset_active = False
         self._query_configuration_epoch = 0
         self._accepted_query_configuration_epoch = None
         self._structured_metadata_by_quantity = {}
@@ -522,6 +525,7 @@ class SimulatorAdapter(ABC):
             perceived_entities=projected_entities,
             component_tags=component_tags,
             extraction=extraction,
+            function_inputs=observation.function_inputs,
         )
 
     # ------------------------------------------------------------------
@@ -607,6 +611,11 @@ class SimulatorAdapter(ABC):
         return self._query_configuration
 
     @property
+    def query_configuration_is_default(self) -> bool:
+        """Whether no different query configuration has been installed."""
+        return self._query_configuration_epoch == 0
+
+    @property
     def query_configuration_epoch(self) -> int:
         return self._query_configuration_epoch
 
@@ -622,6 +631,21 @@ class SimulatorAdapter(ABC):
         if configuration != self._query_configuration:
             self._query_configuration = configuration
             self._query_configuration_epoch += 1
+
+    def reset_catalog_only(self) -> MonitorObservation:
+        """Reset for discovery without measuring eligible pair values.
+
+        Explicit population-wide measurement remains active for ordinary
+        resets and observations. Query configuration and provenance stay
+        unchanged during this catalog-only reset.
+        """
+        self.set_extraction_entity_scope({})
+        previous = self._catalog_only_reset_active
+        self._catalog_only_reset_active = True
+        try:
+            return self.reset()
+        finally:
+            self._catalog_only_reset_active = previous
 
     def reset(self) -> MonitorObservation:
         """
@@ -778,6 +802,58 @@ class SimulatorAdapter(ABC):
         viewer open can crash interpreter teardown (GL context
         destruction races the viewer thread).
         """
+
+    function_input_schemas: Mapping[str, int] = {}
+    _specification_provenance: Optional[dict] = None
+    _authored_function_context: Optional[dict] = None
+
+    def set_function_inputs(self, requirements: Mapping[str, int]) -> None:
+        """Request versioned native operands before reset or observation."""
+        for provider, schema in requirements.items():
+            if self.function_input_schemas.get(provider) != schema:
+                raise ValueError(
+                    f"{type(self).__name__} does not provide function input "
+                    f"{provider!r} schema {schema}; available: {dict(self.function_input_schemas)}"
+                )
+        self._function_input_requests = dict(requirements)
+
+    def prepare_function_entity_ids(self, native_ids) -> None:
+        """Reserve the fresh native catalog before assigning authored IDs."""
+        self._function_native_ids = frozenset(native_ids)
+        identities = getattr(self, "_function_identities", {})
+        self._function_identities = {
+            key: entity_id for key, entity_id in identities.items()
+            if entity_id not in self._function_native_ids
+        }
+
+    def function_entity_id(self, key: str, entity_class: str) -> int:
+        """Reserve a stable identity for an authored output entity."""
+        identities = getattr(self, "_function_identities", None)
+        if identities is None:
+            self._function_identities = identities = {}
+        identity = (key, entity_class)
+        if identity not in identities:
+            observed = self.last_observation
+            native_ids = observed.perceived_entities if observed is not None else {}
+            reserved = getattr(self, "_function_native_ids", ())
+            identities[identity] = max([*native_ids, *reserved, *identities.values()], default=-1) + 1
+        return identities[identity]
+
+    def close(self) -> None:
+        """Attempt each owned cleanup once without masking the run outcome."""
+        if getattr(self, "_closed", False):
+            return
+        self._closed = True
+        import sys
+
+        for name in ("close_render", "close_native_extraction"):
+            cleanup = getattr(self, name, None)
+            if callable(cleanup):
+                try:
+                    cleanup()
+                except Exception as exc:
+                    print("Adapter cleanup warning: {}: {}: {}".format(
+                        name, type(exc).__name__, exc), file=sys.stderr)
 
     def capture_frame(
         self,

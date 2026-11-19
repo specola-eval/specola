@@ -31,7 +31,30 @@ def main() -> None:
                     "packages in this environment and which optional extras "
                     "are installed.",
     )
-    parser.parse_args()
+    parser.add_argument("--verify", action="store_true", help="Run bounded functional and rendered-browser installation checks")
+    parser.add_argument("--sim", action="append", default=None, metavar="NAME", help="Verify a current-environment simulator (repeatable; default: mock plus available adapters)")
+    parser.add_argument("--output-dir", type=str, help="New directory for retained verification logs, screenshots and results.json")
+    parser.add_argument("--timeout", type=float, default=180, help="Per-child timeout in seconds (default: 180)")
+    parser.add_argument("--browser", help="Chrome or Chromium executable for rendered verification")
+    parser.add_argument("--json", action="store_true", help="Print the verification result as JSON")
+    parser.add_argument("--demo", nargs="?", const="packaged", help="Verify LIBERO replay from PATH, or the packaged goal-0 demonstration when omitted")
+    args = parser.parse_args()
+    if not args.verify and (args.sim or args.output_dir or args.browser or args.json or args.demo or args.timeout != 180):
+        parser.error("verification options require --verify")
+    if args.verify:
+        import json
+        from .install_verification import verify_installation
+        try:
+            result = verify_installation(args.output_dir, simulators=args.sim, timeout=args.timeout, browser=args.browser, demo=args.demo)
+        except (OSError, ValueError, RuntimeError) as exc:
+            parser.exit(2, f"Installation verification could not start: {exc}\n")
+        if args.json:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+        else:
+            for outcome in result["outcomes"]:
+                print(f"{outcome['simulator']}/{outcome['capability']}: {outcome['status']} ({outcome['reason']})")
+            print("Evidence: " + result["evidence_directory"])
+        raise SystemExit(0 if result["ready"] else 1)
 
     env = branding.environment()
     if branding.enabled():

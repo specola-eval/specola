@@ -47,7 +47,7 @@ class SignalMapping:
     entity_class: str
     label: Optional[str]
     exact_key: str
-    value: float
+    value: Optional[float]
     unit: Optional[str]
 
 

@@ -667,6 +667,33 @@ def test_headless_escape_reports_stopped_and_joins_driver():
     assert result.stopped is True
     assert worker_done.is_set()
 
+def test_headless_escape_bounds_join_without_closing_active_stream(monkeypatch):
+    import pytest
+    import threading
+    import specola.run_dashboard as module
+
+    release = threading.Event()
+    closed = threading.Event()
+    owners = []
+    monkeypatch.setattr(module, "_DRIVER_JOIN_TIMEOUT", 0.05)
+
+    def stream(stop):
+        try:
+            assert release.wait(5)
+            yield from ()
+        finally:
+            owners.append(threading.get_ident())
+            closed.set()
+
+    try:
+        with pytest.raises(module.WorkerAbandoned, match="must not be finalized"):
+            module.run_textual_dashboard(stream, headless=True)
+        assert not closed.is_set()
+    finally:
+        release.set()
+        assert closed.wait(2)
+    assert owners != [threading.get_ident()]
+
 
 def test_slow_final_step_is_waited_out_not_failed():
     make_snapshot = _live_snapshots(binding_count=1)

@@ -176,3 +176,28 @@ def test_summarize_refuses_a_missing_by_column(results_dir):
     df = report.load(results_dir)
     with pytest.raises(SystemExit, match="--by column not in the results: nope"):
         report.summarize(df, by=["nope"])
+
+@pytest.mark.parametrize("format", ["csv", "parquet"])
+@pytest.mark.parametrize("success", [[True, False, None], [None, None, None]])
+def test_summary_excludes_unknown_success_after_saved_reload(tmp_path, format, success):
+    if format == "parquet":
+        pytest.importorskip("pyarrow")
+    rows = pd.DataFrame({
+        "step": [0, 0, 0], "time": [0.0, 0.0, 0.0],
+        "spec": ["one"] * 3, "authored_spec": ["one"] * 3,
+        "binding": ["object=1"] * 3, "binding_key": ["1"] * 3,
+        "rho": [1.0] * 3, "verdict_final": [True] * 3,
+        "episode_id": ["first", "second", "third"], "success": success,
+    })
+    path = tmp_path / ("raw." + format)
+    if format == "csv":
+        rows.to_csv(path, index=False)
+    else:
+        rows.to_parquet(path, index=False)
+    from specola.report import load, summarize
+    result = summarize(load(str(path)), by=[])
+    assert result.iloc[0]["episodes"] == 3
+    if success[0] is None:
+        assert pd.isna(result.iloc[0]["success_rate"])
+    else:
+        assert result.iloc[0]["success_rate"] == 0.5

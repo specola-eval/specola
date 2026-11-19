@@ -1,0 +1,35 @@
+# Explicit trusted local Python; formulas keep their sampled-distance meaning.
+# Run/check this file without a robodojo.mesh_pair query population or
+# ROBODOJO_DISTMAX: the adapter would then also write these outputs on
+# mesh_pair, which the function loader rejects as an output collision.
+functions:
+  mesh_clearance:
+    python: verification_robodojo_functions.py:mesh_clearance
+    entity_class: mesh_pair
+    inputs:
+      scene:
+        provider: robodojo.scene
+        schema: 1
+    parameters:
+      distmax: 0.05
+      robot_links:
+      - link6
+      - link7
+      - link8
+    outputs:
+      mesh_distance_sampled:
+        unit: m
+        group: authored sampled mesh distance
+        note: vertex-to-surface minimum, capped; overestimate off-vertex
+      mesh_distance_clipped:
+        unit: null
+        group: authored sampled mesh distance
+specs:
+- name: joints_stay_slow
+  formula: 'historically[0,1s](robot_*[all: joint_vel_*] <= limit)'
+  constants:
+    limit: 2.0
+- name: bowls_stay_on_table
+  formula: historically[0,1s](rigid_*[root_pos_w_2] >= 0.5)
+- name: bodies_stay_apart
+  formula: historically[0,1s](mesh_pair_*[mesh_distance_sampled @ b:bowl0] >= 0.005)

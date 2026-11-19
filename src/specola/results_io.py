@@ -1,9 +1,7 @@
-"""results_io.py — episode parquet writing shared by the facade and CLI.
+"""Write episode CSV with provenance and optional Parquet.
 
-One step-level file per episode; filenames are collision-proof across
-parallel jobs (timestamp + random suffix), so no process ever appends
-to a shared file. Falls back to CSV when pyarrow is missing — results
-are never silently dropped.
+Collision-resistant episode filenames keep parallel jobs separate. Each raw
+representation is published atomically; metadata accompanies the CSV.
 """
 
 from __future__ import annotations
@@ -55,7 +53,7 @@ DERIVED_REPORT_COLUMNS = frozenset({
 # is worse than carrying none at all.
 PROVENANCE_KEYS = frozenset({
     "spec_source", "spec_digest", "spec_constants", "extraction_status", "verification_only",
-    "audit_only", "schema_only",
+    "audit_only", "schema_only", "spec_formulas", "spec_functions", "spec_functions_active",
 })
 
 # Every key a caller-supplied meta entry must not shadow: the row schema's
@@ -87,96 +85,78 @@ def save_rows(
     path: Path,
     schema_meta: Dict[str, object],
     quiet: bool = False,
-) -> Optional[Path]:
-    """Write rows to parquet (schema metadata attached), CSV fallback.
+) -> Path:
+    """Write required CSV and metadata, plus Parquet when available.
 
-    Args:
-        rows: List of row dictionaries to save.
-        path: Target path (will write .parquet or .csv depending on pyarrow availability).
-        schema_meta: Metadata to attach to the parquet schema, or to the
-            sidecar described below on the CSV fallback.
-        quiet: If True, suppress routine output messages. A provenance
-            sidecar that could not be written is reported regardless.
-
-    Returns:
-        Path to the written results file (.parquet or .csv), or None when
-        there was nothing to write. The CSV fallback cannot write a
-        zero-row file — with no rows there are no field names to put in a
-        header — so it writes nothing and says so. Returning the path
-        anyway would name a file that does not exist, or, if an earlier
-        episode's file happens to occupy that name, one holding somebody
-        else's results. Callers must treat the return value as "the file
-        I wrote", never as "the file I would have written".
-
-        The CSV fallback writes a second file: ``<name>.meta.json``
-        beside the CSV, carrying ``schema_meta`` because CSV has nowhere
-        to put it. Only the results path is returned, so a caller moving
-        or copying "the file I wrote" as a self-contained artifact must
-        take the sidecar with it. Its absence is reported, never silent,
-        but it is not an error: the rows are already on disk and are
-        worth more than the annotation.
+    The returned path identifies the preferred raw representation actually
+    written. CSV and its metadata sidecar remain available beside Parquet.
+    Empty episodes carry the core headers and episode metadata.
     """
+    import os
+    import tempfile
+
     from .conformance.verification import require_ordinary_execution
     require_ordinary_execution(schema_meta)
+    path = Path(path)
+    csv_path = path.with_suffix(".csv")
+    columns = list(dict.fromkeys(key for row in rows for key in row))
+    if not columns:
+        columns = sorted(CORE_COLUMNS)
+    metadata = _meta_strings(schema_meta)
+    metadata["raw_results_schema"] = "1"
+    metadata["raw_column_types"] = json.dumps({
+        column: type(next((row[column] for row in rows
+                           if row.get(column) is not None), "")).__name__
+        for column in columns
+    }, sort_keys=True)
+
+    def publish(destination, write):
+        fd, name = tempfile.mkstemp(prefix="." + destination.name, dir=destination.parent)
+        os.close(fd)
+        temporary = Path(name)
+        try:
+            write(temporary)
+            temporary.replace(destination)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def write_csv(temporary):
+        with temporary.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.DictWriter(stream, fieldnames=columns)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    publish(csv_path, write_csv)
+    meta_path = csv_path.with_suffix(".meta.json")
+    try:
+        publish(meta_path, lambda temporary: temporary.write_text(
+            json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8",
+        ))
+    except Exception as exc:
+        print(f"  {amber('⚠')} results written, but their provenance sidecar failed: {exc}")
+        print(f"      {bold(str(csv_path))} has no {meta_path.name}")
+
+    preferred = csv_path
     try:
         import pandas as pd
         import pyarrow as pa
         import pyarrow.parquet as pq
-
-        df    = pd.DataFrame(rows)
-        table = pa.Table.from_pandas(df)
-
-        # Store run metadata in the Parquet schema so it survives round-trips.
-        # Access later with: pq.read_table(path).schema.metadata
-        existing = table.schema.metadata or {}
-        combined = {**existing,
-                    **{k.encode(): str(v).encode() for k, v in schema_meta.items()}}
-        table = table.replace_schema_metadata(combined)
-
-        pq.write_table(table, path, compression="snappy")
-        if not quiet:
-            print(f"  {green('✓')} results → {bold(str(path))}")
-            print(dim(f"      {len(rows)} rows  |  "
-                      f"pd.read_parquet('{path}')"))
-        return path
-
     except ImportError:
-        # Fall back to CSV — same data, larger file. CSV carries no schema
-        # metadata, so the run metadata goes to a sidecar rather than being
-        # dropped: results whose spec set cannot be identified are not
-        # usable as evidence, and losing that silently is the failure this
-        # avoids.
-        csv_path = path.with_suffix(".csv")
-
-        if not rows:
-            if not quiet:
-                print(f"  {amber('⚠')}  no rows to write — no results file created")
-            return None
-
-        with open(csv_path, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=rows[0].keys())
-            writer.writeheader()
-            writer.writerows(rows)
-
-        # The rows are already on disk. A metadata failure must not turn a
-        # written results file into a raised exception, because the caller
-        # (session.end) responds to one by dropping the record's path —
-        # leaving a real file nobody holds a reference to. Report it
-        # loudly instead, quiet or not: results whose spec set cannot be
-        # identified are still results, but they are not evidence.
-        meta_path = csv_path.with_suffix(".meta.json")
+        pass
+    else:
         try:
-            with open(meta_path, "w") as f:
-                json.dump(
-                    _meta_strings(schema_meta), f, indent=2, sort_keys=True,
-                )
+            table = pa.Table.from_pandas(pd.DataFrame(rows, columns=columns))
+            table = table.replace_schema_metadata({
+                **(table.schema.metadata or {}),
+                **{key.encode(): value.encode() for key, value in metadata.items()},
+            })
+            publish(path, lambda temporary: pq.write_table(
+                table, temporary, compression="snappy",
+            ))
+            preferred = path
         except Exception as exc:
-            print(f"  {amber('⚠')}  results written, but their provenance "
-                  f"sidecar failed: {exc}")
-            print(f"      {bold(str(csv_path))} has no {meta_path.name}")
-
-        if not quiet:
-            print(f"  {amber('⚠')}  pyarrow not installed — saved as CSV instead:")
-            print(f"      {bold(str(csv_path))}")
-            print(dim("      pip install pyarrow  to get Parquet output"))
-        return csv_path
+            print(f"  {amber('⚠')} optional Parquet write failed: {exc}; CSV preserved at {csv_path}")
+    if not quiet:
+        print(f"  {green('✓')} results → {bold(str(preferred))}")
+        print(dim(f"      {len(rows)} rows; required CSV: {csv_path}"))
+    return preferred

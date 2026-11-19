@@ -135,6 +135,45 @@ def test_doctor_plain_output_lists_each_adapter(monkeypatch, capsys, clean_env):
     assert any(line.split() == ["absent", "missing", "no_such_module_xyz"] for line in out)
 
 
+def test_doctor_without_mujoco_lists_adapters(monkeypatch):
+    from importlib import metadata
+
+    def absent(name):
+        raise metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(metadata, "version", absent)
+    rows = registry.adapter_status(load_third_party=False)
+    assert {row.name for row in rows} >= {"mock", "libero", "robocasa"}
+    assert all(row.python_required == "" for row in rows)
+
+
+@pytest.mark.parametrize("running", [(3, 10), (3, 12)])
+def test_doctor_names_the_reviewed_python_requirement(monkeypatch, capsys, running):
+    from importlib import metadata
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(registry, "_REGISTRY", {})
+    monkeypatch.setattr(registry, "_iter_adapter_entry_points", lambda: [])
+    monkeypatch.setattr(registry, "_module_found", lambda name: True)
+    monkeypatch.setattr(metadata, "version", lambda name: "3.8.1")
+    monkeypatch.setattr(registry, "sys", SimpleNamespace(version_info=running), raising=False)
+    monkeypatch.setattr(branding, "sys", SimpleNamespace(version_info=running))
+    def unused_factory(task, robot, target_only) -> registry.SimulatorAdapter:
+        raise AssertionError("doctor must not construct a simulator")
+
+    registry.register("libero", factory=unused_factory, requires=("libero", "mujoco"))
+    (status,) = registry.adapter_status()
+    assert status.python_required == "3.12"
+    assert status.python_mismatch is (running != (3, 12))
+    label = doctor.plain(branding.Environment(version="test", python="test", adapters=[status], extras=()))
+    if running == (3, 10):
+        assert "packages found; needs Python 3.12 (running 3.10)" in label
+        assert not status.ready
+    else:
+        assert branding.status_label(status) == "packages found"
+        assert status.ready
+
+
 def test_bundled_adapters_declare_requirements():
     names = {s.name: s for s in registry.adapter_status()}
     expected_empty = {"mock", "dataset"}

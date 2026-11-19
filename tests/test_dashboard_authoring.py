@@ -96,6 +96,30 @@ def test_the_report_is_the_checkers_own_text(tmp_path):
     assert len(result.report) > 40
 
 
+def test_the_report_carries_no_escape_codes_when_stdout_is_a_terminal(tmp_path, monkeypatch):
+    # Interactive sessions import cli_common while stdout is a tty; the
+    # authoring panel must still receive plain text.
+    import importlib
+    import sys
+    from specola import cli_common
+
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    importlib.reload(cli_common)
+    from specola.authoring import check_draft
+
+    server = _server(tmp_path)
+    context, _ = server._check_context()
+    assert context is not None
+    draft = _accepted_draft(server)
+    result = check_draft(
+        context, name="ll[1m]ll", formula=draft["formula"],
+        constants=draft["constants"], symmetric=draft["symmetric"],
+    )
+    assert "\x1b" not in result.report
+    assert "ll[1m]ll" in result.report
+
+
 def test_a_run_without_a_snapshot_says_so_instead_of_guessing(tmp_path):
     server = _server(tmp_path, with_discovery=False)
     context, error = server._check_context()

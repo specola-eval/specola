@@ -42,7 +42,15 @@ def parse(text: str) -> FormulaNode:
 
     stripped = text.strip()
     grammar.validate_delimiters(stripped)
-    return _parse(stripped)
+    try:
+        return _parse(stripped)
+    except RecursionError:
+        # The parser is recursive descent; a formula with thousands of
+        # nested or chained operators exhausts the interpreter stack.
+        raise ValueError(
+            "formula is too long or too deeply nested to parse; split it "
+            "into several specifications"
+        ) from None
 
 
 def _parse(text: str) -> FormulaNode:

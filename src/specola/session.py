@@ -16,9 +16,11 @@ docs/superpowers/specs/2026-07-16-researcher-eval-integration-design.md.
 from __future__ import annotations
 
 import logging
+import math
 import secrets
 from dataclasses import dataclass, replace
 from datetime import datetime
+from numbers import Real
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -207,6 +209,15 @@ class Monitor:
         # constructed in the same second (parallel sweeps, or a per-task
         # Monitor built in a loop). Salt the default run_id with random hex
         # so distinct Monitors never share one.
+        if run_id is not None and (
+            not isinstance(run_id, str) or not run_id.strip()
+            or run_id in (".", "..") or "/" in run_id or "\\" in run_id
+        ):
+            # Same rule as --run-name: the id names one directory under
+            # results_dir and must not be able to leave it.
+            raise ValueError(
+                f"run_id must be one non-empty path component, got {run_id!r}"
+            )
         self._run_id = run_id or "{ts}_{salt}".format(
             ts=datetime.now().strftime("%Y%m%d_%H%M%S"),
             salt=secrets.token_hex(2),
@@ -273,6 +284,14 @@ class Monitor:
         if queries is not None:
             adapter.set_query_configuration(queries)
 
+        if dt is not None:
+            # Checked here, before the previous session is touched and
+            # before compilation turns a bad value into an unrelated error.
+            if isinstance(dt, bool) or not isinstance(dt, Real):
+                raise TypeError(f"dt must be a real scalar, got {dt!r}")
+            if not math.isfinite(dt) or dt <= 0:
+                raise ValueError(f"dt must be finite and positive, got {dt!r}")
+
         # A break-heavy eval loop must not be able to wedge the monitor:
         # an unended previous session is truncated, not silently dropped.
         if self._session is not None and not self._session.ended:
@@ -285,6 +304,8 @@ class Monitor:
         # episode's scope has to come off first, or the second episode of
         # a session would compile against a catalog its own scope had
         # already narrowed.
+        self._engine.functions.close()
+        adapter.set_function_inputs(self._engine.functions.requirements)
         adapter.set_extraction_scope(None)
         # Catalog-only reset (issue #136, maintainer decision 2026-10-07):
         # no compiled slot exists yet, so an entity scope admitting nothing
@@ -307,6 +328,8 @@ class Monitor:
                 or (observed is not None and observed.extraction is not None
                     and observed.extraction.verification_only != (verification is not None))):
             raise ExtractionGuardError("verification_mode_mismatch", ("reset does not match the monitor execution mode",))
+        reset = self._engine.functions.prepare(adapter, reset)
+        adapter._specification_provenance = self._engine.spec_provenance
         if _reset_hook is not None:
             # Here, and nowhere else. This is the reset the episode
             # compiles against; a reset the caller performed earlier can
@@ -332,6 +355,7 @@ class Monitor:
         # full surface.
         adapter.set_extraction_scope(self._engine.extraction_scope())
         adapter.set_extraction_entity_scope(self._engine.extraction_entity_scope())
+        self._engine.functions.set_scope(self._engine.extraction_scope(), self._engine.extraction_entity_scope())
 
         episode_index = self._episode_index
         self._episode_index += 1
@@ -350,6 +374,7 @@ class Monitor:
             )
 
         entity_labels = _LiveEntityLabels(adapter)
+        entity_labels.update(self._engine.functions.labels)
 
         session = Session(
             self._engine,
@@ -405,6 +430,7 @@ class Session:
         self._rows: List[dict] = []
         self._next_step = 0
         self._ended = False
+        self._write_failed = False
         self._record: Optional[EpisodeRecord] = None
         self._phase_hook = phase_hook
 
@@ -499,6 +525,7 @@ class Session:
             assert self._record is not None
             return self._record
         self._ended = True
+        self.engine.functions.close()
 
         if self._phase_hook is not None:
             self._phase_hook("result finalization")
@@ -533,35 +560,66 @@ class Session:
         # in-memory record the researcher already has a reference to.
         self._record = record
 
+        self._write_results()
+        return self._record
+
+    def save(self) -> EpisodeRecord:
+        """Write the result file that a failed ``end()`` could not.
+
+        ``end()`` keeps the record when its write raises (a full disk, a
+        directory that is not writable) and leaves ``record.path`` as
+        ``None``. The rows are still held, so once the cause is fixed
+        this writes them and returns the record with its path. It raises
+        whatever the write raises, and may be called again. When there
+        is nothing to retry (the file exists, or result files are
+        disabled) it returns the record unchanged.
+
+        Raises
+        ------
+        RuntimeError
+            If the session has not ended.
+        """
+        if not self._ended or self._record is None:
+            raise RuntimeError("save() retries a failed end(); call end() first")
+        if self._write_failed:
+            self._write_results()
+        return self._record
+
+    def _write_results(self) -> None:
+        assert self._record is not None
+        status, success = self._record.status, self._record.success
         if self._path is not None:
             if self._phase_hook is not None:
                 self._phase_hook("result write")
-            full_rows = self._build_full_rows(status=status, success=success)
-            schema_meta: Dict[str, Any] = {
-                "episode_id": self._episode_id,
-                "status": status,
-                "success": success,
-                "steps": self._next_step,
-            }
-            # Which spec set produced these rows. Caller meta cannot
-            # shadow these keys (results_io.PROVENANCE_KEYS is reserved),
-            # so the update below cannot rewrite provenance.
-            schema_meta.update(self.engine.spec_provenance)
-            if self._extraction_status is not None:
-                schema_meta["extraction_status"] = self._extraction_status
-            schema_meta.update(self._meta)
-
             try:
+                full_rows = self._build_full_rows(status=status, success=success)
+                schema_meta: Dict[str, Any] = {
+                    "episode_id": self._episode_id,
+                    "status": status,
+                    "success": success,
+                    "steps": self._next_step,
+                }
+                # Which spec set produced these rows. Caller meta cannot
+                # shadow these keys (results_io.PROVENANCE_KEYS is reserved),
+                # so the update below cannot rewrite provenance.
+                schema_meta.update(self.engine.spec_provenance)
+                if self._extraction_status is not None:
+                    schema_meta["extraction_status"] = self._extraction_status
+                schema_meta.update(self._meta)
+
                 self._path.parent.mkdir(parents=True, exist_ok=True)
                 written = save_rows(
                     full_rows, self._path, schema_meta, quiet=True,
                 )
-            except Exception:
+            except BaseException:
+                # BaseException: Ctrl-C during the write leaves no file
+                # either, and save() must be able to retry it.
                 # The record survives the failure (stored above), but it
                 # must not survive holding a path to a file that was
                 # never created: a caller reading record.path would open
                 # nothing, or a stale file left by an earlier run.
                 self._record = replace(self._record, path=None)
+                self._write_failed = True
                 raise
 
             # save_rows returns None when it wrote nothing (an empty row
@@ -574,8 +632,7 @@ class Session:
                 self._record,
                 path=written,
             )
-
-        return self._record
+            self._write_failed = False
 
     def _build_full_rows(
         self, *, status: str, success: Optional[bool],

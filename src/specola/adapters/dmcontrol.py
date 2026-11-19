@@ -141,7 +141,9 @@ def _make_dmcontrol(
     domain, _, task_name = (task or "walker:walk").partition(":")
     env = suite.load(domain, task_name or "walk")
     env.reset()
-    return DMControlAdapter(env)
+    adapter = DMControlAdapter(env)
+    adapter._owns_environment = env.close  # built here, so the adapter closes it
+    return adapter
 
 
 def _handles(obj) -> bool:

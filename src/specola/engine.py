@@ -31,7 +31,7 @@ import yaml
 
 from .capabilities import AdapterCapabilities, AdapterResetResult, VocabularyMode
 from .components import ComponentCatalog
-from .entities import UnknownClassError
+from .entities import SpecConfigError, UnknownClassError
 from .monitor import IncrementalBindingManager
 from .results import BindingEvaluation, EngineResult, EvaluationStatus
 from .spec import parser as _spec_parser
@@ -43,9 +43,11 @@ class _LoadedSpec:
         self.name = name
         self.node = node
         self.formula_text = formula_text
+        self.source_formula = formula_text
         self.symmetric = symmetric
         self.constants = constants
         self.backend = backend
+        self.functions = ()
 
 
 def _spec_provenance(
@@ -75,7 +77,7 @@ def _spec_provenance(
     canonical = [
         {
             "name": s.name,
-            "formula": s.formula_text,
+            "formula": getattr(s, "source_formula", s.formula_text),
             "constants": dict(sorted(s.constants.items())),
             "backend": s.backend,
             "symmetric": bool(s.symmetric),
@@ -86,10 +88,14 @@ def _spec_provenance(
         canonical, sort_keys=True, separators=(",", ":"), default=str,
     )
     constants = {s.name: dict(s.constants) for s in specs if s.constants}
+    function_declarations = {definition.name: definition.declaration for definition in getattr(specs[0], "functions", ())} if specs else {}
+    digest_payload = payload + (json.dumps(function_declarations, sort_keys=True) if function_declarations else "")
     return {
         "spec_source": str(spec_file),
-        "spec_digest": hashlib.sha256(payload.encode()).hexdigest(),
+        "spec_digest": hashlib.sha256(digest_payload.encode()).hexdigest(),
         "spec_constants": json.dumps(constants, sort_keys=True, default=str),
+        "spec_formulas": payload,
+        "spec_functions": json.dumps(function_declarations, sort_keys=True),
     }
 
 
@@ -101,8 +107,13 @@ class MonitorEngine:
         specs: List[_LoadedSpec],
         provenance: Optional[Mapping] = None,
     ) -> None:
+        from .spec_functions import FunctionSet
         self._specs = specs
+        definitions = getattr(specs[0], "functions", ()) if specs else ()
+        self.functions = FunctionSet(definitions, specs)
         self._provenance: Dict[str, str] = dict(provenance or {})
+        if self._provenance:
+            self._provenance["spec_functions_active"] = json.dumps([definition.name for definition in self.functions.definitions])
         self._managers: Optional[
             Dict[str, IncrementalBindingManager]
         ] = None
@@ -147,6 +158,8 @@ class MonitorEngine:
         with open(spec_file) as handle:
             data = yaml.safe_load(handle)
 
+        from .spec_functions import load_functions
+        functions = load_functions((data or {}).get("functions"), spec_file)
         entries = (data or {}).get("specs", [])
         if not entries:
             raise ValueError(f"No specs found in {spec_file}")
@@ -204,6 +217,16 @@ class MonitorEngine:
                 None,
             ))
 
+        # First occurrence wins: a duplicate name was rejected above, and
+        # its formula must not overwrite the accepted entry's provenance.
+        originals: Dict[Any, Any] = {}
+        for entry in entries:
+            if isinstance(entry, Mapping):
+                originals.setdefault(entry.get("name"), entry.get("formula"))
+        for _, loaded, _ in results:
+            if loaded is not None:
+                loaded.functions = functions
+                loaded.source_formula = originals[loaded.name]
         return results
 
     @classmethod
@@ -283,6 +306,17 @@ class MonitorEngine:
         excluded from this episode's managers instead of raising. Every
         other spec-config error still raises regardless of this flag.
         """
+        functions = getattr(self, "functions", None)
+        if functions is not None and functions.definitions and not functions.prepared:
+            # Declared functions read native inputs the adapter captures at
+            # reset; only Monitor.watch / Session perform that preparation.
+            # A bare engine (or a batched slot) would fail on its first
+            # update with a KeyError, so refuse here with the reason.
+            raise SpecConfigError(
+                "specifications declare functions ({}) but this engine was never "
+                "prepared against an adapter; monitor them through Session / "
+                "Monitor.watch, which capture the declared inputs at reset".format(
+                    ", ".join(definition.name for definition in functions.definitions)))
         if (
             capabilities is not None
             and capabilities.class_mode == VocabularyMode.CLOSED
@@ -478,6 +512,9 @@ class MonitorEngine:
     def update(self, observation: Any) -> EngineResult:
         """Run all monitors for one observation; return structured results."""
         started = _time.perf_counter()
+        functions = getattr(self, "functions", None)
+        if functions is not None:
+            observation = functions.overlay(observation)
 
         evaluations: List[BindingEvaluation] = []
         created = []

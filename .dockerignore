@@ -1,0 +1,14 @@
+.git
+.superpowers
+.serena
+.venv*
+**/__pycache__
+*.egg-info
+**/*.egg-info
+build
+dist
+logs
+results
+specola-worktrees
+*.so
+**/*.so

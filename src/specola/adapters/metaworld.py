@@ -801,7 +801,9 @@ def _make_metaworld(
     env = benchmark.train_classes[resolved_task]()
     env.set_task(benchmark.train_tasks[0])
     env.reset()
-    return MetaworldAdapter(env, task_name=resolved_task)
+    adapter = MetaworldAdapter(env, task_name=resolved_task)
+    adapter._owns_environment = env.close  # built here, so the adapter closes it
+    return adapter
 
 
 def _handles(obj: Any) -> bool:

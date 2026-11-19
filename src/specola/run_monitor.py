@@ -49,11 +49,15 @@ import argparse
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 import io
 import logging
+import os
 import re
 import shutil
+import signal
+import stat
 import sys
 import tempfile
 import textwrap
+import time
 import traceback
 from collections.abc import Mapping
 from datetime import datetime
@@ -65,9 +69,10 @@ import numpy as np
 
 from .adapter import SimulatorAdapter
 from .conformance.provider import ExtractionGuardError
+from .drive import gym_advancer, refuse_automatic_reset, step_signals_episode_end
 from .entities import SpecConfigError
 from .live_display import supports_live
-from .session import Monitor, Session, _LiveEntityLabels
+from .session import Monitor, Session
 from .state_recording import (
     SUFFIX as STATE_SUFFIX, StateRecording, StateRecordingError, StateWriter,
     check_compatible, is_state_recording,
@@ -110,6 +115,12 @@ class _TeeStream:
     @property
     def encoding(self):
         return self._terminal.encoding
+
+    def close(self) -> None:
+        # A library logging handler (absl's, under dm_control) that took
+        # this object as its stream closes it at interpreter shutdown.
+        # The terminal and the log have their own owners; nothing to do.
+        return None
 
 
 @contextmanager
@@ -487,25 +498,6 @@ def _find_in_env_chain(env, attribute: str):
     return None
 
 
-def _step_signals_episode_end(result) -> bool:
-    """True if a gym/gymnasium-style step() return signals episode end.
-
-    Envs like Meta-World raise if step() is called again once their
-    internal step budget is exhausted, instead of just returning stale
-    obs — so the advancer must stop itself at truncation rather than
-    relying on the caller to notice next time around.
-    """
-    if not isinstance(result, tuple):
-        return False
-    if len(result) == 5:      # gymnasium: obs, reward, terminated, truncated, info
-        _, _, terminated, truncated, _ = result
-        return bool(terminated or truncated)
-    if len(result) == 4:      # legacy gym: obs, reward, done, info
-        _, _, done, _ = result
-        return bool(done)
-    return False
-
-
 def _make_advancer(adapter: SimulatorAdapter, mode: str,
                    demo: Optional[str], seed: int, *,
                    recording: Optional[StateRecording] = None) -> Callable[[int], bool]:
@@ -558,8 +550,22 @@ def _make_advancer(adapter: SimulatorAdapter, mode: str,
             return True
         return advance
 
+    if env is None:
+        # Nothing below steps anything: each observation reads the state
+        # the observation hook leaves, which for most simulators is frozen.
+        print(
+            "  Drive warning: the adapter has neither make_advancer nor an "
+            "env attribute, so specola run cannot step the simulator; every "
+            "observation reads the state its observation hook leaves. "
+            "Provide make_advancer (docs/adapter-hooks.md).",
+            file=sys.stderr,
+        )
+
     # Action metadata: robosuite-style action_spec/action_dim, or a
-    # gymnasium-style Box action_space.
+    # gymnasium-style Box action_space, which specola.drive.gym_advancer
+    # drives (the same function an adapter's make_advancer can return).
+    if env is not None:
+        refuse_automatic_reset(env)
     space_owner = _find_in_env_chain(env, "action_space")
 
     if mode == "hold":
@@ -569,17 +575,15 @@ def _make_advancer(adapter: SimulatorAdapter, mode: str,
                 "--mode hold needs an env exposing action_dim or "
                 "action_space"
             )
+        if env is not None and dim_owner is None:
+            return gym_advancer(env, "hold", seed)
         done = False
         def advance(step: int) -> bool:
             nonlocal done
             if env is not None:
                 if done:
                     return False
-                if dim_owner is not None:
-                    result = env.step(np.zeros(dim_owner.action_dim))
-                else:
-                    result = env.step(np.zeros(space_owner.action_space.shape))
-                done = _step_signals_episode_end(result)
+                done = step_signals_episode_end(env.step(np.zeros(dim_owner.action_dim)))
             return True
         return advance
 
@@ -590,21 +594,16 @@ def _make_advancer(adapter: SimulatorAdapter, mode: str,
             "--mode random needs an env exposing action_spec or "
             "action_space"
         )
+    if env is not None and spec_owner is None:
+        return gym_advancer(env, "random", seed)
     done = False
     def advance(step: int) -> bool:
         nonlocal done
         if env is not None:
             if done:
                 return False
-            if spec_owner is not None:
-                lo, hi = spec_owner.action_spec
-                result = env.step(rng.uniform(lo, hi))
-            else:
-                space = space_owner.action_space
-                result = env.step(
-                    rng.uniform(space.low, space.high).astype(np.float32)
-                )
-            done = _step_signals_episode_end(result)
+            lo, hi = spec_owner.action_spec
+            done = step_signals_episode_end(env.step(rng.uniform(lo, hi)))
         return True
     return advance
 
@@ -658,14 +657,11 @@ def _snapshot_stream(
             yield snapshot
             step += 1
     finally:
-        if render or web_sink is not None:
-            if simulator_output is None:
-                adapter.close_render()
-            else:
-                with simulator_output.capture(
-                    enabled=capture_simulator_output
-                ):
-                    adapter.close_render()
+        if simulator_output is None:
+            adapter.close()
+        else:
+            with simulator_output.capture(enabled=capture_simulator_output):
+                adapter.close()
 
 
 def _print_typed_summary(record, snapshot, engine, state_path=None) -> None:
@@ -730,27 +726,12 @@ def _print_typed_summary(record, snapshot, engine, state_path=None) -> None:
     print()
 
 
-def _typed_eval_loop(
-    session: Session,
-    *,
-    advance: Callable[[int], bool],
-    mode: str,
-    max_steps: int,
-    entity_labels: dict,
-    render: bool,
-    ui: str,
-    refresh_rate: float,
-    summary_only: bool,
-    adapter_name: str = "",
-    task: Optional[str] = None,
-    diagnostics_path: Optional[Path] = None,
-    simulator_log: Optional[Path] = None,
-    simulator_output: Optional[_SimulatorOutput] = None,
-    phase_state: Optional[dict] = None,
-    web_sink=None,
-    web_server=None,
-    state_writer: Optional[StateWriter] = None,
-) -> None:
+def build_run_tracker(session: Session, entity_labels: dict):
+    """The live binding tracker behind the terminal UIs and the dashboard
+    recorder, built from a watched session the way the run command builds
+    it. Library callers that drive their own loop can feed its snapshots to
+    a WebRecorderSink (see examples/robodojo_monitored_eval.py).
+    """
     from .run_state import (
         BindingEntity, MonitorDefinition, RunStateTracker,
     )
@@ -824,6 +805,34 @@ def _typed_eval_loop(
         entity_details=entity_details,
         component_metadata=component_metadata,
     )
+    return tracker
+
+
+def _typed_eval_loop(
+    session: Session,
+    *,
+    advance: Callable[[int], bool],
+    mode: str,
+    max_steps: int,
+    entity_labels: dict,
+    render: bool,
+    ui: str,
+    refresh_rate: float,
+    summary_only: bool,
+    adapter_name: str = "",
+    task: Optional[str] = None,
+    diagnostics_path: Optional[Path] = None,
+    simulator_log: Optional[Path] = None,
+    simulator_output: Optional[_SimulatorOutput] = None,
+    phase_state: Optional[dict] = None,
+    web_sink=None,
+    web_server=None,
+    state_writer: Optional[StateWriter] = None,
+    stop_callbacks: Optional[list] = None,
+) -> None:
+    adapter = session.adapter
+    engine = session.engine
+    tracker = build_run_tracker(session, entity_labels)
     snapshot = None
     interrupted = False
 
@@ -844,11 +853,20 @@ def _typed_eval_loop(
     stop_event = Event()
     if web_server is not None:
         web_server.on_stop_run(stop_event.set)
+    if stop_callbacks is not None:
+        # SIGTERM and SIGHUP stop the run the way the Stop button does.
+        stop_callbacks.append(stop_event.set)
 
     def _textual_stream(stop):
         # Share Textual's stop Event with the dashboard's stop_run.
         if web_server is not None:
             web_server.on_stop_run(stop.set)
+        if stop_callbacks is not None:
+            stop_callbacks.append(stop.set)
+            # A signal that arrived before this stream existed set only
+            # the outer Event; without this it would be lost.
+            if stop_event.is_set():
+                stop.set()
         return _snapshot_stream(
             session,
             tracker,
@@ -977,7 +995,7 @@ def _typed_eval_loop(
         # left open for the same reason (the worker may still append), so
         # its .rows spool stays on disk and no .npz claims a status.
         if web_sink is not None:
-            web_sink.finalize_episode("failed")
+            web_sink.abandon()
         print(
             "\n  Simulator step abandoned mid-execution; results were NOT "
             "finalized ({}).".format(exc),
@@ -1177,8 +1195,7 @@ def main():
           specola run --sim robocasa --specs my_specs.yaml --queries examples/geometry_queries.yaml --mode random
           specola run --sim libero --task libero_object:0 --specs my_specs.yaml --queries examples/geometry_queries.yaml --mode replay --demo demo.hdf5
 
-          Results are always saved automatically, one Parquet file per episode
-          (CSV when pyarrow is not installed):
+          Results include raw CSV per episode, optional Parquet, and automatic PDF/CSV reports:
               results/<run_id>/<timestamp>_ep<N>_<hex>.parquet
           Post-processing:
               import pandas as pd
@@ -1195,7 +1212,8 @@ def main():
     )
     ap.add_argument("--sim",     default="mock")
     ap.add_argument("--queries", type=Path, default=None, metavar="PATH",
-                    help="Native query configuration YAML or JSON, separate from specs")
+                    help="Query configuration YAML or JSON; MuJoCo-family adapters default to "
+                         "a 0.05 m geometry cutoff (examples/geometry_queries.yaml shows the format)")
     ap.add_argument("--adapter-module", action="append", default=[],
                     metavar="MODULE",
                     help="Import MODULE so its adapter registration runs "
@@ -1342,6 +1360,72 @@ def main():
         or "\\" in args.run_name
     ):
         ap.error("--run-name must be one non-empty path component")
+    if args.steps < 0:
+        ap.error("--steps must be 0 (until Ctrl-C or replay end) or positive")
+
+    # A terminated or hung-up run takes the Ctrl-C path, which ends the
+    # episode as truncated and writes its results. With the default
+    # handlers the process dies holding every row in memory, so an SSH
+    # drop or a scheduler's SIGTERM would lose the whole episode.
+    signalled = []
+    # What the run loop registers so a signal can ask it to stop: the
+    # same Event the dashboard's Stop button sets.
+    stop_callbacks = []
+    first_signal_at = [0.0]
+
+    def _interrupt(signum, frame):
+        first = not signalled
+        signalled.append(signum)
+        if first:
+            first_signal_at[0] = time.monotonic()
+        if first and signum == getattr(signal, "SIGHUP", None):
+            # The terminal is gone. A print to it raises EIO, which would
+            # end the shutdown before the results are written.
+            # Redirected at the descriptor, so streams captured earlier
+            # (logging handlers, the console object) follow as well.
+            sink = os.open(os.devnull, os.O_WRONLY)
+            for descriptor in (1, 2):
+                try:
+                    # Only the terminal: output redirected to a file or
+                    # a pipe is still wanted. A character device, not
+                    # isatty(), which is false once the terminal hung up.
+                    if stat.S_ISCHR(os.fstat(descriptor).st_mode):
+                        os.dup2(sink, descriptor)
+                except OSError:
+                    pass
+            os.close(sink)
+        if stop_callbacks:
+            # The loop is running, or its results are being written: ask
+            # it to stop after the current step. Raising here instead
+            # would land wherever the main thread happens to be, and
+            # inside an Isaac Sim callback the exception is swallowed
+            # and the run never ends. A repeated signal is harmless.
+            if time.monotonic() - first_signal_at[0] > 10.0:
+                # Asked again long after the first: the loop is not
+                # honouring the stop (a native step that never returns).
+                # Give the signal back its default action and deliver it.
+                signal.signal(signum, signal.SIG_DFL)
+                os.kill(os.getpid(), signum)
+                return
+            for callback in list(stop_callbacks):
+                callback()
+            return
+        # No loop yet, or the run is over and the dashboard is being
+        # served. One shot: a repeat must not interrupt the shutdown.
+        for name in ("SIGTERM", "SIGHUP"):
+            if hasattr(signal, name):
+                signal.signal(getattr(signal, name), signal.SIG_IGN)
+        raise KeyboardInterrupt
+
+    def install_termination_handlers() -> None:
+        for signal_name in ("SIGTERM", "SIGHUP"):
+            if hasattr(signal, signal_name):
+                try:
+                    signal.signal(getattr(signal, signal_name), _interrupt)
+                except ValueError:
+                    pass  # not the main thread; keep the default behaviour
+
+    install_termination_handlers()
 
     logging.getLogger().setLevel(getattr(logging, args.sim_log_level))
     compatible_tty = bool(
@@ -1356,6 +1440,12 @@ def main():
             "simulator viewer must remain on the main thread; use "
             "--ui rich or --ui plain"
         )
+
+    from .report_export import report_preflight, ReportPreflightError
+    try:
+        report_preflight(args.output_dir)
+    except ReportPreflightError as exc:
+        ap.error("Report readiness failed (" + str(exc) + ")")
 
     from .registry import load_adapter_module
     for module_name in args.adapter_module:
@@ -1378,6 +1468,9 @@ def main():
 
     web_sink = None
     web_server = None
+    adapter = None
+    worker_abandoned = False
+    report_attempted = False
     phase_state = {"phase": "adapter loading"}
 
     def set_phase(phase: str) -> None:
@@ -1448,6 +1541,8 @@ def main():
                 meta={
                     "sim":  args.sim,
                     "task": task_desc or "",
+                    "task_id": args.task or "",
+                    "run_id": run_id,
                     "mode": args.mode,
                     "seed": args.seed,
                 },
@@ -1501,6 +1596,10 @@ def main():
             advance = _make_advancer(
                 adapter, args.mode, args.demo, args.seed, recording=recording
             )
+        # Again, now the simulator is up: Isaac Sim's Kit installs its
+        # own handlers when it starts, and with those a SIGTERM ended an
+        # Isaac Lab run with no results and left a RoboDojo run hanging.
+        install_termination_handlers()
         set_phase("startup log publication to " + str(simulator_log))
         simulator_output.promote(simulator_log)
         diagnostics_path = run_directory / "run-error.log"
@@ -1511,7 +1610,7 @@ def main():
                 "Startup diagnostics retained at %s", startup_directory,
                 exc_info=True,
             )
-    except (ValueError, SpecConfigError, FileNotFoundError, ExtractionGuardError) as exc:
+    except (ValueError, SpecConfigError, OSError, ExtractionGuardError) as exc:
         with simulator_output.capture():
             _write_failure(
                 phase=phase_state["phase"],
@@ -1520,6 +1619,9 @@ def main():
                 exc=exc,
                 diagnostics_path=diagnostics_path,
             )
+        if adapter is not None:
+            with simulator_output.capture():
+                adapter.close()
         logging.getLogger().removeHandler(log_handler)
         log_handler.close()
         simulator_output.close()
@@ -1533,6 +1635,9 @@ def main():
                 exc=exc,
                 diagnostics_path=diagnostics_path,
             )
+        if adapter is not None:
+            with simulator_output.capture():
+                adapter.close()
         logging.getLogger().removeHandler(log_handler)
         log_handler.close()
         simulator_output.close()
@@ -1562,12 +1667,19 @@ def main():
                 # Flushed: scripts read this address from a pipe or file.
                 print("  Web dashboard: {}".format(url), flush=True)
             except Exception as exc:
+                hint = ""
+                if isinstance(exc, ImportError):
+                    hint = " Install the dashboard with the 'web' extra."
+                elif isinstance(exc, OSError):
+                    hint = " Pass --web 0 to use a free port."
                 print(
-                    "  Web warning: {}: {}; continuing without dashboard.".format(
-                        type(exc).__name__, exc,
+                    "  Web warning: {}: {}; continuing without dashboard.{}".format(
+                        type(exc).__name__, exc, hint,
                     ),
                     file=sys.stderr,
                 )
+                if web_server is not None:
+                    web_server.shutdown()
                 if web_sink is not None:
                     web_sink.close("failed")
                 web_sink = None
@@ -1628,7 +1740,7 @@ def main():
             session,
             advance=advance,
             mode=args.mode, max_steps=args.steps,
-            entity_labels=_LiveEntityLabels(adapter),
+            entity_labels=session._entity_labels,
             render=args.render,
             ui=ui,
             refresh_rate=args.refresh_rate,
@@ -1641,15 +1753,40 @@ def main():
             phase_state=phase_state,
             web_sink=web_sink,
             web_server=web_server,
+            stop_callbacks=stop_callbacks,
             state_writer=state_writer,
         )
+        # The stream's owning thread has returned and closed the adapter.
+        # Session.end has frozen rows and the recording status by this point.
+        # RoboDojo's Kit application remains owned by process exit.
+        with simulator_output.capture():
+            adapter.close()
+        from .report_export import export_finalized_session
+        report_attempted = True
+        try:
+            report_result = export_finalized_session(
+                session, run_directory,
+                recording_dir=web_sink.recording_dir if web_sink is not None and web_sink.finalized else None,
+            )
+        except KeyboardInterrupt:
+            # The raw results are already final; only the derived report
+            # is missing, and `specola report` rebuilds it.
+            print("\n  {}".format(dim(
+                "Report export interrupted; raw results are kept. "
+                "Regenerate the report with: specola report {}".format(run_directory))))
+            raise SystemExit(130) from None
+        # The results are written. From here a signal interrupts again,
+        # which is what ends the serve-until-exit wait below.
+        del stop_callbacks[:]
         if (web_server is not None and web_sink is not None
-                and web_server.active):
+                and web_server.active and not signalled):
+            # A run ended by SIGTERM or SIGHUP exits here: whoever sent
+            # the signal asked the process to stop, not to keep serving.
             # The server keeps serving the finished recording until the
             # process exits (dashboard spec); batch runs should simply
             # not pass --web.
             print(
-                "  Dashboard still serving at {} — Ctrl-C to exit; "
+                "  Dashboard still serving at {}; close the last tab or Ctrl-C to exit; "
                 "reopen later: specola view {}".format(
                     web_server.url, web_sink.recording_dir
                 ),
@@ -1659,17 +1796,40 @@ def main():
 
             # The recording is already finalized, so the heap the wait
             # leaves frozen holds nothing that needs a finalizer.
-            wait_for_interrupt()
+            wait_for_interrupt(web_server)
             print("\n  {}".format(dim("Dashboard closed")))
+        if report_result is not None and "error" in report_result:
+            raise SystemExit(2)
+    except WorkerAbandoned:
+        worker_abandoned = True
+        # The worker still owns the adapter, so the exit-time close that
+        # construct_sim registered would release it under the running
+        # step. Bound methods compare by their instance's identity, so
+        # this removes exactly that registration.
+        if adapter is not None:
+            import atexit
+            atexit.unregister(adapter.close)
+        raise
     finally:
-        if web_sink is not None:
-            # Failed-path backstop only: the true status was finalized
-            # beside session.end() inside _typed_eval_loop; this is a
-            # no-op there.
-            web_sink.close("failed")
-        logging.getLogger().removeHandler(log_handler)
-        log_handler.close()
-        simulator_output.close()
+        if web_server is not None:
+            web_server.shutdown()
+        if not worker_abandoned:
+            # Covers startup after watch and errors before the stream starts.
+            # A stream that ran already closed its adapter on its owner thread.
+            if adapter is not None:
+                with simulator_output.capture():
+                    adapter.close()
+            if web_sink is not None:
+                web_sink.close("failed")
+            if not report_attempted:
+                from .report_export import export_finalized_session
+                export_finalized_session(
+                    session, run_directory,
+                    recording_dir=web_sink.recording_dir if web_sink is not None and web_sink.finalized else None,
+                )
+            logging.getLogger().removeHandler(log_handler)
+            log_handler.close()
+            simulator_output.close()
 
 
 if __name__ == "__main__":

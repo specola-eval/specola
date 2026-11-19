@@ -241,6 +241,9 @@ def test_web_startup_publishes_its_single_reset_after_compilation(tmp_path, monk
         def set_discovery_snapshot(self, *args):
             pass
 
+        def shutdown(self):
+            pass
+
     def evaluate(session, **kwargs):
         assert events == ["capture", "compiled", "recorder", "callbacks", "queued"]
         assert queued == captured

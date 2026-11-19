@@ -166,6 +166,28 @@ def test_adapter_supplied_advancer_wins_over_duck_typing():
     assert calls == [0, 2]
 
 
+@pytest.mark.parametrize("mode", ["hold", "random"])
+def test_an_adapter_with_no_drive_path_is_warned_about(capsys, mode):
+    """Neither make_advancer nor env: run cannot step the simulator, so it
+    says so instead of monitoring a frozen state in silence."""
+    class _NoDrive:
+        pass
+
+    advance = _make_advancer(_NoDrive(), mode, demo=None, seed=0)
+    assert advance(0) is True
+    assert "Drive warning" in capsys.readouterr().err
+
+
+def test_the_mock_advances_itself_without_the_warning(capsys):
+    from specola.adapters.fake import FakeAdapter
+
+    for mode in ("hold", "random"):
+        assert _make_advancer(FakeAdapter(), mode, demo=None, seed=0)(0) is True
+    assert "Drive warning" not in capsys.readouterr().err
+    with pytest.raises(SystemExit, match="not 'mock'"):
+        _make_advancer(FakeAdapter(), "replay", demo="x.hdf5", seed=0)
+
+
 class _SimEnv:
     """Robosuite-style env exposing ``.sim``, so replay reaches the demo file."""
 
@@ -488,6 +510,12 @@ def test_worker_abandoned_skips_result_finalization(monkeypatch):
             statuses.append(status)
             return object()
 
+    from types import SimpleNamespace
+    recording_events = []
+    sink = SimpleNamespace(
+        abandon=lambda: recording_events.append("abandon"),
+        finalize_episode=lambda status: recording_events.append(status))
+
     def abandoned(*args, **kwargs):
         raise WorkerAbandoned("test abandon")
 
@@ -509,6 +537,8 @@ def test_worker_abandoned_skips_result_finalization(monkeypatch):
             ui="textual",
             refresh_rate=10.0,
             summary_only=True,
+            web_sink=sink,
         )
 
     assert statuses == []
+    assert recording_events == ["abandon"]

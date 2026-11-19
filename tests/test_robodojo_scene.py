@@ -129,13 +129,217 @@ def test_link_poses_are_the_published_body_poses():
     assert np.allclose(xquat[2], published)
 
 
-def test_scene_hooks_none_without_stage():
+def test_scene_hooks_none_without_stage(monkeypatch):
+    """Exercise resolved stage absence even when the host has a Kit stage."""
     env, _ = _env(_stage())
     env.stage = None
     adapter = RoboDojoAdapter(env)
+    monkeypatch.setattr(adapter, "_stage", lambda: None)
     adapter.reset()
     assert adapter.scene_geometry() is None
     assert adapter.scene_poses() is None
+
+
+def _session(tmp_path, env, *, parameters=None, formula="mesh_pair_*[mesh_distance_sampled] >= 0", distmax=None,
+             queries=None):
+    from pathlib import Path
+    import yaml
+    from specola.session import Monitor
+    document = {
+        "functions": {"clearance": {
+            "python": str(Path(__file__).resolve().parents[1] / "examples/robodojo_functions.py") + ":mesh_clearance",
+            "entity_class": "mesh_pair",
+            "inputs": {"scene": {"provider": "robodojo.scene", "schema": 1}},
+            "parameters": parameters or {"distmax": 1.0, "device": "cpu"},
+            "outputs": {"mesh_distance_sampled": {"unit": "m"}, "mesh_distance_clipped": {"unit": "bool"}},
+        }},
+        "specs": [{"name": "clearance", "formula": formula}],
+    }
+    path = tmp_path / "specs.yaml"
+    path.write_text(yaml.safe_dump(document))
+    adapter = RoboDojoAdapter(env, distmax=distmax, distance_device="cpu" if distmax else None)
+    return Monitor(str(path), results_dir=None).watch(adapter, queries=queries)
+
+
+def test_adapter_and_function_pairs_together_are_an_output_collision(tmp_path):
+    """Both paths write mesh_distance_sampled on mesh_pair; a run picks one."""
+    env, _ = _env(_stage())
+    with pytest.raises(ValueError, match="output collision for class mesh_pair"):
+        _session(tmp_path, env, distmax=1.0)
+
+
+def test_collision_is_declared_even_when_the_adapter_forms_no_pair_at_reset(tmp_path):
+    """The adapter's pair outputs are schema, not a count of formed pairs.
+
+    Externally reviewed (Codex, 2026-10-21): with only one meshed body the
+    adapter forms no pair at reset, so the catalog holds no mesh_pair
+    component and a function declaring the same outputs used to load; a
+    second body appearing mid-episode then gave the class two cutoffs.
+    """
+    stage = _stage()
+    stage.RemovePrim("/World/envs/env_0/objects/cup_0/visual")
+    env, _ = _env(stage)
+    with pytest.raises(ValueError, match="output collision for class mesh_pair"):
+        _session(tmp_path, env, distmax=1.0,
+                 queries=_queries(populations=[{
+                     "binding": "robodojo.mesh_pair",
+                     "arguments": {"distmax": 1.0, "robot_links": []},
+                 }]))
+
+
+def _values(session):
+    result = session.step()
+    return {session.engine.functions.labels[ev.binding[0]]: dict((key, value) for _eid, key, value in ev.component_values)
+            for ev in result.raw.evaluations}
+
+
+def test_pair_distances_follow_poses(tmp_path):
+    env, bowl = _env(_stage())
+    session = _session(tmp_path, env)
+    pairs = _values(session)
+    assert set(pairs) == {"left_arm|bowl_0", "left_arm|cup_0", "bowl_0|cup_0"}
+    assert pairs["left_arm|bowl_0"]["mesh_distance_sampled"] == pytest.approx(0.5)
+    assert pairs["bowl_0|cup_0"]["mesh_distance_sampled"] == 1.0
+    bowl.move([1.2, 0, 0])
+    assert _values(session)["left_arm|bowl_0"]["mesh_distance_sampled"] == pytest.approx(0.2)
+    bowl.move([1.0, 0, 0])
+    assert _values(session)["left_arm|bowl_0"]["mesh_distance_sampled"] == 0
+    bowl.move([0.8, 0, 0])
+    assert _values(session)["left_arm|bowl_0"]["mesh_distance_sampled"] == 0
+
+
+def test_only_requested_pair_rows_are_uploaded(tmp_path):
+    env, _ = _env(_stage())
+    session = _session(tmp_path, env, parameters={"distmax": 1.0, "device": "cpu", "robot_links": ["gripper_link"]},
+                       formula="mesh_pair_*[mesh_distance_sampled @ a:bowl_0] >= 0")
+    pairs = _values(session)
+    assert set(pairs) == {"bowl_0|cup_0"}
+    query = session.engine.functions._caches["clearance"]["query"]
+    assert set(query.keys) == {"4", "5"}
+
+
+def _function_inputs(session):
+    from specola.spec_functions import FunctionInputs
+    observation = session.adapter.last_observation
+    assert observation is not None
+    assert isinstance(observation.function_inputs, FunctionInputs)
+    return observation.function_inputs
+
+
+def test_geometry_revision_preserves_retained_observations(tmp_path):
+    stage = _stage()
+    from pxr import Sdf
+    retired = UsdGeom.Xform.Define(stage, "/World/envs/env_0/objects/retired")
+    retired_move = retired.AddTranslateOp()
+    retired_move.Set((0, 0, 0))
+    velocity = retired.GetPrim().CreateAttribute("physics:velocity", Sdf.ValueTypeNames.Float)
+    velocity.Set(0)
+    local = UsdGeom.Xformable(stage.GetPrimAtPath("/World/envs/env_0/robot0/base_link/collision")).AddTranslateOp()
+    local.Set((0, 0, 0))
+    static = UsdGeom.Xformable(stage.GetPrimAtPath("/World/background/floor")).AddTranslateOp()
+    static.Set((0, 0, 0))
+    env, bowl = _env(stage)
+    session = _session(tmp_path, env)
+    _values(session)
+    first = _function_inputs(session)
+    old_scene = first.values["robodojo.scene"]
+    old_vertices = old_scene["geometry"]["collected"][0][3].copy()
+    adapter = session.adapter
+    assert isinstance(adapter, RoboDojoAdapter) and adapter._scene_plan is not None
+    roots = adapter._scene_plan["collection_roots"]
+    assert set(roots) == adapter._posed_prim_paths | {path for _, path in adapter._scene_plan["statics"]}
+    retired_move.Set((3, 0, 0))
+    velocity.Set(1)
+    assert not adapter._geometry_dirty
+    _values(session)
+    assert _function_inputs(session).revision == first.revision
+    bowl.move([2.0, 0, 0])
+    _values(session)
+    assert np.array_equal(old_scene["positions"][4], [1.5, 0, 0])
+    assert _function_inputs(session).values["robodojo.scene"]["geometry"] is old_scene["geometry"]
+    for transform in (local, static):
+        before = _function_inputs(session).revision
+        transform.Set((0.2, 0, 0))
+        assert adapter._geometry_dirty
+        _values(session)
+        assert _function_inputs(session).revision != before
+        assert np.array_equal(old_scene["geometry"]["collected"][0][3], old_vertices)
+    mesh = UsdGeom.Mesh(stage.GetPrimAtPath("/World/envs/env_0/robot0/base_link/collision"))
+    mesh.GetPointsAttr().Set([(x * 2, y, z) for x, y, z in _CUBE_POINTS])
+    _values(session)
+    assert _function_inputs(session).revision != first.revision
+    assert np.array_equal(old_scene["geometry"]["collected"][0][3], old_vertices)
+    assert _function_inputs(session).values["robodojo.scene"]["geometry"] is not old_scene["geometry"]
+    session.end()
+    assert session.engine.functions._caches == {}
+
+
+def test_no_declared_function_does_not_collect_meshes(tmp_path):
+    from specola.session import Monitor
+    env, _ = _env(_stage())
+    path = tmp_path / "native.yaml"
+    path.write_text("specs:\n- name: native\n  formula: robot_*[joint_pos_joint1] >= -10\n")
+    session = Monitor(str(path), results_dir=None).watch(RoboDojoAdapter(env))
+    session.step()
+    assert isinstance(session.adapter, RoboDojoAdapter)
+    assert session.adapter._scene_plan is None
+    observation = session.adapter.last_observation
+    assert observation is not None and observation.function_inputs is None
+
+
+@pytest.mark.parametrize("parameters", [
+    {"distmax": 0.1, "robot_links": ["absent"]},
+    {"distmax": 0.1, "pairs": [["left_arm", "absent"]]},
+])
+def test_named_missing_operands_fail_preparation(tmp_path, parameters):
+    env, _ = _env(_stage())
+    with pytest.raises(ValueError, match="unknown robot links|no mesh on both sides"):
+        _session(tmp_path, env, parameters=parameters)
+
+
+def test_prefilter_is_conservative_under_float32_world_rounding(tmp_path):
+    r1, r2 = 0.1647028923034668, 0.02746402844786644
+    p1, p2 = 63.0, 63.24216842651367
+    a = np.array([[r1, 0, 0], [r1 - 1e-4, 1e-4, 0], [r1 - 1e-4, 0, 1e-4]], np.float32)
+    b = np.array([[-r2, 0, 0], [-r2 + 1e-4, 1e-4, 0], [-r2 + 1e-4, 0, 1e-4]], np.float32)
+    stage = _stage()
+    for path, vertices in (("/World/envs/env_0/robot0/gripper_link/collision", a),
+                           ("/World/envs/env_0/objects/bowl_0/visual", b)):
+        mesh = UsdGeom.Mesh(stage.GetPrimAtPath(path))
+        mesh.GetPointsAttr().Set([tuple(map(float, v)) for v in vertices])
+        mesh.GetFaceVertexCountsAttr().Set([3])
+        mesh.GetFaceVertexIndicesAttr().Set([0, 1, 2])
+    env, bowl = _env(stage)
+    env.robot_manager.robot_key[0].data.body_pos_w[0, 2] = [p1, 0, 0]
+    bowl.move([p2, 0, 0])
+    session = _session(tmp_path, env, parameters={"distmax": 0.05, "device": "cpu", "robot_links": ["gripper_link"],
+                                                 "pairs": [["left_arm", "bowl_0"]]})
+    filtered = _values(session)
+    cache = session.engine.functions._caches["clearance"]
+    cache["radius"] = {row: float("inf") for row in cache["radius"]}
+    assert filtered == _values(session)
+    assert filtered["left_arm|bowl_0"]["mesh_distance_sampled"] < 0.05
+
+
+def test_distance_at_the_float32_cutoff_is_a_hit():
+    from specola.functions_mesh import SampledMeshDistance
+    tri = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], np.float32)
+    faces = np.array([[0, 1, 2]], np.int32)
+    cutoff = 0.03
+    below = float(np.float32(cutoff))
+    assert below < cutoff
+    for gap, expect in ((below, (below, False)), (0.5, (cutoff, True))):
+        query = SampledMeshDistance(device="cpu")
+        query.add("a", tri, faces)
+        query.add("b", tri, faces)
+        query.update("a", np.zeros(3), np.array([1.0, 0, 0, 0]))
+        query.update("b", np.array([0, 0, gap]), np.array([1.0, 0, 0, 0]))
+        assert query.distance("a", "b", cutoff) == expect
+
+
+# -- adapter-owned pair distances (distmax / robodojo.mesh_pair) --------------
+# The function-owned path above and this path share functions_mesh; a run
+# configures one of them (both at once is an output collision on mesh_pair).
 
 
 def _pairs(observation):
@@ -146,7 +350,7 @@ def _pairs(observation):
     }
 
 
-def test_pair_distances_follow_poses():
+def test_adapter_pair_distances_follow_poses():
     env, bowl = _env(_stage())
     adapter = RoboDojoAdapter(env, distmax=1.0, distance_device="cpu")
     assert "mesh_pair" in adapter.supported_classes
@@ -316,7 +520,7 @@ def test_skipped_pair_matches_a_queried_far_pair_at_any_cutoff():
     assert filtered == queried == {"mesh_distance_sampled": 0.03, "mesh_distance_clipped": 1.0}
 
 
-def test_prefilter_is_conservative_under_float32_world_rounding():
+def test_adapter_prefilter_is_conservative_under_float32_world_rounding():
     """Two slivers whose spheres just miss the cutoff in exact arithmetic,
     63 m from the origin: float32 world vertices round the sampled gap
     inside the cutoff, and the prefilter must not skip what the query
@@ -477,40 +681,6 @@ def test_pair_instance_takes_no_arguments():
     ))
     with pytest.raises(ValueError, match="takes no arguments"):
         adapter.reset()
-
-
-def test_distance_at_the_float32_cutoff_is_a_hit():
-    """A sampled distance strictly below the Python cutoff is reported as
-    such even when it equals the float32 rounding of that cutoff; only a
-    miss reports the cap (case found by external review, 2026-09-23)."""
-    from specola.adapters._mesh_distance import SampledMeshDistance
-
-    tri = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], np.float32)
-    faces = np.array([[0, 1, 2]], np.int32)
-    cutoff = 0.03
-    below = float(np.float32(cutoff))            # 0.029999999329..., below 0.03
-    assert below < cutoff
-    for gap, expect in ((below, (below, False)),
-                        (float(np.nextafter(np.float32(cutoff), np.float32(0))), None),
-                        (0.5, (cutoff, True))):
-        query = SampledMeshDistance(device="cpu")
-        query.add("a", tri, faces)
-        query.add("b", tri, faces)
-        query.update("a", np.zeros(3), np.array([1.0, 0, 0, 0]))
-        query.update("b", np.array([0, 0, gap]), np.array([1.0, 0, 0, 0]))
-        value, capped = query.distance("a", "b", cutoff)
-        if expect is None:
-            assert not capped and value == pytest.approx(gap)
-        else:
-            assert (value, capped) == expect
-    # An exactly representable cutoff and one float32 rounds up behave alike.
-    for cutoff in (0.5, 0.1):
-        query = SampledMeshDistance(device="cpu")
-        query.add("a", tri, faces)
-        query.add("b", tri, faces)
-        query.update("a", np.zeros(3), np.array([1.0, 0, 0, 0]))
-        query.update("b", np.array([0, 0, 2.0]), np.array([1.0, 0, 0, 0]))
-        assert query.distance("a", "b", cutoff) == (cutoff, True)
 
 
 _ARM_BOWL = {"binding": "robodojo.mesh_pair", "id": "arm_bowl", "arguments": {},

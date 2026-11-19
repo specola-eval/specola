@@ -60,6 +60,9 @@
       tab.classList.toggle("on", tab.dataset.view === view);
     }
     if (discovering && !state.documents[state.variant]) loadDocument();
+    // The monitor's canvases cannot measure themselves while hidden and
+    // fall back to a 300x150 bitmap; have them resize now they are shown.
+    if (!discovering) window.dispatchEvent(new Event("resize"));
   }
 
   for (const tab of document.querySelectorAll("#view-tabs .tab")) {
@@ -462,16 +465,28 @@
     host.textContent = "";
     if (!signal) { host.hidden = true; return; }
     host.hidden = false;
-    fillDetails(host, [
+    const details = [
       ["Unit", signal.unit || "—"],
       ["Frame", signal.frame || "—"],
       ["Value", formatValue(signal.example_value)],
       ["Read from", signal.example_key || "—"],
-    ]);
+    ];
+    if (signal.example_key === "geom_distance_capped" || signal.example_key === "geom_distance_clipped") {
+      const document_ = state.documents[state.variant];
+      const geometry = document_?.extraction?.queries?.populations?.find(
+        (item) => item.binding === "mujoco.mj_geomDistance");
+      if (geometry) details.push(["Cutoff", `${geometry.arguments.distmax} m`]);
+      const entities = state.entitiesByClass.get("geom_pair") || [];
+      const example = entities.find((item) =>
+        state.selection?.entityId == null || item.id === state.selection.entityId);
+      const clipped = example?.properties.find((item) => item.key === "geom_distance_clipped");
+      if (clipped) details.push(["Clipped", formatValue(clipped.value)]);
+    }
+    fillDetails(host, details);
   }
 
   function formatValue(value) {
-    if (value === null || value === undefined) return "—";
+    if (value === null || value === undefined) return "not measured";
     if (typeof value !== "number") return String(value);
     if (!Number.isFinite(value)) return String(value);
     // Enough digits to tell two entities apart, few enough to keep the
@@ -1009,6 +1024,7 @@
     state.browseMode = mode;
     byId("browse-class").classList.toggle("on", mode === "class");
     byId("browse-role").classList.toggle("on", mode === "role");
+    byId("browse-hint").textContent = mode + " → entity";
     // Same invalidation the variant toggle does. `renderSignals` bails
     // when nothing is selected, but `renderPalette` does not: a reply
     // still in flight would repaint the rows and un-hide Insert for a

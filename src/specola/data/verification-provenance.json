@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "origin_commit": "69fa39dfd4d47673b1347fa1ffec417de28e1a27",
+  "fixtures": {
+    "verification-libero-LICENSE.txt": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "verification-libero-demo.hdf5": {
+      "sha256": "016b716809e1477598eeed43cf8e81e3b98888c38ce463fb426b793f195c2499"
+    },
+    "verification-libero-origin.md": {
+      "sha256": "796fad465b255c77bd788ddc024184d9a2bc4ef0996d0c054fecddc6fb9aae16"
+    },
+    "verification-libero-specs.yaml": {
+      "sha256": "7c616061d1307f5fa217dc402c291df6f322f230b41c27d7da6290108da91d79"
+    },
+    "verification-robodojo.yaml": {
+      "sha256": "3c047d9f39bfbd02a9f2f651c98484dcf22562ab1061c73970b61f3d37806007"
+    },
+    "verification-specs.yaml": {
+      "sha256": "d9ce570e8f42b1bdd2840b3ee00dc8a00e8c1c2df45c84a012aec1e2ecf27b56"
+    },
+    "verification_adapter.py": {
+      "sha256": "ea87c60a1b4c2d64b3fe0b3eb390fcf2db6bcc762bd7559131e5ee53606110b9"
+    },
+    "verification_functions.py": {
+      "sha256": "758366c7d97801cceb185d6785f3c0a32429cf663841c469396a3e0b9fd13fa5"
+    },
+    "verification_robodojo_functions.py": {
+      "sha256": "5e97d2d5a49218d8996b34c8d767b075c2dfbd45a12167afd47808c3bd8d4417"
+    }
+  },
+  "mock": {
+    "origin": "Deterministic Specola mock extension",
+    "expected_entities": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "expected_function_robustness": [
+      0.05,
+      0.35
+    ],
+    "expected_bindings_per_spec": 2
+  },
+  "robodojo": {
+    "origin": "examples/robodojo_functions.py mesh_clearance and its preparation helpers; unused containment functions omitted",
+    "spec_origin": "examples/robodojo_specs.yaml; Python reference adjusted only",
+    "task": "stack_bowls",
+    "mode": "hold",
+    "distmax_m": 0.05,
+    "packaging_adjustment": "Equivalent setattr calls publish callable preparation and validation attributes for static type checking"
+  },
+  "libero": {
+    "origin": "examples/libero_goal_00_demo.hdf5, examples/libero_goal_00_demo_specs.yaml",
+    "attribution": "LIBERO authors, Liu et al. (2023)",
+    "dataset_revision": "f13aa24a3da8c43c7225569f28c562979fa0e35a",
+    "license": "Apache-2.0",
+    "license_file": "verification-libero-LICENSE.txt",
+    "provenance_file": "verification-libero-origin.md",
+    "modification": "Only the filename changes from the repository demonstration; source extraction modifications are documented in the packaged provenance file",
+    "declared_state_rows": 138,
+    "row_count_evidence": "Existing demonstration provenance sidecar; replay acceptance remains a separate runtime check"
+  }
+}

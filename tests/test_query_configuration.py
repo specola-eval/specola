@@ -141,3 +141,13 @@ def test_schema_registry_never_retrieves_external_references(monkeypatch):
             QueryConfiguration.empty()
     finally:
         module._validator.cache_clear()
+
+
+def test_mujoco_default_matches_the_example_population():
+    from pathlib import Path
+    import yaml
+    default = QueryConfiguration.mujoco_default()
+    example = yaml.safe_load(Path("examples/geometry_queries.yaml").read_text())
+    assert default.population_arguments("mujoco.mj_geomDistance") == {"distmax": 0.05}
+    assert example["populations"][0]["arguments"]["distmax"] == 0.05
+    assert default.instances() == ()

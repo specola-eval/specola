@@ -51,7 +51,7 @@ for episode in range(n_episodes):
 |---|---|
 | `specs` | Path to a spec YAML (`specs:` list). Parsed immediately; a broken file raises here, before any rollout. |
 | `results_dir` | Where episode result files land (`<results_dir>/<run_id>/`). `None` disables result files entirely. |
-| `run_id` | Directory name for this run. Defaults to a timestamp salted with random hex, so parallel Monitors never collide. |
+| `run_id` | Directory name for this run. Defaults to a timestamp salted with random hex, so parallel Monitors never collide. Must be a single path component. |
 
 Construct it once and reuse it across episodes; parsing does not repeat.
 
@@ -89,6 +89,7 @@ Starts one monitored episode and returns a `Session`.
 |---|---|
 | `step()` | Call once per environment step. Pulls the current observation from the adapter, updates every monitor, returns a `StepResult`. |
 | `end(success=None, status="completed")` | Finalizes the episode, writes the result file, returns an `EpisodeRecord`. Idempotent. |
+| `save()` | Retries the result write after an `end()` that raised (full disk, unwritable directory) and returns the record with its path. `end()` itself stays idempotent and keeps returning the record with `path=None`. |
 | `ended` | Whether `end()` has run. |
 | `adapter` | The resolved `SimulatorAdapter`, e.g. for `session.adapter.render()`. |
 

@@ -1,13 +1,13 @@
 """
 Vertex-sampled nearest distance between rigid triangle meshes, on Warp.
 
-Isaac Sim exposes no mesh-to-mesh distance to Python: PhysX's geometry
-queries (``PxGeometryQuery::pointDistance``, ``PxGjkQuery``) are not
-bound, ``computePenetration`` refuses mesh/mesh pairs, and the contact
-report's ``separation`` only exists inside the contact offset (4 cm by
-default). Warp, which ships with every Isaac install, does have a
-point-to-mesh closest-point query over a BVH. This module composes it
-into a pair distance: every vertex of A against B's surface, every
+One sampler, two callers: the RoboDojo adapter's ``mesh_pair`` entities
+(``adapters/robodojo.py``, with ``distmax`` set) and the spec function in
+``examples/robodojo_functions.py``. The inspected PhysX scene-query
+surfaces do not provide an arbitrary mesh-pair minimum-distance method;
+this is not a claim about every Isaac API. Warp
+provides a point-to-mesh closest-point query over a BVH, composed here into
+a sampled pair distance: every vertex of A against B's surface, every
 vertex of B against A's surface, minimum of both.
 
 That is a SAMPLED distance. It is exact whenever the closest approach
@@ -78,8 +78,8 @@ class SampledMeshDistance:
     (world pose, quaternion ``(w, x, y, z)``) and refits its BVH;
     ``distance`` answers for a pair. Vertices are transformed on the
     host with NumPy and copied to the device each update, so the cost is
-    linear in vertex count per step. Meshes with many thousands of
-    vertices are worth decimating before ``add``.
+    linear in vertex count per step. Preserve the declared vertex population;
+    changing it changes the authored approximation.
     """
 
     def __init__(self, device: Optional[str] = None) -> None:

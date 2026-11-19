@@ -9,9 +9,17 @@ the version-matched documentation and source of its simulator, and every
 `yes` ships with a parity test. The shared key names are a floor for
 specification portability, never a ceiling.
 
-Evidence for each cell is a symbol or line in `src/specola/adapters/`
-as of 2026-09-24; `base` means inherited from `MujocoAdapter`. The gap
+Evidence for each cell is a symbol in `src/specola/adapters/` (older
+rows cite lines as of 2026-09-24; cite symbols in new rows); `base` means inherited from `MujocoAdapter`. The gap
 list at the end is the backlog this table produces.
+
+The [2026-10-19 measurement audit](superpowers/specs/2026-10-19-simulator-provided-measurements.md)
+records the maintainer's direction to use simulator-provided measurements
+and identifies custom computations in the current source. A `yes` below
+means an exported capability, not necessarily a native measurement. In
+particular, RoboDojo's sampled mesh distance is a custom composition whose
+native-only migration must preserve specification intent. The audit does not
+close the native coverage gaps in this matrix.
 
 ## Capabilities
 
@@ -45,9 +53,9 @@ list at the end is the backlog this table produces.
 | `pybullet` | yes robot root :316, links :358 | gap: robot root only :328; `getLinkState` gives link quaternions | gap: robot root only :319; `getLinkState(computeLinkVelocity=1)` | gap: robot root only :323 | yes :382, :387 | yes `jointtorque` :396, per-body contact force :332 | gap: `getAABB` used only for camera framing :222 | gap: `getContactPoints` exposes pairs | gap (follows H) | yes hold :536; replay of a Specola state recording through the state tier :605 to :725 (2026-10-14), refused for a scene with a planar joint | gap: `getVisualShapeData` exposes meshes | yes :543 | gap (`note` only) | yes :168, :284 |
 | `carla` | yes `location_*` :191 | n/a: CARLA rotations are Euler; exported as `rotation_*` :192 | yes `velocity_*` :195 | yes `angular_velocity_*` :197 | n/a: actors have no joints | n/a: no force API on actors | gap: `extent_*` half-sizes :216 without min/max | gap: collision sensor exposes contacts | gap (follows H) | yes :831; replay refused, no state tier (restore probe 2026-10-14, :842) | n/a: no mesh API on the client (:68) | yes :491 | gap (`note` only :184) | yes :353 |
 | `isaaclab` | yes `body_pos_w_` (`isaaclab_extraction.py:238`) | gap: `body_quat_w` read for the scene plan only (:545) | gap: `body_link_vel_w` in `ArticulationData`; only root velocity as `EntityState.velocity` | gap (same tensor) | yes :231, :233 | yes `link_wrench_` :245 | n/a: Isaac Lab has no per-body box; RoboDojo's comes from its own metadata | gap: `ContactSensor` unresolved (:335) | gap (follows H) | yes hold :282 (`make_advancer`; random refused on an unbounded action box); replay of a Specola state recording through the state tier :377 to :410 (2026-10-14), any other `--demo` refused | yes :857, :915 | yes :405 | gap (`note` only :257) | yes :510 |
-| `robodojo` | yes :682, :840 | yes :693, :859 | yes `body_link_vel_w` :875 (Isaac Lab 0.54.3, link frame) | yes :890 | yes :649, :659 | yes `body_incoming_joint_wrench_b` :908 | yes RoboDojo oriented-box metadata :1090 | yes `mesh_pair` :246 (sampled Warp distance) | yes `robodojo.mesh_pair` :1476 | yes hold only :2229 (policy drives); replay refused, no state tier (restore probe 2026-10-14, :2248) | yes :1760, :1773 | yes :1862 | yes :616 onward | yes :561, :1225 |
+| `robodojo` | yes :682, :840 | yes :693, :859 | yes `body_link_vel_w` :875 (Isaac Lab 0.54.3, link frame) | yes :890 | yes :649, :659 | yes `body_incoming_joint_wrench_b` :908 | yes RoboDojo oriented-box metadata :1090 | yes `mesh_pair` :295 (sampled Warp distance, `functions_mesh.py`; the same distance can be authored as a spec function instead) | yes `robodojo.mesh_pair` :301, :1941 | yes hold only :2229 (policy drives); replay refused, no state tier (restore probe 2026-10-14, :2248) | yes :1760, :1773 | yes :1862 | yes :616 onward | yes :561, :1225 |
 | `dataset` | yes `px`/`py`/`pz` :330 | n/a: columns are what the file has | yes `vx`/`vy`/`vz` :335 | n/a | n/a (arbitrary columns pass through :325) | n/a | n/a | n/a | n/a | yes plays the file :120 | n/a | n/a | gap: no `property_metadata` at all | n/a |
-| `mock` (`fake.py`) | n/a (position on `EntityState` only :115) | n/a | n/a | n/a | yes :80, :84 | yes :88, :218 | n/a | n/a | n/a | n/a | n/a | n/a | gap (`note` only) | yes :39 |
+| `mock` (`fake.py`) | n/a (position on `EntityState` only :115) | n/a | n/a | n/a | yes :80, :84 | yes :88, :218 | n/a | n/a | n/a | yes `make_advancer` (returns without stepping: the scene advances on each read); replay refused, no state tier | n/a | n/a | gap (`note` only) | yes :39 |
 
 The MuJoCo family binds a query population only; explicit instances are
 refused (`mujoco_geom_pairs.py:76`). The MuJoCo `cvel` keys are

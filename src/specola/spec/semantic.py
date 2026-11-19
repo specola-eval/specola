@@ -16,6 +16,8 @@ component catalog) into an executable ``SpecTemplate``:
 
 from __future__ import annotations
 
+import ast as _python_ast
+
 import itertools
 import math
 import re
@@ -308,29 +310,259 @@ def validate_constants(
 # Predicate compilation
 # ---------------------------------------------------------------------------
 
+# Limits on exact arithmetic. sympy computes integer and rational powers
+# exactly, so 9**9**9**9, (9*x)**(10**9) or sqrt(2)**(10**9) would never
+# return, and floor() of a huge constant evaluates it to full precision.
+_MAX_POWER_BITS = 20000         # bits of any exact number a power may produce
+_MAX_ROOT_INDEX = 1000          # largest denominator of a rational exponent
+_MAX_ROUNDED_MAGNITUDE = 1e15   # largest constant floor()/ceiling() accept
+_MAX_FLOAT_LITERAL = 40         # characters a decimal literal may have
+
+_BINARY_OPERATORS = {
+    _python_ast.Add: lambda a, b: a + b,
+    _python_ast.Sub: lambda a, b: a - b,
+    _python_ast.Mult: lambda a, b: a * b,
+    _python_ast.Div: lambda a, b: a / b,
+}
+
+
+def _magnitude(value) -> float:
+    """|value| of a numeric sympy object, or infinity when unbounded."""
+    try:
+        magnitude = abs(complex(sp.N(value, 15)))
+    except (TypeError, ValueError, OverflowError):
+        return math.inf
+    return magnitude if math.isfinite(magnitude) else math.inf
+
+
+def _power_is_bounded(base, exponent) -> bool:
+    """Whether ``base ** exponent`` keeps every exact number small.
+
+    A power distributes over the rational numbers inside its base, as in
+    ``(9*x)**n == 9**n * x**n``, so each of them is raised to the
+    exponent whether or not the base as a whole is a number.
+    """
+    base = sp.sympify(base)
+    if base in (sp.S.Zero, sp.S.One, sp.S.NegativeOne):
+        return True                         # never grow
+    bits = 0
+    for atom in base.atoms(sp.Rational):
+        # 1 and -1 count as one bit: (1 + I)**n expands exactly.
+        bits = max(bits, abs(atom.p).bit_length(), atom.q.bit_length())
+    if not bits:
+        return True                         # pi**n, x**n: nothing exact
+    exponent = sp.sympify(exponent)
+    if exponent.is_Rational:
+        if exponent.q > _MAX_ROOT_INDEX:
+            return False
+        size = abs(float(exponent)) if abs(exponent) < 10**300 else math.inf
+    elif exponent.is_number:
+        size = _magnitude(exponent)
+    else:
+        # Symbolic: bounded by the largest number it contains, which is
+        # what the power becomes if the symbols cancel later.
+        size = max(
+            [_magnitude(atom) for atom in exponent.atoms(sp.Number)],
+            default=1.0,
+        )
+    return bits * max(size, 1.0) <= _MAX_POWER_BITS
+
+
+def _refuse_unbounded(function, arguments, refuse) -> None:
+    """Apply the bounds to one operation about to be evaluated."""
+    exponent = None
+    if function is sp.exp and len(arguments) == 1:
+        exponent = arguments[0]
+    elif function is sp.Pow and arguments[0] is sp.E:
+        exponent = arguments[1]
+    if exponent is not None and getattr(exponent, "has", None) and (
+        exponent.has(sp.log)
+    ):
+        # exp(k*log(n)) is n**k to sympy, computed exactly.
+        for logarithm in exponent.atoms(sp.log):
+            if not _power_is_bounded(logarithm.args[0], exponent):
+                refuse(
+                    "an exponential of a logarithm whose exact value would "
+                    f"exceed {_MAX_POWER_BITS} bits"
+                )
+    if function is sp.Pow:
+        if not _power_is_bounded(arguments[0], arguments[1]):
+            refuse(
+                "a power whose exact value would exceed "
+                f"{_MAX_POWER_BITS} bits, or a root of index above "
+                f"{_MAX_ROOT_INDEX}"
+            )
+    elif function is sp.sqrt:
+        if not all(
+            _power_is_bounded(argument, sp.Rational(1, 2))
+            for argument in arguments
+        ):
+            refuse("a square root of a number that is too large")
+    elif function in (sp.floor, sp.ceiling):
+        if any(
+            getattr(argument, "is_number", False)
+            and _magnitude(argument) > _MAX_ROUNDED_MAGNITUDE
+            for argument in arguments
+        ):
+            refuse(
+                "floor or ceiling of a constant above "
+                f"{_MAX_ROUNDED_MAGNITUDE:g}"
+            )
+
+
+def _evaluate_arithmetic(
+    expression: str, signal_names, constants: Mapping[str, float],
+):
+    """Build the sympy expression for one side of a predicate.
+
+    Formula text reaches this point from spec files and from the
+    dashboard's validation socket. It used to go to ``sympy.sympify``,
+    which runs its input as Python. This walks the text's syntax tree
+    instead and performs each operation itself, so nothing is executed
+    and only numbers, known names, ``+ - * / **``, unary signs and the
+    documented functions can appear.
+
+    The operations are the ones ``sympify`` performed, on the same
+    operands in the same order, followed by the substitution of the
+    declared constants. A bound is checked before each power and each
+    rounding, on sympy's own exact operands, because sympy computes
+    integer and rational powers exactly: ``9**9**9**9`` never returns,
+    and neither does a spelling that hides the size from a check on the
+    text or on a floating-point estimate, such as
+    ``9**((10**17 + 1 - 10**17) * 10**9)``. This evaluation is the only
+    one, so there is no second evaluator for a checked expression to
+    behave differently in.
+    """
+    text = expression.strip()
+    try:
+        tree = _python_ast.parse(text, mode="eval")
+    except (SyntaxError, ValueError, RecursionError, MemoryError) as exc:
+        raise ValueError(
+            f"Could not parse numeric expression {expression!r}: {exc}"
+        ) from exc
+
+    unknown = set()
+
+    def refuse(reason: str):
+        raise ValueError(
+            f"Unsupported numeric expression {expression!r}: {reason}. "
+            f"Arithmetic supports numbers, signal references, constants, "
+            f"+ - * / ^, and the functions "
+            f"{sorted(n for n, v in _SYMPY_LOCALS.items() if callable(v))}."
+        )
+
+    def value_of(node):
+        if isinstance(node, _python_ast.Constant):
+            if isinstance(node.value, bool) or not isinstance(
+                node.value, (int, float)
+            ):
+                refuse(f"literal {node.value!r}")
+            if isinstance(node.value, int):
+                if node.value.bit_length() > _MAX_POWER_BITS:
+                    refuse("number too large")
+                return sp.Integer(node.value)
+            # From the text, as sympy's parser does: a Python float would
+            # round 1e-400 to zero and drop digits past the sixteenth.
+            literal = _python_ast.get_source_segment(text, node)
+            if not literal:
+                return sp.Float(node.value)
+            if len(literal) > _MAX_FLOAT_LITERAL:
+                # sympy takes a Float's precision from its digit count,
+                # so a literal of 40,000 digits is 40,000-digit
+                # arithmetic. Refused rather than rounded: rounding can
+                # change what the formula means.
+                refuse(
+                    f"a decimal literal longer than {_MAX_FLOAT_LITERAL} "
+                    "characters"
+                )
+            return sp.Float(literal)
+        if isinstance(node, _python_ast.Name):
+            local = _SYMPY_LOCALS.get(node.id)
+            if node.id in constants or node.id in signal_names:
+                return sp.Symbol(node.id)
+            if local is not None and not callable(local):
+                return local
+            if local is None:
+                unknown.add(node.id)
+            return sp.Symbol(node.id)
+        if isinstance(node, _python_ast.UnaryOp) and isinstance(
+            node.op, (_python_ast.UAdd, _python_ast.USub)
+        ):
+            operand = value_of(node.operand)
+            return -operand if isinstance(node.op, _python_ast.USub) else operand
+        if isinstance(node, _python_ast.BinOp):
+            left = value_of(node.left)
+            right = value_of(node.right)
+            if isinstance(node.op, _python_ast.Pow):
+                _refuse_unbounded(sp.Pow, (left, right), refuse)
+                return left ** right
+            operator = _BINARY_OPERATORS.get(type(node.op))
+            if operator is None:
+                refuse(f"operator {type(node.op).__name__}")
+            return operator(left, right)
+        if isinstance(node, _python_ast.Call):
+            function = (
+                _SYMPY_LOCALS.get(node.func.id)
+                if isinstance(node.func, _python_ast.Name) else None
+            )
+            if not callable(function) or node.keywords:
+                refuse("call to something other than a supported function")
+            arguments = [value_of(argument) for argument in node.args]
+            _refuse_unbounded(function, arguments, refuse)
+            return function(*arguments)
+        refuse(type(node).__name__)
+
+    values = {
+        sp.Symbol(name): sp.Float(value) for name, value in constants.items()
+    }
+
+    def substitute(node):
+        """``node.subs(values)``, with the bounds on each rebuilt node.
+
+        A constant is a symbol until here, and a number after: floor(c)
+        is harmless as written and an exact integer once c is 1e9.
+        """
+        if node in values:
+            return values[node]
+        if not node.args:
+            return node
+        arguments = [substitute(argument) for argument in node.args]
+        if all(new is old for new, old in zip(arguments, node.args)):
+            return node
+        _refuse_unbounded(node.func, arguments, refuse)
+        return node.func(*arguments)
+
+    try:
+        result = sp.sympify(value_of(tree.body))
+        if values:
+            result = substitute(result)
+    except RecursionError:
+        raise ValueError(
+            f"Numeric expression {expression!r} is nested too deeply"
+        ) from None
+    except (SpecConfigError, ValueError):
+        raise
+    except Exception as exc:
+        raise ValueError(
+            f"Could not parse numeric expression {expression!r}: {exc}"
+        ) from exc
+
+    if unknown:
+        raise SpecConfigError(
+            f"Unknown symbol(s) {sorted(unknown)}. Use parameter syntax "
+            f"such as object_*[mass], or provide them through constants."
+        )
+    return result
+
+
 def _compile_predicate(
     expression: str,
     symbol_map: Mapping[str, Tuple[ParamKey, str]],
     constants: Mapping[str, float],
 ) -> PredicateFn:
-    substitutions = {
-        sp.Symbol(name): value for name, value in constants.items()
-    }
-
-    # Constant names must always parse as plain symbols, even when they
-    # collide with sympy's default namespace (e.g. 'limit', 'beta').
-    sympify_locals = dict(_SYMPY_LOCALS)
-    for name in constants:
-        sympify_locals[name] = sp.Symbol(name)
-
-    try:
-        symbolic_expression = sp.sympify(
-            expression, locals=sympify_locals
-        ).subs(substitutions)
-    except Exception as exc:
-        raise ValueError(
-            f"Could not parse numeric expression {expression!r}: {exc}"
-        ) from exc
+    symbolic_expression = _evaluate_arithmetic(
+        expression, set(symbol_map), constants
+    )
 
     free_symbols = sorted(
         symbolic_expression.free_symbols,
@@ -351,7 +583,7 @@ def _compile_predicate(
     if not free_symbols:
         try:
             constant_value = float(symbolic_expression)
-        except (TypeError, ValueError) as exc:
+        except (TypeError, ValueError, OverflowError) as exc:
             raise ValueError(
                 f"Expression {expression!r} does not evaluate to a scalar"
             ) from exc

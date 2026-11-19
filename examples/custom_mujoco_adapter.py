@@ -119,7 +119,11 @@ def _make_mysim(
 
     env = mysim.make(task or "DefaultTask", robot=robot or "DefaultBot")
     env.reset()  # the sim must have live state before adapter discovery
-    return MySimAdapter(env)
+    adapter = MySimAdapter(env)
+    # The factory built env, so the adapter closes it; an adapter built
+    # around an env the caller passed in leaves it open.
+    adapter._owns_environment = env.close
+    return adapter
 
 
 register(

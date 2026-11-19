@@ -21,8 +21,13 @@ Use these guides when you need more detail.
 
 ## For contributors
 
-- [Adding an adapter](adding-an-adapter.md): the adapter contract, your
-  own module versus a bundled one, and the two review gates bundling adds.
+- [Adding an adapter](adding-an-adapter.md): the adapter contract,
+  registration, and the three commands that tell you an adapter works.
+- [Adapter hooks](adapter-hooks.md): every optional hook the core calls,
+  and the rules that keep specifications portable between adapters.
+- [Bundling an adapter](bundling-an-adapter.md): the capability matrix
+  row, review gates, tests and manual checks for an adapter shipped in
+  this repository.
 - [Adapter capabilities](adapter-capabilities.md): which signals and hooks
   each adapter carries, with the simulator source for every one; a new
   adapter fills its row before writing code.

@@ -11,7 +11,7 @@
 [Evaluation loop](#use-specola-in-your-evaluation-loop) ·
 [Workflow](#from-simulator-to-verdict) ·
 [Dashboard](#inspect-live-and-recorded-runs) ·
-[Documentation](docs/)
+[Documentation](docs)
 
 </div>
 
@@ -72,8 +72,9 @@ Specification results
 
 Without `--ui plain`, an interactive terminal shows the Textual dashboard;
 `--ui rich` is lighter. Every run ends with a PASS/FAIL/UNDETERMINED
-summary and writes one result file per episode under `results/<run_id>/`
-(Parquet with the `report` extra, CSV otherwise). See
+summary, writes one raw CSV per episode under `results/<run_id>/`
+(plus Parquet with the `report` extra), and exports CSV and PDF reports
+once the simulator is released. See
 [Running Specola](docs/running.md) for keybindings, output modes, and the
 result format, and [Install Specola](docs/install.md) for the extras and
 each simulator's environment.
@@ -81,23 +82,24 @@ each simulator's environment.
 ### Watch a robot demonstration in the dashboard
 
 Replay a LIBERO demonstration that ships with Specola and watch its
-monitors in your browser. LIBERO needs Python 3.12 and an environment of
+monitors in your browser. Specola's tested LIBERO setup uses Python 3.12 and an environment of
 its own, about 7.4 GB with PyTorch:
 
 ```bash
 conda create -n specola-libero python=3.12 -y
 conda activate specola-libero
-pip install mujoco==3.8.1 robosuite==1.4.0 hf-libero==0.1.4
 pip install ".[libero,web]"
 export MUJOCO_GL=egl
 export NUMBA_CACHE_DIR="$HOME/.cache/specola/numba"
 export MPLCONFIGDIR="$HOME/.cache/specola/matplotlib"
 mkdir -p "$NUMBA_CACHE_DIR" "$MPLCONFIGDIR"
 specola run --sim libero --task libero_goal:0 \
-  --queries examples/geometry_queries.yaml \
   --specs examples/libero_goal_00_demo_specs.yaml \
   --mode replay --demo examples/libero_goal_00_demo.hdf5 --web
 ```
+
+Specola requires Python 3.12 for its reviewed MuJoCo 3.8.1 profile and names
+the required and running versions before constructing LIBERO on a mismatch.
 
 On the first run, LIBERO asks whether to use a custom dataset path
 (answer `n`) and downloads its scene assets, 409 MB. Open
@@ -136,7 +138,7 @@ If you interrupt an episode, it is recorded as truncated rather than
 thrown away. An environment without a bundled adapter needs one written
 first. Session methods, return types, and the lower-level engine API are
 documented in [Python API](docs/python-api.md). To aggregate results by
-any `meta` key, install the `report` extra and run:
+any `meta` key, or to regenerate the CSV and PDF reports, run:
 
 ```bash
 specola report results/ --by task
@@ -158,12 +160,11 @@ commands.
 
 `discover` reports the entity classes, component keys, units, and tags that
 can appear in a specification. The MuJoCo-family adapters, RoboCasa
-among them, need a queries file that sets the cutoff for geometry
-distances:
+among them, start with a 0.05 m geometry cutoff. Pass `--queries PATH`
+to replace that configuration:
 
 ```bash
-specola discover --sim robocasa --task PickPlaceCounterToCabinet \
-  --queries examples/geometry_queries.yaml
+specola discover --sim robocasa --task PickPlaceCounterToCabinet
 ```
 
 In a terminal it opens an explorer you can filter down; for scripting
@@ -171,10 +172,9 @@ there is JSON output:
 
 ```bash
 specola discover --sim robocasa --task PickPlaceCounterToCabinet \
-  --queries examples/geometry_queries.yaml \
   --class robot --signal 'qvel_*' --verbose
 specola discover --sim robocasa --task PickPlaceCounterToCabinet \
-  --queries examples/geometry_queries.yaml --format json
+  --format json
 ```
 
 ![Specola's discovery explorer showing the class tree, signal coverage,
@@ -205,8 +205,7 @@ filters, `any:` and `all:` quantifiers, and scene-wide `**` expansion.
 [Writing specifications](docs/writing-specs.md) documents each form with
 worked examples.
 
-You can also author interactively. `specola write-specs --sim robocasa
---queries examples/geometry_queries.yaml` adds draft, validation, and
+You can also author interactively. `specola write-specs --sim robocasa` adds draft, validation, and
 save panels to the explorer:
 
 ![Specola's authoring explorer showing a validated draft with resolved
@@ -216,7 +215,7 @@ Before running an episode, check every formula against the live simulator:
 
 ```bash
 specola check --sim robocasa --task PickPlaceCounterToCabinet \
-  --queries examples/geometry_queries.yaml my_specs.yaml
+  my_specs.yaml
 ```
 
 The check explains selector expansion, resolved keys, and units. An
@@ -226,7 +225,6 @@ invalid specification fails here, before any rollout has run.
 
 ```bash
 specola run --sim robocasa --task PickPlaceCounterToCabinet \
-  --queries examples/geometry_queries.yaml \
   --specs my_specs.yaml --mode random --steps 300
 ```
 
@@ -237,7 +235,7 @@ process:
 
 ```bash
 pip install ".[web]"
-specola run --sim robocasa --queries examples/geometry_queries.yaml \
+specola run --sim robocasa \
   --specs my_specs.yaml --mode random --web
 # → Web dashboard: http://127.0.0.1:8090
 ```
@@ -304,7 +302,6 @@ model, and the other adapters refuse that format.
 
 ```bash
 specola run --sim libero --task libero_goal:0 \
-  --queries examples/geometry_queries.yaml \
   --specs my_specs.yaml --mode replay --demo demo.hdf5
 ```
 
@@ -387,9 +384,9 @@ Start with the annotated `examples/custom_mujoco_adapter.py` template. For
 MuJoCo-family simulators, subclass `MujocoAdapter` and override the body
 rules; `src/specola/adapters/robocasa.py` is a complete example. The
 adapter picks its own entity classes; Specola imposes no fixed ontology.
-Bundling an adapter inside this repository adds two review gates that
-your own module does not need; [Adding an adapter](docs/adding-an-adapter.md)
-covers both paths.
+Bundling an adapter inside this repository adds review gates that your
+own module does not need; [Adding an adapter](docs/adding-an-adapter.md)
+starts both paths.
 
 ## Installation and development
 
@@ -415,7 +412,7 @@ pytest tests/test_backend_selection.py
 After changing adapter entry points in `pyproject.toml`, rerun
 `pip install -e .` in each environment.
 
-User guides live at the top of [docs/](docs/). Dated design records and
+User guides live at the top of [docs/](docs). Dated design records and
 implementation plans live under `docs/superpowers/`; planned work is
 tracked in GitHub issues.
 

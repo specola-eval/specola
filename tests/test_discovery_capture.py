@@ -117,6 +117,22 @@ def test_payload_describes_the_reset_it_was_handed():
     assert adapter.reset_count == 2
 
 
+def test_reset_metadata_detaches_adapter_owned_dictionaries(monkeypatch):
+    from specola.adapter import PropertyMeta
+    from specola.capabilities import reset_adapter
+
+    adapter = _ShiftingAdapter()
+    metadata = {"xpos_scene1_2": PropertyMeta(group="pose", note="m", tags=("source:reset",))}
+    monkeypatch.setattr(adapter, "property_metadata", lambda entity_id: metadata, raising=False)
+    reset = reset_adapter(adapter)
+    metadata["xpos_scene1_2"] = PropertyMeta(group="changed", note="rad", tags=("source:later",))
+    document = _document(discovery_payload(adapter, reset, simulator="shifting", task=None, effective_dt=0.1))
+    prop = document["entities"][0]["properties"][0]
+    assert prop["unit"] == "m"
+    assert prop["group"] == "pose"
+    assert prop["tags"] == ["source:reset"]
+
+
 def test_watch_hands_the_hook_the_reset_it_compiles_against(tmp_path):
     """The end-to-end ordering claim, through the real Monitor.
 

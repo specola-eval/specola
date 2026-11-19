@@ -178,6 +178,7 @@ function setGeometry(meta, meshes) {
   // scene: the MuJoCo body tree is already baked into them.
   for (let i = 0; i < panel.nbody; i += 1) {
     const body = new THREE.Group();
+    body.name = (meta.bodies && meta.bodies[i] && meta.bodies[i].name) || "";
     panel.bodies.push(body);
     panel.scene.add(body);
   }
@@ -276,7 +277,37 @@ function setGroupVisible(group, visible) {
 
 /* ---- facade -------------------------------------------------------------- */
 
-window.SpecolaScene3D = { init, setGeometry, setPoses, setGroupVisible };
+function frameBodies(pattern) {
+  // Scripted framing for captures: fit the bodies whose names match the
+  // pattern (a room's walls and floor would otherwise set the extent).
+  const re = new RegExp(pattern);
+  const box = new THREE.Box3();
+  for (const body of panel.bodies) {
+    if (re.test(body.name)) box.expandByObject(body);
+  }
+  if (box.isEmpty()) return false;
+  const center = box.getCenter(new THREE.Vector3());
+  const radius = Math.max(0.3, box.getSize(new THREE.Vector3()).length() / 2);
+  panel.controls.target.copy(center);
+  panel.camera.position.set(center.x + radius * 1.2, center.y - radius * 1.2,
+                            center.z + radius * 0.9);
+  panel.camera.near = radius / 500;
+  panel.camera.far = radius * 40;
+  panel.camera.updateProjectionMatrix();
+  panel.controls.update();
+  return true;
+}
+
+function lookAt(target, position) {
+  // Scripted framing for captures and tests: the orbit target and the
+  // camera position in world metres, as a user's drag would leave them.
+  panel.controls.target.set(target[0], target[1], target[2]);
+  panel.camera.position.set(position[0], position[1], position[2]);
+  panel.camera.updateProjectionMatrix();
+  panel.controls.update();
+}
+
+window.SpecolaScene3D = { init, setGeometry, setPoses, setGroupVisible, lookAt, frameBodies };
 // dashboard.js is a classic script and therefore runs before this module:
 // it queues its calls and flushes them on this event.
 window.dispatchEvent(new Event("specola-scene3d-ready"));

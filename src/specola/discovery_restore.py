@@ -136,7 +136,7 @@ def capabilities_from_document(document: Mapping) -> AdapterCapabilities:
 def _property(encoded: Mapping) -> DiscoveryProperty:
     return DiscoveryProperty(
         key=str(encoded["key"]),
-        value=_number(encoded["value"]),
+        value=_number(encoded["value"]) if encoded["value"] is not None else None,
         unit=encoded.get("unit"),
         family=encoded.get("family"),
         group=encoded.get("group"),
@@ -255,6 +255,8 @@ def discovery_model_from_document(document: Mapping) -> DiscoveryModel:
             field_contract=None,
             capabilities=capabilities_from_document(document),
             extraction=extraction,
+            authored_functions=document.get("authored_functions"),
+            specification_provenance=document.get("specification_provenance"),
         )
     except DiscoveryRestoreError:
         raise
@@ -266,22 +268,30 @@ def discovery_model_from_document(document: Mapping) -> DiscoveryModel:
 
 def entity_states_from_model(
     model: DiscoveryModel,
+    *,
+    include_unread: bool = False,
 ) -> Dict[int, EntityState]:
     """The ``EntityState`` mapping a checker needs, from the model.
 
     Values are the reset-time ones the document recorded. That is what a
     check wants: it compiles against the scene's shape, and the shape is
-    fixed at reset even though the values move.
+    fixed at reset even though the values move. Unread catalogue entities
+    are absent from ordinary previews. Catalogue construction opts into
+    their declarations with ``include_unread``; their placeholder NaNs
+    never become an observation or a preview value.
     """
     import numpy as np
 
     states: Dict[int, EntityState] = {}
     for entity in model.entities:
+        if entity.track_state == "unread" and not include_unread:
+            continue
         states[entity.entity_id] = EntityState(
             entity_id=entity.entity_id,
             entity_class=entity.entity_class,
             track_age=entity.track_age,
-            track_state=TrackState(entity.track_state),
+            track_state=(TrackState(entity.track_state)
+                         if entity.track_state != "unread" else TrackState.CONFIRMED),
             position=(
                 np.asarray(entity.position, dtype=float)
                 if entity.position is not None else None
@@ -291,7 +301,10 @@ def entity_states_from_model(
                 if entity.velocity is not None else None
             ),
             properties={
-                prop.key: prop.value for prop in entity.properties
+                # Checker-only states carry NaN for unread catalog keys;
+                # the serialized discovery value remains null.
+                prop.key: prop.value if prop.value is not None else float("nan")
+                for prop in entity.properties
             },
         )
     return states
@@ -330,7 +343,7 @@ def catalog_from_model(model: DiscoveryModel):
     from .components import ComponentCatalog
 
     return ComponentCatalog.from_entities(
-        entity_states_from_model(model),
+        entity_states_from_model(model, include_unread=True),
         metadata=property_metadata_from_model(model),
     )
 

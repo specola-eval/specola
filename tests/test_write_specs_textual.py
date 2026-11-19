@@ -542,6 +542,12 @@ def test_successful_validation_edit_stale_and_keep_gating(tmp_path):
             assert "stale" in _rendered(app, "#validation").lower()
             assert keep.disabled
 
+            validate = app.query_one("#validate", Button)
+            for _ in range(100):
+                if not validate.has_class("-active"):
+                    break
+                await pilot.pause(0.01)
+            assert not validate.has_class("-active"), "Validate button stayed active"
             await pilot.click("#validate")
             await pilot.pause()
             assert not keep.disabled

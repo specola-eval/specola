@@ -967,6 +967,36 @@ def _pair_queries(arguments, instances=()):
     })
 
 
+def test_owned_wrapped_environment_closes_once_at_exit(monkeypatch):
+    """The factory registers the wrapper's close with atexit; closing the
+    adapter must unregister that same callable, not the unwrapped env's."""
+    import atexit
+
+    closed = []
+
+    class _Wrapper:
+        def __init__(self, inner):
+            self.unwrapped = inner
+
+        def close(self):
+            closed.append("wrapper")
+
+    inner = _Env()
+    inner.close = lambda: closed.append("inner")
+    env = _Wrapper(inner)
+    registered = []
+    unregistered = []
+    monkeypatch.setattr(atexit, "register", registered.append)
+    monkeypatch.setattr(atexit, "unregister", unregistered.append)
+    atexit.register(env.close)
+    adapter = RoboDojoAdapter(env)
+    adapter._owns_environment = env.close
+    adapter.close_native_extraction()
+    adapter.close_native_extraction()
+    assert closed == ["wrapper"]
+    assert unregistered == registered
+
+
 def test_pair_scope_matches_compiled_slot_selectors():
     """Issue #136: under a session's entity scope a mesh pair is read when a
     compiled slot can bind it (pin absent or naming it, every @ label among
@@ -1061,6 +1091,54 @@ def test_the_factory_skips_the_planner_unless_asked_to_keep_it(monkeypatch, tmp_
     assert [robot.get("need_planner") for robot in robots] == [None, True]
 
 
+@pytest.mark.parametrize("available,expected", [
+    ((True, True, True), "env"),
+    ((False, True, True), "scene"),
+    ((False, False, True), "global"),
+    ((False, False, False), None),
+])
+def test_stage_resolution_preserves_native_fallbacks(monkeypatch, available, expected):
+    import sys
+    from types import ModuleType, SimpleNamespace
+    stages = dict(zip(("env", "scene", "global"), (object(), object(), object())))
+    env = _Env()
+    setattr(env, "stage", stages["env"] if available[0] else None)
+    setattr(env, "scene", SimpleNamespace(stage=stages["scene"] if available[1] else None))
+    calls = []
+
+    def get_context():
+        calls.append("global")
+        return SimpleNamespace(get_stage=lambda: stages["global"] if available[2] else None)
+
+    omni = ModuleType("omni")
+    usd = ModuleType("omni.usd")
+    setattr(usd, "get_context", get_context)
+    setattr(omni, "usd", usd)
+    monkeypatch.setitem(sys.modules, "omni", omni)
+    monkeypatch.setitem(sys.modules, "omni.usd", usd)
+    adapter = RoboDojoAdapter(env)
+    assert adapter._stage() is (stages[expected] if expected is not None else None)
+    assert calls == ([] if any(available[:2]) else ["global"])
+
+
+def test_live_pair_recorder_consumes_the_function_target_mapping():
+    """Exercise the native test's exact callback without constructing Kit."""
+    import ast
+    import inspect
+    from types import MappingProxyType, SimpleNamespace
+    from specola.spec_functions import FunctionTarget
+    tree = ast.parse(inspect.getsource(test_a_live_session_reads_only_the_pairs_its_specs_bind))
+    callback = next(node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and node.name == "record_targets")
+    called = []
+    namespace = {"read": set(), "definition": SimpleNamespace(implementation=lambda **kwargs: called.append(kwargs) or {"sample": {"distance": 0.02}})}
+    exec(compile(ast.Module(body=[callback], type_ignores=[]), "native-test-callback", "exec"), namespace)
+    targets = MappingProxyType({"sample": FunctionTarget("sample", entity_id=4, label="left_arm|bowl0")})
+    output = namespace["record_targets"](targets=targets)
+    assert namespace["read"] == {"left_arm|bowl0"}
+    assert output == {"sample": {"distance": 0.02}}
+    assert called[0]["targets"] is targets
+
+
 @pytest.mark.robodojo
 def test_a_live_session_reads_only_the_pairs_its_specs_bind(tmp_path, monkeypatch):
     """stack_bowls layout 0: reset forms every pair, and after it a session
@@ -1088,24 +1166,34 @@ def test_a_live_session_reads_only_the_pairs_its_specs_bind(tmp_path, monkeypatc
     assert gc.get_freeze_count() == 0
     # RoboDojo honoured need_planner: no cuRobo planner was built.
     assert adapter._env.robot_manager.planner == {}
-    adapter.set_query_configuration(_pair_queries({"distmax": 0.05, "robot_links": ["link6", "link7", "link8"]}))
+    from dataclasses import replace
+    from pathlib import Path
+    import yaml
+    document = yaml.safe_load((Path(__file__).resolve().parents[1] / "examples/robodojo_function_specs.yaml").read_text())
+    document["functions"] = {"clearance": document["functions"]["mesh_clearance"]}
+    document["functions"]["clearance"]["python"] = str(Path(__file__).resolve().parents[1] / "examples/robodojo_functions.py") + ":mesh_clearance"
+    document["specs"] = [{"name": "s", "formula": "mesh_pair_*[mesh_distance_sampled @ b:bowl0] >= 0.005"}]
     specs = tmp_path / "specs.yaml"
-    specs.write_text('specs:\n- name: s\n  formula: "mesh_pair_*[mesh_distance_sampled @ b:bowl0] >= 0.005"\n')
+    specs.write_text(yaml.safe_dump(document))
     session = Monitor(str(specs), results_dir=None).watch(adapter)
+    functions = session.engine.functions
+    formed = {target.label for target in functions._plans["clearance"].values()}
+    read = set()
+    definition = functions.definitions[0]
 
-    def pairs():
-        observation = adapter.last_observation
-        assert observation is not None
-        return {adapter.entity_labels[eid] for eid, entity in observation.perceived_entities.items()
-                if entity.entity_class == "mesh_pair"}
+    def record_targets(**kwargs):
+        read.update(target.label for target in kwargs["targets"].values())
+        return definition.implementation(**kwargs)
 
-    formed = pairs()
-    adapter._env.sim_step(render=False)
-    session.step()
-    read = pairs()
-    session.end()
-    assert read == {label for label in formed if label.endswith("|bowl0")}
-    assert read and read < formed
+    functions.definitions = (replace(definition, implementation=record_targets),)
+    try:
+        adapter._env.sim_step(render=False)
+        session.step()
+        assert read == {label for label in formed if label.endswith("|bowl0")}
+        assert read and read < formed
+    finally:
+        session.end()
+        adapter.close()
 
 
 # -- RoboDojo reward-state quantities (native_*, reset_*, ee_*, footprints) --
@@ -1245,7 +1333,7 @@ def test_reward_state_quantities_come_from_robodojos_own_accessors(monkeypatch):
     assert target.properties["footprint_zmin"] == pytest.approx(0.76)
     assert target.properties["footprint_zmax"] == pytest.approx(0.82)
     # 0.18 - (0.05 + 0.03) = 0.10 to the basket's +x edge; y gives 0.09.
-    assert target.properties["footprint_in_basket"] == pytest.approx(0.09)
+    assert "footprint_in_basket" not in target.properties  # Authored function owns the margin.
     _, basket = _entity_of(adapter, observation, "basket")
     assert "reset_pos_2" not in basket.properties  # no capture, no key
     _, belt = _entity_of(adapter, observation, "conveyor")
@@ -1277,12 +1365,12 @@ def test_footprint_margin_sign_is_robodojos_containment(monkeypatch):
         centre = np.r_[rng.uniform(-0.25, 0.25, size=2), 0.8]
         outer = module.calc_polygon(np.r_[0.0, 0.0, 0.8, 1.0, 0.0, 0.0, 0.0], boxes[0])[0]
         inner = module.calc_polygon(np.r_[centre, quat], boxes[1])[0]
-        margin = RoboDojoAdapter._containment_margin(outer, inner)
+        margin = __import__('examples.robodojo_functions', fromlist=['containment_margin']).containment_margin(outer, inner)
         assert (margin >= 0) == bool(outer.contains(inner))
         agree += 1
     assert agree == 400
     # On the boundary: contained, margin exactly zero (inclusive).
     from shapely.geometry import box
 
-    assert RoboDojoAdapter._containment_margin(box(0, 0, 1, 1), box(0, 0, 0.5, 0.5)) == 0.0
+    assert __import__('examples.robodojo_functions', fromlist=['containment_margin']).containment_margin(box(0, 0, 1, 1), box(0, 0, 0.5, 0.5)) == 0.0
     assert box(0, 0, 1, 1).contains(box(0, 0, 0.5, 0.5))

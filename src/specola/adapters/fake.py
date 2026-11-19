@@ -103,6 +103,16 @@ class _MockAdapter(SimulatorAdapter):
         self._step += 1
         return self._observation()
 
+    def make_advancer(self, mode, demo, seed):
+        """The scene advances on every observation read and takes no
+        action, so hold and random give the same trajectory and each step
+        only reports that the episode continues. Replay has no source."""
+        if mode == "replay":
+            raise SystemExit("--mode replay needs a real sim env (not 'mock')")
+        if demo is not None:
+            raise SystemExit(f"--demo is only read by --mode replay, not --mode {mode}")
+        return lambda step: True
+
     def _observation(
         self,
     ) -> MonitorObservation:

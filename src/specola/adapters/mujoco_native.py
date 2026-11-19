@@ -13,17 +13,62 @@ from dataclasses import dataclass, replace
 from importlib import metadata
 import json
 import os
+import re
 from pathlib import Path
 import sys
 import threading
 from types import BuiltinFunctionType, ModuleType
-from typing import Tuple, cast
+from typing import Optional, Tuple, cast
 
 from ..conformance import native_images as native
 from ..conformance.core_runner import EvidenceIdentity
 from ..conformance.surface import (
     _class_dict, _type_name, _MODULE_DICTIONARY, _TYPE_METADATA, SurfaceValidationError,
 )
+
+
+_PROFILE_DIR = Path(__file__).parent.parent / "data"
+_ABI_TAG = re.compile(r"cpython-(\d)(\d+)-")
+
+
+def profile_python_tag(version: str) -> Optional[str]:
+    """Return the Python version recorded in the reviewed native profile."""
+    path = _PROFILE_DIR / ("mujoco-native-" + version + ".json")
+    if not path.is_file():
+        return None
+    tags = {
+        "{}.{}".format(match.group(1), match.group(2))
+        for row in json.loads(path.read_text())["images"]
+        for match in _ABI_TAG.finditer(row["relative_path"])
+    }
+    if len(tags) > 1:
+        raise native.NativeImageError("MuJoCo reviewed profile has inconsistent CPython ABI tags")
+    return next(iter(tags), None)
+
+
+def population_mismatch_message(version: str) -> str:
+    """Distinguish a reviewed-profile Python mismatch from other image errors."""
+    running = "{}.{}".format(*sys.version_info[:2])
+    tag = profile_python_tag(version)
+    if tag is not None and tag != running:
+        return (
+            "Specola's reviewed MuJoCo {} native profile needs CPython {} "
+            "(running {}); create the supported environment with "
+            "`conda create -n specola-libero python={} -y` and install "
+            "the simulator extra there; see docs/install.md"
+        ).format(version, tag, running, tag)
+    return "MuJoCo distribution native image population differs"
+
+
+def check_profile_python() -> None:
+    """Reject a known native-profile Python mismatch before scene construction."""
+    try:
+        version = metadata.version("mujoco")
+    except metadata.PackageNotFoundError:
+        return
+    tag = profile_python_tag(version)
+    if tag is not None and tag != "{}.{}".format(*sys.version_info[:2]):
+        raise native.NativeImageError(population_mismatch_message(version))
 
 
 def _namespace(value):
@@ -108,7 +153,7 @@ class MujocoNativeGuard:
                 raise native.NativeImageError("unresolved MuJoCo native image platform or module")
             self._distribution = metadata.distribution("mujoco")
             self._version = self._distribution.version
-            profile_path = Path(__file__).parent.parent / "data" / ("mujoco-native-" + self._version + ".json")
+            profile_path = _PROFILE_DIR / ("mujoco-native-" + self._version + ".json")
             if not profile_path.is_file():
                 raise native.NativeImageError("unresolved MuJoCo native image build: " + self._version)
             self._profile = json.loads(profile_path.read_text())
@@ -173,7 +218,7 @@ class MujocoNativeGuard:
         images = {item.as_posix() for item in files
                   if _native_file(Path(str(distribution.locate_file(item))))}
         if images != self._images.keys():
-            raise native.NativeImageError("MuJoCo distribution native image population differs")
+            raise native.NativeImageError(population_mismatch_message(self._version))
         package = Path(str(distribution.locate_file("mujoco")))
         on_disk = {"mujoco/" + path.relative_to(package).as_posix() for path in package.rglob("*")
                    if path.is_file() and _native_file(path)}

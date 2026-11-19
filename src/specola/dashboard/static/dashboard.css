@@ -803,3 +803,9 @@ body.has-scene:not(.scene-collapsed) #layout {
   padding: 6px 14px; border-top: 1px solid var(--border);
   color: var(--muted-dim); font: 400 10.5px/1.4 var(--sans);
 }
+
+/* Formula text is typed and read character by character. The vendored
+   JetBrains Mono subset substitutes ligatures for >= and <= whose glyphs
+   it does not carry, which drew ">=" as a blank and "=". The rules above
+   set `font` by shorthand, which resets this property, hence !important. */
+textarea, input, pre, code { font-variant-ligatures: none !important; }

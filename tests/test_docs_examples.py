@@ -36,6 +36,7 @@ from specola.entities import (
 )
 
 GUIDE = Path(__file__).resolve().parent.parent / "docs" / "writing-specs.md"
+EXAMPLES = GUIDE.parent.parent / "examples"
 
 
 def _spec_blocks():
@@ -62,6 +63,22 @@ def _spec_blocks():
 _BLOCKS = _spec_blocks()
 
 
+def _write_block(block, tmp_path):
+    """Write the block beside the local function files it declares.
+
+    A ``functions`` declaration names a Python file relative to the YAML;
+    the guide points at the shipped ``examples/`` copies, so those are
+    placed next to the block exactly as a reader following it would.
+    """
+    for name in re.findall(r"python:\s*\./([\w.-]+\.py):", block):
+        source = EXAMPLES / name
+        if source.exists():
+            (tmp_path / name).write_bytes(source.read_bytes())
+    spec_file = tmp_path / "guide_block.yaml"
+    spec_file.write_text(block, encoding="utf-8")
+    return spec_file
+
+
 def test_guide_has_spec_blocks():
     """The extraction itself must not silently rot."""
     assert len(_BLOCKS) >= 3, [label for label, _ in _BLOCKS]
@@ -71,8 +88,7 @@ def test_guide_has_spec_blocks():
     "label,block", _BLOCKS, ids=[label for label, _ in _BLOCKS]
 )
 def test_guide_examples_parse(label, block, tmp_path):
-    spec_file = tmp_path / "guide_block.yaml"
-    spec_file.write_text(block, encoding="utf-8")
+    spec_file = _write_block(block, tmp_path)
     MonitorEngine.load(str(spec_file))  # raises ValueError on any parse error
 
 
@@ -80,9 +96,12 @@ def test_guide_examples_parse(label, block, tmp_path):
     "label,block", _BLOCKS, ids=[label for label, _ in _BLOCKS]
 )
 def test_guide_examples_compile_on_mock_where_possible(label, block, tmp_path):
-    spec_file = tmp_path / "guide_block.yaml"
-    spec_file.write_text(block, encoding="utf-8")
+    spec_file = _write_block(block, tmp_path)
     engine = MonitorEngine.load(str(spec_file))
+    if engine.functions.definitions:
+        # Declared functions read native inputs an adapter captures at
+        # reset (Session does that); the bare engine on the mock cannot.
+        pytest.skip("declared functions need a simulator that provides their inputs")
     reset = reset_adapter(_MockAdapter())
     try:
         engine.start_episode(

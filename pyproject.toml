@@ -25,6 +25,8 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.22",
+    "pandas>=2.0.3,<4",
+    "matplotlib>=3.7.5,<4",
     "sympy>=1.10",
     "PyYAML>=6.0",
     "jsonschema>=4.23,<5",
@@ -48,7 +50,9 @@ rtamt = ["rtamt>=0.3.4"]
 # mujoco==3.3.1, a reviewed build (see the MuJoCo note below).
 robocasa = ["h5py", "mujoco==3.3.1",
             "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
-libero   = ["h5py",   # LIBERO itself: pip install hf-libero (see adapters/libero.py)
+# Specola's tested LIBERO combination uses the CPython 3.12 native profile.
+# This is project policy, not hf-libero's upstream Python requirement.
+libero   = ["hf-libero==0.1.4", "robosuite==1.4.0", "mujoco==3.8.1", "h5py",
             "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
 # The MuJoCo geometry reader accepts only the MuJoCo builds it has reviewed
 # (adapters/mujoco_queries.py, _REVIEWED: 3.3.0, 3.3.1, 3.8.1, 3.10.0), so
@@ -56,9 +60,9 @@ libero   = ["h5py",   # LIBERO itself: pip install hf-libero (see adapters/liber
 # the fresh-install checks ran (docs/evidence/fresh-install-*-2026-10-13.md).
 # The reader's native profiles (data/mujoco-native-*.json) record Linux
 # x86_64 cpython-311 wheels for 3.3.0, 3.3.1 and 3.10.0 (cpython-312 for
-# 3.8.1); on another Python the extra installs and the adapter refuses to
-# start, and an extra cannot refuse a Python version, so docs/install.md
-# says it. metaworld 3.1.1 itself requires mujoco==3.3.0.
+# 3.8.1). Installation also depends on upstream package requirements.
+# A mismatching installed wheel cannot pass the native guard; docs/install.md
+# names the supported Python versions. metaworld 3.1.1 requires mujoco==3.3.0.
 metaworld = ["metaworld==3.1.1", "mujoco==3.3.0", "gymnasium==1.3.0",
              "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
 # dm_control 1.0.43 requires mujoco>=3.10.0; 3.10.0 is the reviewed build.
@@ -68,7 +72,7 @@ dmcontrol = ["dm_control==1.0.43", "mujoco==3.10.0",
 # the mamujoco environment runs.
 mamujoco = ["gymnasium-robotics==1.4.2", "mujoco==3.10.0", "gymnasium==1.3.0",
             "pyelftools==0.33; python_version >= '3.10' and sys_platform == 'linux'"]
-report = ["pandas", "pyarrow"]
+report = ["pyarrow"]
 # RoboDojo: install RoboDojo (its scripts/install.sh builds the conda env
 # with Isaac Sim 5.1, Isaac Lab, torch and warp), then this extra inside
 # that env. The adapter's own imports come from that stack; this extra adds
@@ -94,13 +98,20 @@ web = [
     # ship cv2; Pillow covers the ones that do not (e.g. pybullet).
     "Pillow>=9",
 ]
+verify = [
+    "flask>=3.1,<4", "flask-socketio>=5.5,<6", "python-socketio>=5.16,<6",
+    "Pillow>=9", "websocket-client>=1.7,<2",
+]
 dev = ["pytest", "pytest-cov", "hypothesis", "rtamt>=0.3.4",
        # Seven test modules import pandas, pyarrow or h5py at collection.
        "pandas", "pyarrow", "h5py",
        "flask>=3.1,<4", "flask-socketio>=5.5,<6", "python-socketio>=5.16,<6",
        # Lets Python socket.io clients (dashboard_live_check) upgrade to
        # websocket like a browser instead of staying on long-polling.
-       "websocket-client>=1.7"]
+       "websocket-client>=1.7",
+       # The RoboDojo benchmark harnesses' process and memory accounting;
+       # their sim-free tests run without the simulator.
+       "psutil"]
 
 [project.scripts]
 specola = "specola.cli:main"
@@ -132,6 +143,21 @@ license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# Release wheels (.github/workflows/release.yml). cibuildwheel 4.x builds
+# CPython 3.9 and later; Python 3.8 installs from the sdist. Free-threaded
+# builds are skipped because _native_tls does not declare GIL-free support.
+# The extension is optional=True in setup.py, so a failed compile would
+# still produce a wheel; the import makes that fail the build instead. The
+# mock run checks the installed CLI runs end to end; of the package data it
+# reads only the query schema.
+[tool.cibuildwheel]
+build = "cp*-manylinux_x86_64"
+skip = "cp3??t-*"
+test-command = [
+    'python -c "import specola._native_tls"',
+    "specola run --sim mock --specs {project}/examples/mock_specs.yaml --steps 20 --ui plain",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # ROS system installs leak broken pytest plugins through PYTHONPATH.
@@ -151,4 +177,4 @@ markers = [
 ]
 
 [tool.setuptools.package-data]
-specola = ["*.yaml", "data/*.json", "dashboard/static/*", "dashboard/static/brand/*", "dashboard/static/vendor/*", "dashboard/static/vendor/fonts/*"]
+specola = ["*.yaml", "data/*.json", "data/verification*.yaml", "data/verification*.py", "data/verification*.hdf5", "data/verification*.md", "data/verification*.txt", "dashboard/static/*", "dashboard/static/brand/*", "dashboard/static/vendor/*", "dashboard/static/vendor/fonts/*"]

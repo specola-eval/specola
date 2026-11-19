@@ -66,6 +66,8 @@ Factory signature
 from __future__ import annotations
 
 import importlib
+from importlib import metadata
+import sys
 from dataclasses import dataclass
 import importlib.util
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
@@ -257,10 +259,16 @@ class AdapterStatus:
     missing:      Tuple[str, ...]
     load_error:   str = ""
     checked:      bool = True
+    python_required: str = ""
+
+    @property
+    def python_mismatch(self) -> bool:
+        running = "{}.{}".format(*sys.version_info[:2])
+        return bool(self.python_required) and self.python_required != running
 
     @property
     def ready(self) -> bool:
-        return self.checked and not self.load_error and not self.missing
+        return self.checked and not self.load_error and not self.missing and not self.python_mismatch
 
 
 def adapter_status(load_third_party: bool = True) -> List[AdapterStatus]:
@@ -292,10 +300,20 @@ def adapter_status(load_third_party: bool = True) -> List[AdapterStatus]:
     statuses = []
     for name, entry in _REGISTRY.items():
         missing = tuple(m for m in entry.requires if not _module_found(m))
+        python_required = ""
+        if "mujoco" in entry.requires and "mujoco" not in missing:
+            from .adapters.mujoco_native import profile_python_tag
+
+            try:
+                version = metadata.version("mujoco")
+            except metadata.PackageNotFoundError:
+                pass
+            else:
+                python_required = profile_python_tag(version) or ""
         statuses.append(AdapterStatus(
             name=name, description=entry.description,
             install_hint=entry.install_hint, requires=entry.requires,
-            missing=missing,
+            missing=missing, python_required=python_required,
         ))
     for name, error in errors.items():
         if name not in _REGISTRY:

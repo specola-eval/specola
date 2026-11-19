@@ -95,6 +95,10 @@ def _parse() -> tuple[argparse.Namespace, list[str]]:
                     help="Query configuration YAML/JSON (robodojo.mesh_pair: "
                          "cutoff, robot links and the pairs to compute)")
     ap.add_argument("--snapshot-camera", default="cam_head")
+    ap.add_argument("--web-record", default=None, metavar="DIR",
+                    help="Record environment 0's episodes as dashboard recordings "
+                         "under DIR (camera frames, 3D poses, bindings), viewable "
+                         "with `specola view`; the policy loop is unchanged")
     ap.add_argument("--run-id", default=None, help="specola run id (dir name)")
     ap.add_argument("--task_name", required=True)
     ap.add_argument("--policy_name", required=True)
@@ -353,6 +357,37 @@ def _attach(env, args: argparse.Namespace, monitors, results_dir: Path) -> None:
 
     sessions: dict[int, "Session"] = {}
     adapters: dict[int, RoboDojoAdapter] = {}
+    # Dashboard recording for environment 0: the sink the run command uses,
+    # fed from the same tracker; one recording directory per episode.
+    recorders: dict[int, tuple] = {}
+
+    def start_recording(idx, session, adapter, index):
+        if args.web_record is None or idx != 0:
+            return
+        from specola.dashboard.recorder import WebRecorderSink
+        from specola.run_monitor import build_run_tracker
+        from specola.session import _LiveEntityLabels
+        run_directory = Path(args.web_record) / f"episode_{index:04d}_layout{layouts[idx]}"
+        run_directory.mkdir(parents=True, exist_ok=True)
+        labels = _LiveEntityLabels(adapter)
+        labels.update(session.engine.functions.labels)
+        sink = WebRecorderSink(run_directory, run_id=f"{args.policy_name}_{args.task_name}_layout{layouts[idx]}",
+                               simulator="robodojo", task=args.task_name, mode="policy",
+                               cameras=(args.snapshot_camera,), size=(640, 480), video="jpeg")
+        recorders[idx] = (sink, build_run_tracker(session, labels))
+
+    def record_step(idx, result):
+        if idx in recorders:
+            sink, tracker = recorders[idx]
+            try:
+                sink.on_step(adapters[idx], tracker.update(result.raw))
+            except Exception as exc:
+                print(f"[monitor] env {idx}: recording step failed: {exc!r}")
+
+    def stop_recording(idx, status):
+        entry = recorders.pop(idx, None)
+        if entry is not None:
+            entry[0].finalize_episode(status)
     evidence: dict[int, _Evidence] = {}
     counters: dict[int, int] = {}
     physics: dict[int, int] = {}
@@ -382,6 +417,7 @@ def _attach(env, args: argparse.Namespace, monitors, results_dir: Path) -> None:
                 session.end(success=None, status="truncated")
             except Exception:
                 traceback.print_exc()
+            stop_recording(idx, "truncated")
 
     def end_all(status: str) -> None:
         for idx, session in list(sessions.items()):
@@ -391,6 +427,7 @@ def _attach(env, args: argparse.Namespace, monitors, results_dir: Path) -> None:
                 except Exception as exc:
                     traceback.print_exc()
                     print(f"[monitor] env {idx}: session end failed: {exc!r}")
+                stop_recording(idx, status)
         if evidence:
             # A batch RoboDojo abandoned (reset or close mid-episode):
             # RoboDojo does not score it, so its evidence is not kept.
@@ -419,6 +456,7 @@ def _attach(env, args: argparse.Namespace, monitors, results_dir: Path) -> None:
                 adapter = RoboDojoAdapter(env, env_index=idx, dt=dt, distmax=args.distmax)
                 adapters[idx] = adapter
                 sessions[idx] = monitors(idx).watch(adapter, dt=dt, queries=queries, meta=meta)
+                start_recording(idx, sessions[idx], adapter, episode["n"])
             except Exception as exc:
                 traceback.print_exc()
                 contained(idx, "session start", exc)
@@ -461,7 +499,7 @@ def _attach(env, args: argparse.Namespace, monitors, results_dir: Path) -> None:
             if counters[idx] >= args.stride:
                 counters[idx] = 0
                 try:
-                    session.step()
+                    record_step(idx, session.step())
                 except Exception as exc:
                     contained(idx, "monitor step", exc)
         return out
@@ -485,7 +523,7 @@ def _attach(env, args: argparse.Namespace, monitors, results_dir: Path) -> None:
             session = sessions.get(idx)
             if session is not None and not session.ended:
                 try:
-                    session.step()
+                    record_step(idx, session.step())
                     monitor_step = monitor_steps[idx]
                     monitor_steps[idx] += 1
                 except Exception as exc:
@@ -522,6 +560,7 @@ def _attach(env, args: argparse.Namespace, monitors, results_dir: Path) -> None:
                 record = session.end(
                     success=None if unstable else bool(env.success[idx]),
                     status="truncated" if unstable else "completed")
+                stop_recording(idx, "truncated" if unstable else "completed")
             except Exception as exc:
                 traceback.print_exc()
                 print(f"[monitor] env {idx}: session end failed: {exc!r}")

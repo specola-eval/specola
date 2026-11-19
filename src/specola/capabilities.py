@@ -118,7 +118,7 @@ def reset_adapter(adapter) -> AdapterResetResult:
     capabilities come from the adapter's optional ``capabilities``
     attribute or are derived from ``supported_classes`` (closed class
     vocabulary when declared, open otherwise). ``property_metadata``
-    covers the observed entities only.
+    captures observed and unread catalogue metadata during this reset.
     """
     observation = adapter.reset()
 
@@ -126,9 +126,12 @@ def reset_adapter(adapter) -> AdapterResetResult:
         adapter, observation.perceived_entities
     )
 
-    catalog, _ = reset_catalog(
+    catalog, metadata = reset_catalog(
         adapter, observation.perceived_entities, metadata
     )
+    # Detach the dictionaries from adapter-owned registries. PropertyMeta
+    # values contain immutable strings and tag tuples.
+    metadata = {entity_id: dict(items) for entity_id, items in metadata.items()}
 
     return AdapterResetResult(
         initial_observation=observation,

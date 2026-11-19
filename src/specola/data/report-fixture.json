@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "purpose": "Synthetic offline report fixture. No simulator or policy produced these values or images.",
+  "metadata": {
+    "episode_id": "synthetic-episode-001",
+    "run_id": "synthetic-report-fixture",
+    "task": "synthetic-report-task",
+    "task_id": "synthetic-report-task",
+    "status": "truncated",
+    "success": null,
+    "steps": 4,
+    "fixture_origin": "synthetic; no simulator or policy evaluation",
+    "spec_formulas": "[{\"name\": \"synthetic_margin\", \"formula\": \"G[0,1s] ({object.mass} <= limit) ∧ ρ ≥ −∞ $literal$\", \"constants\": {\"limit\": 0.25}}]",
+    "spec_constants": "{\"synthetic_margin\": {\"limit\": 0.25}}"
+  },
+  "rows": [
+    {"step": 0, "time": 0.0, "spec": "synthetic_margin", "authored_spec": "synthetic_margin", "binding": "synthetic block", "binding_key": "0007", "rho": 1.25, "suspended": false, "verdict_final": false, "window_steps": 2, "episode_id": "synthetic-episode-001", "status": "truncated", "success": null, "not_applicable": false, "task": "synthetic-report-task", "task_id": "synthetic-report-task", "seed": 7},
+    {"step": 1, "time": 0.05, "spec": "synthetic_margin", "authored_spec": "synthetic_margin", "binding": "synthetic block", "binding_key": "0007", "rho": -0.5, "suspended": false, "verdict_final": true, "window_steps": 2, "episode_id": "synthetic-episode-001", "status": "truncated", "success": null, "not_applicable": false, "task": "synthetic-report-task", "task_id": "synthetic-report-task", "seed": 7},
+    {"step": 2, "time": 0.1, "spec": "synthetic_margin", "authored_spec": "synthetic_margin", "binding": "synthetic block", "binding_key": "0007", "rho": null, "suspended": true, "verdict_final": false, "window_steps": 2, "episode_id": "synthetic-episode-001", "status": "truncated", "success": null, "not_applicable": false, "task": "synthetic-report-task", "task_id": "synthetic-report-task", "seed": 7},
+    {"step": 3, "time": 0.15, "spec": "synthetic_margin", "authored_spec": "synthetic_margin", "binding": "synthetic block", "binding_key": "0007", "rho": 0.75, "suspended": false, "verdict_final": false, "window_steps": 2, "episode_id": "synthetic-episode-001", "status": "truncated", "success": null, "not_applicable": false, "task": "synthetic-report-task", "task_id": "synthetic-report-task", "seed": 7}
+  ]
+}

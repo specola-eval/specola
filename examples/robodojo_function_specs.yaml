@@ -1,0 +1,36 @@
+# The same three specifications as robodojo_specs.yaml, with the sampled
+# pair distance authored as a spec function (explicit trusted local Python)
+# instead of by the adapter. Run this file WITHOUT a robodojo.mesh_pair
+# query population or ROBODOJO_DISTMAX: the adapter would then also form
+# mesh_pair entities and the function loader rejects the output collision.
+functions:
+  mesh_clearance:
+    python: ./robodojo_functions.py:mesh_clearance
+    entity_class: mesh_pair
+    inputs:
+      scene:
+        provider: robodojo.scene
+        schema: 1
+    parameters:
+      distmax: 0.05
+      robot_links:
+      - link6
+      - link7
+      - link8
+    outputs:
+      mesh_distance_sampled:
+        unit: m
+        group: authored sampled mesh distance
+        note: vertex-to-surface minimum, capped; overestimate off-vertex
+      mesh_distance_clipped:
+        unit: null
+        group: authored sampled mesh distance
+specs:
+- name: joints_stay_slow
+  formula: 'historically[0,1s](robot_*[all: joint_vel_*] <= limit)'
+  constants:
+    limit: 2.0
+- name: bowls_stay_on_table
+  formula: historically[0,1s](rigid_*[root_pos_w_2] >= 0.5)
+- name: bodies_stay_apart
+  formula: historically[0,1s](mesh_pair_*[mesh_distance_sampled @ b:bowl0] >= 0.005)

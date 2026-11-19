@@ -2076,7 +2076,9 @@ def _make_robocasa(
     if not capture_frames:
         environment = _make(offscreen=False)
         environment.reset()
-        return RoboCasaAdapter(environment, target_only=target_only)
+        adapter = RoboCasaAdapter(environment, target_only=target_only)
+        adapter._owns_environment = environment.close  # built here, so the adapter closes it
+        return adapter
 
     # The render context must exist from construction whenever a frame may
     # be captured (see the comment in _make). Monitoring must not require
@@ -2107,10 +2109,12 @@ def _make_robocasa(
         environment = _make(offscreen=False)
         environment.reset()
 
-    return RoboCasaAdapter(
+    adapter = RoboCasaAdapter(
         environment,
         target_only=target_only,
     )
+    adapter._owns_environment = environment.close  # built here, so the adapter closes it
+    return adapter
 
 
 def _handles(obj) -> bool:

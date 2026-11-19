@@ -35,7 +35,7 @@ from .video import (
     NVENC_ARGS, SegmentWriter, VideoPipelineError, codec_string,
     probe_encoder)
 
-_SENTINEL = object()
+_FINALIZE_TIMEOUT = 7.0
 
 
 @dataclass(frozen=True, init=False)
@@ -136,6 +136,8 @@ class WebRecorderSink:
         self.frames_dropped = 0
         self.active = True
         self._finalized = False
+        self._finish_requested = threading.Event()
+        self._finish_status = None
         # Guards the check-then-set on active/_finalized: on_step runs on
         # the simulator thread, _drain on the writer thread, and a future
         # stop path may call close() from a server thread.
@@ -155,7 +157,7 @@ class WebRecorderSink:
         rebuilding the discovery model. Invalid discovery data raises before
         queueing, including candidate-only data nested in the extraction.
         """
-        if not self.active:
+        if not self.active or self._finish_requested.is_set():
             return
         try:
             self._queue.put(_DiscoveryItem(payload), timeout=2.0)
@@ -179,7 +181,7 @@ class WebRecorderSink:
     # -- simulator thread -------------------------------------------------
 
     def on_step(self, adapter, snapshot) -> None:
-        if not self.active:
+        if not self.active or self._finish_requested.is_set():
             return
         observation = getattr(adapter, "last_observation", None)
         extraction = observation.extraction if observation is not None else None
@@ -227,6 +229,8 @@ class WebRecorderSink:
         return resolved
 
     def _enqueue(self, line: dict, frames: list, poses, geometry) -> None:
+        if self._finish_requested.is_set():
+            return
         try:
             self._queue.put_nowait((line, frames, poses, geometry))
         except queue.Full:
@@ -382,15 +386,12 @@ class WebRecorderSink:
 
     def _drain(self) -> None:
         while True:
-            item = self._queue.get()
-            if item is _SENTINEL:
-                if self._poses is not None:
-                    self._poses.close()
-                # Closing here and not in finalize_episode keeps ffmpeg's
-                # stdin owned by this thread: the caller thread would
-                # race a still-draining feed onto it.
-                self._close_writers()
-                return
+            try:
+                item = self._queue.get(timeout=0.05)
+            except queue.Empty:
+                if self._finish_requested.is_set():
+                    break
+                continue
             if not self.active:
                 continue                # drain quietly after an error
             if isinstance(item, _DiscoveryItem):
@@ -446,40 +447,54 @@ class WebRecorderSink:
             except Exception as exc:
                 self._disable(exc)
 
+        # The writer owns file closure and terminal publication even if
+        # the caller's bounded join expires. No mutable finalization runs
+        # on the caller while this thread is still draining.
+        try:
+            if self._poses is not None:
+                self._poses.close()
+        except Exception as exc:
+            warn("pose cleanup failed: {}: {}".format(type(exc).__name__, exc))
+        finally:
+            self._close_writers()
+        try:
+            if self._finish_status is None:
+                self._writer._fh.close()
+                return
+            self._writer.finalize(self._finish_status)
+            self._finalized = True
+            if self._on_episode_end is not None:
+                self._on_episode_end(self._finish_status)
+        except Exception as exc:
+            self._disable(exc)
+
     # -- caller thread ----------------------------------------------------
 
     def finalize_episode(self, status: str) -> None:
-        """Finalize beside session.end(); idempotent, never raises."""
+        """Request owner finalization and wait at most seven seconds."""
         with self._state_lock:
-            if self._finalized:
+            if self._finish_requested.is_set():
                 return
-            self._finalized = True
-        try:
-            try:
-                self._queue.put(_SENTINEL, timeout=2.0)
-            except queue.Full:
-                pass                    # writer stalled; handled below
-            self._thread.join(timeout=5.0)
-            if self._thread.is_alive():
-                # Writer still draining (slow disk / frame burst at
-                # episode end). Never close the file under it: leave the
-                # recording un-gzipped — still fully readable — and only
-                # stamp the terminal status into the manifest. poses.bin
-                # is left open too; it is flushed per record, so readers
-                # see everything written so far. Silence
-                # on_line first: nothing may arrive after episode end.
-                self._on_line = None
-                self._writer.manifest["status"] = status
-                self._writer.rewrite_manifest()
-                warn("writer still draining at finalize; recording "
-                      "left uncompressed at {}.".format(
-                          self.recording_dir))
-            else:
-                self._writer.finalize(status)
-            if self._on_episode_end is not None:
-                self._on_episode_end(status)
-        except Exception as exc:
-            self._disable(exc)
+            self._finish_status = status
+            self._finish_requested.set()
+        self._thread.join(timeout=_FINALIZE_TIMEOUT)
+        if self._thread.is_alive():
+            warn("writer still draining; recording remains unfinalized at {}.".format(
+                self.recording_dir))
+
+    @property
+    def finalized(self) -> bool:
+        """Whether immutable recording output is ready for offline export."""
+        return self._finalized and not self._thread.is_alive()
+
+    def abandon(self) -> None:
+        """Stop accepting work without claiming a terminal recording status."""
+        with self._state_lock:
+            self.active = False
+            self._finish_requested.set()
+        self._thread.join(timeout=_FINALIZE_TIMEOUT)
+        if self._thread.is_alive():
+            warn("recorder worker still active after abandonment")
 
     def close(self, status: str = "failed") -> None:
         """Outer-finally backstop; no-op when already finalized."""

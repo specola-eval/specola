@@ -159,7 +159,7 @@ RoboDojo respawns scene objects per layout.
 Isaac exposes no mesh-to-mesh distance to Python, so with ``distmax``
 (or ``ROBODOJO_DISTMAX``) set the adapter samples one: every vertex of
 each mesh against the other's surface via Warp's ``mesh_query_point``,
-both directions, minimum (``adapters/_mesh_distance.py``). Every
+both directions, minimum (``specola/functions_mesh.py``). Every
 unordered pair of robots and posed objects is then a ``mesh_pair``
 entity carrying ``mesh_distance_sampled`` (metres, capped at
 ``distmax``, zero when a vertex lies inside the other mesh) and
@@ -195,6 +195,21 @@ above) and have not been re-measured, so neither the 1 to 24 cm nor
 its explanation is established; the distances remain a clearance
 measure.
 
+The same distance can instead be authored in the specification: the
+adapter publishes observation-aligned native mesh rows and poses through
+``robodojo.scene:1`` when a loaded function requests them, and
+``examples/robodojo_functions.py`` carries the pair policy as a spec
+function over the same ``functions_mesh.py`` sampler (``discover
+--functions`` and ``write-specs --functions`` prepare that surface).
+Configuring both for one run is an output collision on ``mesh_pair``,
+which the function loader rejects at reset; a run picks one.
+
+The native snapshot retains mesh populations and rigid transforms. USD
+changes invalidate the snapshot at the next observation boundary; previous
+observations retain their immutable inputs. Reset invalidates the collector.
+Root scale, time-sampled geometry and changes bypassing USD authoring remain
+unverified; see the simulator-provided measurements decision record.
+
 Every posed scene object also carries ``aabb_min_<axis>`` and
 ``aabb_max_<axis>``: the world-axis bounding box of RoboDojo's own
 oriented-bbox metadata for that instance, carried by the current pose.
@@ -216,6 +231,8 @@ own env (``registry.wrap_env``) inside RoboDojo's eval loop.
 from __future__ import annotations
 
 from typing import Any, Dict, FrozenSet, List, Optional, Sequence, Tuple
+
+from types import MappingProxyType
 
 import numpy as np
 
@@ -282,6 +299,10 @@ _PAIR_CLASS = "mesh_pair"
 # optional ``population: all``; instances name the pairs to query by entity
 # label (operands ``a`` and ``b``).
 _PAIR_BINDING = "robodojo.mesh_pair"
+
+# The two properties every pair carries; declared as schema in
+# ``capabilities`` so the spec-function loader sees them with no pair formed.
+_PAIR_PROPERTY_KEYS: Tuple[str, ...] = ("mesh_distance_sampled", "mesh_distance_clipped")
 
 _AXES = ("0", "1", "2")
 _QUAT_COMPONENTS = ("w", "x", "y", "z")
@@ -454,7 +475,7 @@ class RoboDojoAdapter(SimulatorAdapter):
         # Pair distances are opt-in: ``distmax`` (or ``ROBODOJO_DISTMAX``)
         # is the cutoff in metres above which a pair reports the cutoff
         # itself, clipped. Without it no pair entity exists and the mesh
-        # walk is only made for the 3D panel.
+        # walk is only made for the 3D panel and for spec functions.
         if distmax is None:
             import os
 
@@ -470,8 +491,16 @@ class RoboDojoAdapter(SimulatorAdapter):
         ] = None
         self._distance_device = distance_device
         self._distance = None
-        # Row plan for scene_geometry/scene_poses and the distance meshes,
-        # built once per episode: RoboDojo respawns scene objects on reset.
+        self._geometry_revision = 0
+        self._geometry_dirty = False
+        self._geometry_listener = None
+        self._native_geometry_snapshot = None
+        # The owned environment's registered ``close`` (set by the factory), or
+        # None when the caller owns the environment.
+        self._owns_environment: Optional[Any] = None
+        # Row plan for scene_geometry/scene_poses, the distance meshes and
+        # the spec-function inputs, built once per episode: RoboDojo
+        # respawns scene objects on reset.
         self._scene_plan: Optional[Dict[str, Any]] = None
         self._scene_plan_built = False
 
@@ -577,10 +606,33 @@ class RoboDojoAdapter(SimulatorAdapter):
             classes = classes | {_PAIR_CLASS}
         return classes
 
+    @property
+    def capabilities(self) -> "AdapterCapabilities":
+        """
+        The default capabilities, plus the pair outputs as declared schema
+        whenever a cutoff is active. The function loader's collision check
+        reads declared components as well as the reset catalog, so a spec
+        function claiming ``mesh_distance_sampled`` on ``mesh_pair`` is
+        rejected even when the adapter formed no pair at reset (one meshed
+        body only) and a pair appears later in the episode. Component mode
+        stays open: compilation does not read this declaration.
+        """
+        from ..capabilities import AdapterCapabilities, VocabularyMode
+
+        supported = self.supported_classes
+        components = {}
+        if self._active_distmax() is not None:
+            components[_PAIR_CLASS] = frozenset(_PAIR_PROPERTY_KEYS)
+        return AdapterCapabilities(
+            spatial_dims=int(self.spatial_dims),
+            class_mode=VocabularyMode.CLOSED,
+            supported_classes=supported,
+            components_by_class=components,
+        )
+
     def _reset_impl(self) -> MonitorObservation:
         self._step = 0
-        self._scene_plan = None
-        self._scene_plan_built = False
+        self._release_scene_plan()
         # A new episode is a new identity namespace: an instance name may
         # legitimately come back as a different kind of object under a
         # different layout seed. Ids are kept so a surviving object keeps
@@ -1327,33 +1379,6 @@ class RoboDojoAdapter(SimulatorAdapter):
             np.asarray(_to_numpy(orientation), dtype=float).reshape(-1)[:4],
         ])
 
-    @staticmethod
-    def _containment_margin(outer: Any, inner: Any) -> Optional[float]:
-        """
-        Signed margin, in metres, of polygon ``inner`` inside convex polygon
-        ``outer``: the minimum over ``inner``'s vertices of the distance to
-        ``outer``'s boundary, positive for a vertex ``outer`` covers (the
-        boundary included), negative for one outside it.
-
-        For convex ``outer`` and ``inner`` with an interior (RoboDojo's
-        footprints are convex hulls of boxes) the margin is non-negative
-        exactly when ``outer.contains(inner)``, the test ``is_A_cover_B``
-        makes; its magnitude is the distance the footprint can move before
-        the verdict flips, bounded by the nearest vertex.
-        """
-        from shapely.geometry import Point
-
-        exterior = getattr(inner, "exterior", None)
-        ring = getattr(outer, "exterior", None)
-        if exterior is None or ring is None:
-            return None
-        margin = float("inf")
-        for x, y in list(exterior.coords)[:-1]:
-            point = Point(x, y)
-            distance = float(ring.distance(point))
-            margin = min(margin, distance if outer.covers(point) else -distance)
-        return margin if np.isfinite(margin) else None
-
     def _native_object_payload(
         self,
         entity_class: str,
@@ -1409,6 +1434,8 @@ class RoboDojoAdapter(SimulatorAdapter):
                 source=source,
             )
 
+        if not any(self._property_is_requested(entity_class, key) for key in ("footprint_zmin", "footprint_zmax")):
+            return
         footprint = self._footprint(name)
         if footprint is None:
             return
@@ -1422,29 +1449,6 @@ class RoboDojoAdapter(SimulatorAdapter):
                     unit="m",
                 ),
                 source=source,
-            )
-        for other, label in sorted(self._footprint_labels.items()):
-            if other == name:
-                continue
-            key = f"footprint_in_{_token(label)}"
-            if not self._property_is_requested(entity_class, key):
-                continue
-            outer = self._footprint(other)
-            if outer is None:
-                continue
-            margin = self._containment_margin(outer[0], polygon)
-            if margin is None:
-                continue
-            self._add(
-                properties, metadata, owners, key, margin,
-                PropertyMeta(
-                    group="footprint containment",
-                    note="m; signed margin inside the named object's footprint",
-                    unit="m",
-                ),
-                # Per container, so two instances sharing one label
-                # collide loudly in _add instead of overwriting.
-                source=f"footprint in {other}",
             )
 
     def _native_robot_payload(
@@ -1702,6 +1706,7 @@ class RoboDojoAdapter(SimulatorAdapter):
 
         if self._active_distmax() is not None:
             self._pair_entities(entities, metadata, labels)
+        inputs = self._capture_function_inputs()
 
         self._metadata = metadata
         self._label_of = labels
@@ -1710,9 +1715,133 @@ class RoboDojoAdapter(SimulatorAdapter):
             timestep=self._step,
             time=self._step * self.dt,
             perceived_entities=entities,
+            function_inputs=inputs,
         )
 
     # -- 3D pose panel and pair distances ----------------------------------
+
+    function_input_schemas = {"robodojo.scene": 1, "robodojo.footprints": 1}
+
+    def function_entity_id(self, key: str, entity_class: str) -> int:
+        return self._entity_id(key, entity_class)
+
+    def _release_scene_plan(self) -> None:
+        listener = self._geometry_listener
+        if listener is not None:
+            listener.Revoke()
+        self._geometry_listener = None
+        self._scene_plan = None
+        self._scene_plan_built = False
+        self._native_geometry_snapshot = None
+        self._distance = None
+        self._geometry_revision += 1
+        self._geometry_dirty = False
+
+    def _geometry_changed(self, notice, stage) -> None:
+        # USD 24.05 exceptions apply to exact value edits, never whole namespaces.
+        state_values = {"physics:angularVelocity", "physics:velocity", "state:angular:physics:position",
+                        "state:angular:physics:velocity", "state:linear:physics:velocity"}
+        try:
+            if tuple(notice.GetResyncedPaths()) or tuple(notice.GetResolvedAssetPathsResyncedPaths()):
+                self._geometry_dirty = True
+                return
+            for path in notice.GetChangedInfoOnlyPaths():
+                prop = str(path.name)
+                if tuple(str(field) for field in notice.GetChangedFields(path)) != ("default",):
+                    self._geometry_dirty = True
+                    return
+                if prop in state_values:
+                    continue
+                if prop not in {"xformOp:translate", "xformOp:orient"}:
+                    self._geometry_dirty = True
+                    return
+                roots = (self._scene_plan or {}).get("collection_roots")
+                prim_path = str(path.GetPrimPath())
+                prim = stage.GetPrimAtPath(path.GetPrimPath())
+                if (not roots or not prim or not prim.IsValid() or prim.IsInstance()
+                        or prim.IsInstanceProxy() or prim.IsInPrototype()):
+                    self._geometry_dirty = True
+                    return
+                if prim_path in self._posed_prim_paths:
+                    continue
+                if any(prim_path == root or prim_path.startswith(root.rstrip("/") + "/")
+                       or root.startswith(prim_path.rstrip("/") + "/") for root in roots):
+                    self._geometry_dirty = True
+                    return
+        except Exception:
+            # Unavailable notice/prim provenance cannot justify reusing geometry.
+            self._geometry_dirty = True
+
+    def _function_geometry(self, plan):
+        """Freeze collected operands before a dashboard export releases them."""
+        from ..spec_functions import immutable
+        if self._native_geometry_snapshot is None:
+            labels = self._labels()
+            self._native_geometry_snapshot = immutable({
+                "collected": plan["collected"],
+                "robots": tuple(
+                    (key, tuple(getattr(asset, "body_names", ()) or ()), tuple(rows),
+                     labels.get(key[len("robot:"):], key[len("robot:"):]))
+                    for key, asset, rows in plan["robots"]
+                ),
+                "objects": tuple(
+                    (key, name, row, labels.get(name, name))
+                    for key, name, row in plan["objects"]
+                ),
+            })
+        return self._native_geometry_snapshot
+
+    def _capture_function_inputs(self):
+        from ..spec_functions import FunctionInputs, immutable
+        requests = getattr(self, "_function_input_requests", {})
+        if not requests:
+            return None
+        values = {}
+        if "robodojo.scene" in requests:
+            plan = self._ensure_scene_plan()
+            if plan is None:
+                values["robodojo.scene"] = None
+            else:
+                geometry = self._function_geometry(plan)
+                xpos, xquat = self._body_poses(plan)
+                values["robodojo.scene"] = MappingProxyType({
+                    "geometry": geometry,
+                    "positions": immutable(xpos), "quaternions": immutable(xquat),
+                })
+        if "robodojo.footprints" in requests:
+            footprints = {}
+            labels = self._labels()
+            for key, entity_class, name, _obj in self._scene_objects():
+                footprint = self._footprint(name)
+                polygon = footprint[0] if footprint is not None else None
+                ring = getattr(polygon, "exterior", None)
+                footprints[key] = {
+                    "entity_id": self._entity_id(key, entity_class),
+                    "entity_class": entity_class, "name": name,
+                    "label": labels.get(name, name),
+                    "wkb": bytes(polygon.wkb) if polygon is not None else None,
+                    "vertices": tuple(ring.coords) if ring is not None else (),
+                    "zmin": footprint[1] if footprint is not None else None,
+                    "zmax": footprint[2] if footprint is not None else None,
+                }
+            values["robodojo.footprints"] = immutable(footprints)
+        return FunctionInputs(self._geometry_revision, MappingProxyType(values))
+
+    def close_native_extraction(self) -> None:
+        """Close the owned environment once; keep Kit alive for replay."""
+        import atexit
+        self._release_scene_plan()
+        self._footprints.clear()
+        close = self._owns_environment
+        if close:
+            # The factory stored the exact bound method it registered with
+            # atexit: ``self._env`` is the unwrapped environment, whose
+            # ``close`` is a different bound method when the environment
+            # came wrapped, and unregistering that would leave the atexit
+            # entry in place to close the environment a second time.
+            atexit.unregister(close)
+            self._owns_environment = None
+            close()
 
     def _stage(self) -> Any:
         stage = getattr(self._env, "stage", None)
@@ -1739,6 +1868,8 @@ class RoboDojoAdapter(SimulatorAdapter):
         viability once per episode keeps the hooks from alternating
         between ``None`` and arrays inside one.
         """
+        if self._geometry_dirty:
+            self._release_scene_plan()
         if self._scene_plan_built:
             return self._scene_plan
         self._scene_plan_built = True
@@ -1787,6 +1918,9 @@ class RoboDojoAdapter(SimulatorAdapter):
             return None
 
         owned = {path for _, path in posed if path is not None}
+        self._posed_prim_paths = frozenset(owned)
+        from pxr import Tf, Usd
+        self._geometry_listener = Tf.Notice.Register(Usd.Notice.ObjectsChanged, self._geometry_changed, stage)
         statics: List[Tuple[int, str]] = []
         env_path = f"/World/envs/env_{self.env_index}"
         env_prim = stage.GetPrimAtPath(env_path)
@@ -1806,19 +1940,23 @@ class RoboDojoAdapter(SimulatorAdapter):
             statics.append((len(bodies) - 1, prefix))
 
         collector = MeshCollector(owned)
+        collection_roots: List[str] = []
         for row, path in posed:
             prim = stage.GetPrimAtPath(path) if path else None
             if prim and prim.IsValid():
                 collector.collect(prim, row, prim)
+                collection_roots.append(str(prim.GetPath()))
             else:
                 collector.skipped["unresolved_body"] += 1
         for row, path in statics:
             prim = stage.GetPrimAtPath(path)
             if prim and prim.IsValid():
                 collector.collect(prim, row, None)
+                collection_roots.append(str(prim.GetPath()))
 
         plan = {
             "bodies": bodies,
+            "collection_roots": tuple(collection_roots),
             "robots": robots,
             "objects": objects,
             "statics": statics,
@@ -1957,7 +2095,7 @@ class RoboDojoAdapter(SimulatorAdapter):
         return wanted
 
     def _register_distance_meshes(self, plan: Dict[str, Any], collected: Any) -> None:
-        from ._mesh_distance import SampledMeshDistance
+        from ..functions_mesh import SampledMeshDistance
 
         # Shape was checked when the configuration was parsed; here the
         # link names are resolved against the robots the plan actually holds.
@@ -2213,6 +2351,8 @@ class RoboDojoAdapter(SimulatorAdapter):
             return None
         if plan["geometry"] is None:
             plan["geometry"] = pack_scene(plan["bodies"], plan["collected"], plan["skipped"])
+            if "robodojo.scene" in getattr(self, "_function_input_requests", {}):
+                self._function_geometry(plan)
             del plan["collected"]
         return plan["geometry"]
 
@@ -2672,7 +2812,11 @@ def _make_robodojo(
 
     atexit.register(env.close)
 
-    return RoboDojoAdapter(env, env_index=0)
+    adapter = RoboDojoAdapter(env, env_index=0)
+    # The registered callable itself, so close_native_extraction can
+    # unregister exactly it.
+    adapter._owns_environment = env.close
+    return adapter
 
 
 def _handles(obj: Any) -> bool:

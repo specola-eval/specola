@@ -51,6 +51,25 @@ machine-readable catalogue, or pass `--raw` to inspect raw scene entities.
 Discovery gives you the simulator's names. You still choose the threshold
 and temporal property.
 
+## What the query configuration does
+
+MuJoCo-family adapters start with a `mujoco.mj_geomDistance` population whose
+`distmax` is 0.05 m. This cutoff bounds the reported distance; it does not
+select eligible pairs by proximity. Pass `--queries PATH` to replace the
+configuration, using `examples/geometry_queries.yaml` as the format.
+`geom_distance_capped` reports the native signed distance bounded above by
+`distmax`; `geom_distance_clipped` reports 1 at or beyond that cutoff and 0
+below it. A capped value alone does not give an exact distance beyond the
+cutoff. The ready message names the active cutoff.
+
+The reset catalog and standalone discovery include eligible pair identities
+and signal metadata without measuring their distances. The dashboard labels
+unread values `not measured`; JSON uses `null`. You can author a specification
+from these signals. Monitoring then measures the pairs and properties your
+specifications can bind, while the initial run snapshot contains no pair
+values. An explicit `population: all` requests measurements beyond that scope.
+Invalid explicit configuration raises an error rather than using the default.
+
 ## Write interactively
 
 `specola write-specs` adds formula, constants, validation, and save panels
@@ -203,7 +222,9 @@ uppercase letters.
 References from different classes combine in one expression, and the
 cross-product of their bindings fans out. Arithmetic supports `sqrt`,
 `Min`, `Max`, `abs`, powers, and common functions; anything unsupported
-is a compile error, not a silent miscomputation. Subtracting one
+is a compile error, not a silent miscomputation. Constant arithmetic is
+exact, so a power of constants is limited in size: `9^1000` compiles and
+`9^9^9` is refused. Subtracting one
 reference from another is the workhorse, because the difference *is* the
 robustness margin, in the units of the operands.
 
@@ -681,3 +702,127 @@ Run controls, terminal keybindings, and result files are documented in
 
 When a value does not read the way you expected, `specola discover`
 prints the group and unit for every key.
+
+## Compute derived signals with local functions
+
+Declare `functions` beside `specs` when your requirement needs a computation
+on structured native inputs. Start with
+[`examples/robodojo_function_specs.yaml`](../examples/robodojo_function_specs.yaml)
+for sampled mesh distance, or the migrated containment fixture in
+[`tests/fixtures/robodojo_functions/pick_from_conveyor_by_image.yaml`](../tests/fixtures/robodojo_functions/pick_from_conveyor_by_image.yaml).
+The formulas continue to use scalar component selectors and the existing
+temporal operators.
+
+A declaration names a local Python file and callable, an output entity class,
+versioned input providers, parameters and scalar output metadata. The file path
+resolves relative to the specification YAML. Loading that file executes trusted
+local Python with the process's privileges; it is not a sandbox. Dependencies
+must already exist in the selected simulator environment. Specola does not
+fetch packages or execute a new local path submitted by a browser request.
+
+```yaml
+functions:
+  clearance:
+    python: ./robodojo_functions.py:mesh_clearance
+    entity_class: mesh_pair
+    inputs:
+      scene: {provider: robodojo.scene, schema: 1}
+    parameters:
+      distmax: 0.05
+      robot_links: [link6, link7, link8]
+    outputs:
+      mesh_distance_sampled: {unit: m, group: authored sampled mesh distance}
+      mesh_distance_clipped: {unit: null, group: authored sampled mesh distance}
+specs:
+  - name: bodies_stay_apart
+    formula: mesh_pair_*[mesh_distance_sampled @ b:bowl0] >= 0.005
+```
+
+The callable has a `prepare(inputs=..., parameters=...)` attribute that returns
+`FunctionTarget` records. Preparation declares owners, labels and tags without
+running numerical queries. A target with `entity_id` extends a native entity;
+a target without one creates a stable authored entity. Evaluation receives
+`inputs`, `parameters`, `cache` and the requested `targets`, and returns a
+mapping from target key to declared scalar outputs. `FunctionOutput` also
+carries the current position of a created entity. See
+[`spec_functions.py`](../src/specola/spec_functions.py) for the shared types.
+
+Target keys share the adapter's identity namespace. RoboDojo allocates one
+entity ID per key string, whatever the class, and its own pair entities use
+`pair:<a>|<b>` keys. A customized copy of `mesh_clearance` that keeps those
+keys fails at reset while the adapter path is active, with
+`collides with a native owner` on `mesh_pair` or `reported as both` on
+another class; neither overwrites anything. Prefix your keys (for example
+`mine:pair:...`) to create independent authored entities, or pass
+`entity_id` to extend a native pair on purpose.
+
+Inputs belong to the observation that contains them. Static arrays are shared
+within a geometry revision; poses and polygons retain their values after later
+observations. The cache belongs to one function in one episode and is released
+on reset, geometry-revision change and session end. Unused declarations do not
+request native inputs. Each requested function evaluates once per observation,
+sharing its outputs across dependent specifications. Missing operands produce
+no output and use the monitor's existing suspension and pruning rules.
+Exceptions, undeclared outputs and results that are not finite reject evaluation rather
+than becoming passing samples. Output names cannot collide with native fields.
+
+Unused declarations publish their static output schemas on existing native
+entities and in class capabilities, so an exclusion such as
+`Min(object_0[* \ derived])` can compile without capturing function inputs.
+They do not infer dynamic targets or run preparation. Collision checks apply
+to these declarations too. Wildcards, sets, differences, metadata groups and
+aggregations use the existing selector language to determine dependencies.
+
+To author before running, explicitly load the same declaration document:
+
+```bash
+specola discover --sim robodojo --functions examples/robodojo_function_specs.yaml
+specola write-specs --sim robodojo --functions examples/robodojo_function_specs.yaml
+```
+
+These commands prepare the declared output catalog without numerical queries.
+Plain, JSON, terminal and browser discovery receive that catalog. Plain and
+Textual writers preserve the loaded declarations when saving. A browser cannot
+add another local function file; start a new local authoring command to load it.
+
+`specola check`, `specola run`, `Monitor.watch` and browser draft checks use the
+same prepared output declarations. Recorded scenes retain input schemas and
+function provenance; checking a restored scene does not execute the local file.
+Saving a browser draft retains absolute function references, parameters and
+source hashes. Loading a saved file explicitly rejects a changed source hash.
+The recorded formula text and constants remain available even for a
+specification that has no initial bindings.
+Result metadata separates loaded declarations (`spec_functions`) from
+requested functions (`spec_functions_active`). Discovery retains the same
+distinction as `declarations` and `active_functions`. A request records a
+dependency or explicit authoring preparation, not proof of scalar evaluation.
+
+RoboDojo's adapter supplies `robodojo.scene` and `robodojo.footprints`, both
+schema 1. The authored example owns pair selection, selected robot links,
+collision-mesh preference, mesh merging, the bounding-sphere prefilter,
+vertex sampling and clipping. `mesh_distance_sampled` is a sampled
+vertex-to-surface minimum capped at `distmax`, with zero for sampled points
+inside the other mesh. It can overestimate clearance when the closest approach
+does not involve a sampled vertex. `mesh_distance_clipped` reports that no
+sampled vertex lies inside the cutoff. These outputs are authored
+approximations, not native exact mesh-pair measurements.
+
+The adapter computes the same sampled distance itself when a run sets a
+cutoff: a `robodojo.mesh_pair` query population (`examples/robodojo_queries.yaml`),
+the `distmax` constructor argument or `ROBODOJO_DISTMAX`. That is the default
+path, and `examples/robodojo_specs.yaml` uses it. Authoring the function is
+the alternative when you want to change the policy (pair selection, links,
+sampling) without editing the adapter. Use one path per run: with both
+configured, the adapter's `mesh_pair` entities and the function's outputs
+collide, and loading the specification fails at reset with an output
+collision error. Native discovery shows native fields; a loaded
+specification's discovery snapshot additionally identifies authored outputs.
+Rendering keeps its separate geometry/pose path.
+
+For containment, the native provider retains the actual maker polygon bytes
+and XY vertices, including the maker's rounding. The authored
+`footprint_containment` function keeps the previous minimum signed
+vertex-to-boundary margin, including zero on a covered boundary. Preserve your
+height conjuncts, target selectors, constants and temporal operator when
+migrating a requirement. A nonnegative footprint margin alone does not state
+that an object rests on a container's bottom.

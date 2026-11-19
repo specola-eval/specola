@@ -196,7 +196,7 @@ def render_discovery(
                     metadata += "  unit={}".format(prop.unit)
                 if prop.tags:
                     metadata += "  tags={}".format(",".join(prop.tags))
-                value = " = {:+.6g}".format(prop.value) if verbose else ""
+                value = (" = not measured" if prop.value is None else " = {:+.6g}".format(prop.value)) if verbose else ""
                 lines.append("  {}{}{}".format(prop.key, value, metadata))
 
         preview = selector_preview(view)

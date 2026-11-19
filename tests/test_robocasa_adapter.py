@@ -24,6 +24,9 @@ def test_registry_factory_builds_the_renderer_only_when_frames_may_be_captured(m
         def reset(self):
             self.reset_called = True
 
+        def close(self):
+            pass
+
     monkeypatch.setitem(sys.modules, "robosuite", SimpleNamespace(make=FakeEnv))
     monkeypatch.setitem(sys.modules, "robocasa", ModuleType("robocasa"))
     monkeypatch.delenv("ROBOCASA_GENERATIVE_TEXTURES", raising=False)
@@ -35,6 +38,7 @@ def test_registry_factory_builds_the_renderer_only_when_frames_may_be_captured(m
     assert env.reset_called
     assert len(created) == 1
     assert env.kwargs["seed"] is None
+    assert env._owns_environment == env.close  # the factory built it, so the adapter closes it
 
 
 def test_registry_factory_draws_the_kitchen_from_the_seed(monkeypatch):
@@ -42,7 +46,7 @@ def test_registry_factory_draws_the_kitchen_from_the_seed(monkeypatch):
 
     def make(task_name, **kwargs):
         made.append(kwargs)
-        return SimpleNamespace(reset=lambda: None)
+        return SimpleNamespace(reset=lambda: None, close=lambda: None)
 
     monkeypatch.setitem(sys.modules, "robosuite", SimpleNamespace(make=make))
     monkeypatch.setitem(sys.modules, "robocasa", ModuleType("robocasa"))

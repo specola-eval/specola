@@ -61,7 +61,7 @@ const model = {
   filterText: "",
   filterStates: new Set(),
   drops: { frames: 0, delivery: 0 },
-  seriesCache: new Map(),  // scopeKey:px -> [[spec, key, points], ...]
+  seriesCache: new Map(),  // scopeKey:px -> {bucket, start, end, series}
   dirty: { status: true, camera: false, tree: false, plot: false,
            transitions: false, inspector: false, timeline: true },
   renderScheduled: false,
@@ -169,6 +169,10 @@ async function ingestBundle(bundle, acknowledge) {
   model.step = bundle.step;
   model.simTime = bundle.sim_time;
   model.maxStep = Math.max(model.maxStep, bundle.max_step);
+  // Replay stops by itself at the last step; the server sends no event
+  // for that, so the glyph is reset here.
+  if (model.playing && model.mode !== "live" &&
+      bundle.step >= model.maxStep) setPlaying(false);
   model.drops = bundle.drops || model.drops;
   // Ahead of the frame decode below: the 3D scene has no decode step and
   // should not wait on one. Every bundle path carries poses, so seek and
@@ -422,11 +426,14 @@ function resetVideoDecoders() {
 function ingestStatus(payload) {
   model.maxStep = Math.max(model.maxStep, payload.max_step);
   model.drops = payload.drops || model.drops;
-  markDirty("status", "timeline");
+  markDirty("status", "timeline", "plot");
 }
 
 function ingestEpisodeEnd(payload) {
   model.mode = "ended";
+  if (model.meta) {
+    model.meta.manifest = { ...model.meta.manifest, status: payload.status };
+  }
   enterReplayMode();
   model.maxStep = Math.max(model.maxStep, payload.max_step ?? 0);
   el("ended-banner").hidden = false;
@@ -452,7 +459,9 @@ function renderStatus() {
     .filter((part) => part && part !== "(default)")
     .join(" · ");
   setText(el("run-task"), runLabel);
-  setText(el("run-state"), model.mode);
+  setText(el("run-state"),
+          model.mode === "ended" && manifest.status === "truncated"
+            ? "stopped" : model.mode);
   setText(el("drop-counts"),
           `drops ${model.drops.frames || 0}/${model.drops.delivery || 0}`);
   el("stop-run").hidden = model.mode !== "live";
@@ -519,6 +528,9 @@ function unlockReplayControls() {
 // Shared transition for the two paths that leave live-follow for good:
 // a non-live first meta (view mode) and episode end.
 function enterReplayMode() {
+  // Final history replaces live windows, including replies still in flight.
+  model.seriesCache.clear();
+  markDirty("plot", "inspector");
   model.follow = false;
   unlockReplayControls();
   loadEarlierTransitions();              // replay: pull the log history
@@ -531,6 +543,18 @@ const socket = io();
 // Shared with discover.js, which needs the same connection rather than
 // a second one: two sockets would be two client states on the server.
 window.specolaSocket = socket;
+
+socket.on("disconnect", () => {
+  // Socket.IO drops pending acknowledgements on disconnect, so a
+  // series_window request in flight will never be answered. Release the
+  // guard or that plot scope would never be requested again.
+  for (const [key, request] of model.seriesCache) {
+    if (!request.inflight) continue;
+    request.inflight = false;
+    if (request.series) request.bucket = -1;   // stale: refresh on next draw
+    else model.seriesCache.delete(key);
+  }
+});
 
 socket.on("connect", () => {
   /* A reconnect gets a fresh server-side client whose epoch restarts at
@@ -550,7 +574,9 @@ socket.on("connect", () => {
 
 function sendView(patch) {
   socket.emit("view", patch, (ack) => {
-    if (ack?.ok && typeof ack.epoch === "number") {
+    // A point bundle can arrive before its view acknowledgement and await
+    // image decode. Keep its sequence; older acknowledgements cannot rewind it.
+    if (ack?.ok && typeof ack.epoch === "number" && ack.epoch > model.epoch) {
       model.epoch = ack.epoch;
       model.latestSeq = -1;
     }
@@ -606,8 +632,16 @@ el("stop-run").addEventListener("click", () => {
 
 el("play-pause").addEventListener("click", () => {
   setPlaying(!model.playing);
-  sendView({ play: model.playing, rate: model.rate,
-             cameras: currentCameraSelection() });
+  const view = { play: model.playing, rate: model.rate,
+                 cameras: currentCameraSelection() };
+  if (model.playing && model.step >= model.maxStep) {
+    // Play at the last step restarts the recording; the server would
+    // otherwise accept the request and have nothing to advance to.
+    model.step = model.minStep;
+    view.seek = model.minStep;
+    markDirty("timeline", "status");
+  }
+  sendView(view);
 });
 
 el("rate").addEventListener("change", (event) => {
@@ -857,55 +891,70 @@ function updateTreeRow(node, kind, id) {
 /* ---- plot ------------------------------------------------------------------ */
 
 function fetchSeriesWindows(ids, px) {
-  // The end bucket is part of the key: a growing live run must refetch
-  // as maxStep advances or the cached history freezes at first fetch.
+  // Refresh a growing prefix once per bucket, then once at finalization.
+  // Replace entries rather than retaining a separate window for each step.
   const bucket = Math.ceil((model.maxStep + 1) / 500);
-  const scopeKey = ids.join("|") + ":" + px + ":" + bucket;
-  if (model.seriesCache.has(scopeKey)) {
-    return model.seriesCache.get(scopeKey);
-  }
-  if (model.seriesCache.size > 32) model.seriesCache.clear();
-  model.seriesCache.set(scopeKey, null);     // request in flight
+  const scopeKey = ids.join("|") + ":" + px;
+  const cached = model.seriesCache.get(scopeKey);
+  // One request per scope at a time. A run that crosses a bucket faster
+  // than a reply returns would otherwise replace every request before
+  // its reply landed, and the plot would never draw.
+  if (cached && cached.inflight) return cached;
+  if (cached && cached.bucket === bucket &&
+      (model.mode === "live" || cached.end >= model.maxStep)) return cached;
+  if (model.seriesCache.size >= 32) model.seriesCache.clear();
+  // Keep drawing the previous window (with its own end) until the
+  // refreshed one arrives, so a bucket rollover does not blank the plot.
+  const request = {bucket, start: model.minStep,
+                   end: cached?.series ? cached.end : model.maxStep,
+                   series: cached?.series || null, inflight: true};
+  const requestedEnd = model.maxStep;
+  model.seriesCache.set(scopeKey, request);
   socket.emit(
     "series_window",
     { bindings: ids.map((id) => [idSpec(id), idKey(id)]),
-      start: 0, end: Math.max(model.maxStep, 0), px },
+      start: request.start, end: requestedEnd, px },
     (ack) => {
+      request.inflight = false;
+      // An evicted request no longer owns this entry.
+      if (model.seriesCache.get(scopeKey) !== request) return;
       if (ack?.ok) {
-        model.seriesCache.set(scopeKey, ack.series);
+        request.series = ack.series;
+        request.end = requestedEnd;
         markDirty("plot", "inspector");
       } else {
         model.seriesCache.delete(scopeKey);
       }
     });
-  return null;
+  return request;
 }
 
 function seriesFor(id, px, fetchIds) {
-  // Dense local tail first; ask the server for decimated history when
-  // the tail cannot cover the domain.
-  const entry = model.bindings.get(id);
-  const local = entry.series;
-  const domainSpan = model.maxStep + 1;
-  const tailEnd = local.steps.length
-    ? local.steps[local.steps.length - 1] : -1;
-  const covered = local.steps.length &&
-    local.steps[0] <= Math.max(0, domainSpan * 0.02) &&
-    tailEnd >= model.maxStep - Math.max(2, domainSpan * 0.02) &&
-    local.steps.length >= Math.min(domainSpan, px) * 0.5;
-  if (covered) {
+  const local = model.bindings.get(id).series;
+  const domainSpan = model.maxStep - model.minStep + 1;
+  // A monotonic local tail covers the domain only if no step is missing.
+  // Scrubbing may collect both endpoints without the intervening history.
+  const covered = local.steps.length === domainSpan &&
+    local.steps[0] === model.minStep &&
+    local.steps[local.steps.length - 1] === model.maxStep;
+  const localPoints = (after) => {
     const points = [];
     for (let i = 0; i < local.steps.length; i += 1) {
-      if (local.values[i] === null) continue;
+      if (local.steps[i] <= after || local.values[i] === null) continue;
       points.push([local.steps[i], local.values[i], local.values[i]]);
     }
     return points;
-  }
+  };
+  if (covered) return localPoints(model.minStep - 1);
   const remote = fetchSeriesWindows(fetchIds || scopedBindingIds(), px);
-  if (!remote) return null;
-  const match = remote.find(
+  if (!remote.series) return null;
+  const match = remote.series.find(
     (row) => row[0] === idSpec(id) && row[1] === idKey(id));
-  return match ? match[2] : [];
+  const points = match ? match[2] : [];
+  // Extend a cached live prefix from received bundles without transferring
+  // the whole prefix on each frame. Final replay uses the refreshed window.
+  return model.mode === "live"
+    ? points.concat(localPoints(remote.end)) : points;
 }
 
 function sizeCanvas(canvas) {
@@ -990,14 +1039,24 @@ function renderPlot() {
   // Axis values: y at max / 0 / min with the scope's unit, x in steps.
   ctx.fillStyle = INK.muted;
   ctx.textAlign = "right";
-  ctx.textBaseline = "top";
   const axisSuffix = unit ? " " + unit : "";
-  ctx.fillText(formatAxisValue(max) + axisSuffix, LEFT - 5, 1);
-  ctx.textBaseline = "bottom";
-  ctx.fillText(formatAxisValue(min) + axisSuffix, LEFT - 5, plotH - 1);
+  let zeroBounds = null;
   if (min < 0 && max > 0) {
     ctx.textBaseline = "middle";
+    const metrics = ctx.measureText("0");
+    zeroBounds = [sy(0) - metrics.actualBoundingBoxAscent,
+                  sy(0) + metrics.actualBoundingBoxDescent];
     ctx.fillText("0", LEFT - 5, sy(0));
+  }
+  for (const [value, y, baseline] of [[max, 1, "top"], [min, plotH - 1, "bottom"]]) {
+    ctx.textBaseline = baseline;
+    const text = formatAxisValue(value) + axisSuffix;
+    const metrics = ctx.measureText(text);
+    const top = y - metrics.actualBoundingBoxAscent;
+    const bottom = y + metrics.actualBoundingBoxDescent;
+    // Keep the zero reference at its value; omit crowded endpoint labels.
+    if (zeroBounds && bottom > zeroBounds[0] - 2 && top < zeroBounds[1] + 2) continue;
+    ctx.fillText(text, LEFT - 5, y);
   }
   ctx.textBaseline = "alphabetic";
   ctx.textAlign = "left";
@@ -1366,18 +1425,32 @@ el("scene-toggle").addEventListener("click", () => {
         run: () => { const t = el("tab-discover");
           if (!t.disabled) t.click(); } },
     );
-    // Specs and bindings, from the tree the monitor is already rendering.
-    for (const row of document.querySelectorAll("#tree li")) {
-      const label = row.querySelector(".label")?.textContent?.trim();
-      if (!label) continue;
-      found.push({
-        // treeRowFor stamps dataset.kind; there is no class to read.
-        kind: row.dataset.kind || "binding",
-        label,
-        sub: row.querySelector(".pill.state")?.textContent?.trim() || "",
-        run: () => { el("tab-monitor").click(); row.click();
-          row.scrollIntoView({ block: "center" }); },
-      });
+    // Specs and bindings, from the model rather than the rendered tree:
+    // the tree omits rows the filter box or a state chip hides, and a
+    // hidden spec must still be reachable by name.
+    const jump = (kind, id) => () => {
+      el("tab-monitor").click();
+      const selected = model.selection &&
+        model.selection.type === kind && model.selection.id === id;
+      if (!selected) select(kind, id);       // select() toggles; never clear
+      // After the next frame: select() only marks the tree dirty.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        for (const row of document.querySelectorAll("#tree li.selected")) {
+          row.scrollIntoView({ block: "center" });
+        }
+      }));
+    };
+    // model.specs, not model.order: a spec still waiting for its first
+    // binding is in the tree and has to be reachable too.
+    for (const spec of model.specs.keys()) {
+      found.push({ kind: "spec", label: spec, sub: specWorstState(spec),
+                   run: jump("spec", spec) });
+      for (const id of model.order) {
+        const entry = model.bindings.get(id);
+        if (!entry || idSpec(id) !== spec) continue;
+        found.push({ kind: "binding", label: entry.meta.label || idKey(id),
+                     sub: entry.state, run: jump("binding", id) });
+      }
     }
     // Classes, from Discover's own tree when it has been opened.
     for (const row of document.querySelectorAll("#class-tree li.class-row")) {

@@ -8,6 +8,7 @@ from numbers import Real
 from typing import Any, Dict, Iterable, Mapping, Optional, Tuple
 
 from .adapter import SimulatorAdapter
+from .components import ComponentCatalog
 from .entities import EntityState
 from .extraction_observation import ExtractionObservation, ExtractionObservationError
 
@@ -20,7 +21,7 @@ RAW_ENTITY_CLASSES = frozenset({
 @dataclass(frozen=True)
 class DiscoveryProperty:
     key: str
-    value: float
+    value: Optional[float]
     unit: Optional[str]
     family: Optional[str]
     group: Optional[str]
@@ -154,6 +155,8 @@ class DiscoveryModel:
     # vocabulary and defers references a CLOSED adapter would reject.
     capabilities: Optional[object] = None
     extraction: Optional[ExtractionObservation] = None
+    authored_functions: Optional[dict] = None
+    specification_provenance: Optional[dict] = None
 
 
 def _optional_mapping(adapter: SimulatorAdapter, name: str) -> Mapping:
@@ -168,12 +171,13 @@ def _vector(value: Any) -> Optional[Tuple[float, ...]]:
 
 
 def _property_record(key: str, value: Any, metadata: Any) -> DiscoveryProperty:
-    if isinstance(value, bool) or not isinstance(value, Real):
+    if value is not None and (isinstance(value, bool) or not isinstance(value, Real)):
         raise TypeError("discovery property {!r} is not a scalar number".format(key))
-    scalar = float(value)
+    scalar = float(value) if value is not None else None
     # Non-finite values are valid observations and have an explicit JSON
     # representation; touching isfinite here documents that they are accepted.
-    isfinite(scalar)
+    if scalar is not None:
+        isfinite(scalar)
     group = getattr(metadata, "group", None)
     note = getattr(metadata, "note", None)
     # PropertyMeta.note is the authoritative unit/component annotation in
@@ -355,13 +359,23 @@ def build_discovery_model(
     ] = None,
     capabilities: Optional[object] = None,
     extraction: Optional[ExtractionObservation] = None,
+    catalog: Optional[ComponentCatalog] = None,
 ) -> DiscoveryModel:
-    """Build the complete UI model without resetting the adapter."""
+    """Build a UI model from the supplied observation without resetting.
+
+    Include deferred entities by passing the catalogue and full property
+    metadata captured with that observation. Retained snapshots must supply
+    both; this function never consults the adapter\'s latest unread catalogue.
+    Without a catalogue, only supplied observation entities are included.
+    """
     if extraction is not None:
         if type(extraction) is not ExtractionObservation or extraction.verification_only:
             raise ExtractionObservationError("ordinary discovery requires a non-verification extraction observation")
         extraction.validate_observation(extraction.timestep, extraction.time, entities)
-    labels = _optional_mapping(adapter, "entity_labels")
+    labels = dict(_optional_mapping(adapter, "entity_labels"))
+    authored_functions = getattr(adapter, "_authored_function_context", None)
+    if authored_functions:
+        labels.update(authored_functions.get("labels", {}))
     roles = _optional_mapping(adapter, "entity_roles")
     role_basis = _optional_mapping(adapter, "entity_role_basis")
     role_provenance = _optional_mapping(adapter, "entity_role_provenance")
@@ -391,10 +405,13 @@ def build_discovery_model(
         else property_metadata
     )
 
+    if catalog is None:
+        catalog = ComponentCatalog.from_entities(entities, metadata=metadata)
     records = []
-    for entity_id in sorted(entities):
-        entity = entities[entity_id]
-        if entity.entity_id != entity_id:
+    for entity_id in sorted(catalog.entities):
+        entity = entities.get(entity_id)
+        entity_class = catalog.entity_info(entity_id).entity_class
+        if entity is not None and entity.entity_id != entity_id:
             raise ValueError(
                 "entity mapping key {} disagrees with entity_id {}".format(
                     entity_id, entity.entity_id
@@ -402,12 +419,12 @@ def build_discovery_model(
             )
         entity_metadata = metadata.get(entity_id, {})
         properties = tuple(
-            _property_record(key, entity.properties[key], entity_metadata.get(key))
-            for key in sorted(entity.properties)
+            _property_record(key, entity.properties.get(key) if entity is not None else None, entity_metadata.get(key))
+            for key in sorted(set(entity.properties if entity is not None else ()) | set(entity_metadata))
         )
         records.append(DiscoveryEntity(
             entity_id=entity_id,
-            entity_class=entity.entity_class,
+            entity_class=entity_class,
             label=str(labels[entity_id]) if entity_id in labels else None,
             role=str(roles[entity_id]) if entity_id in roles else None,
             role_basis=(
@@ -457,11 +474,11 @@ def build_discovery_model(
                 str(region_keys[entity_id])
                 if entity_id in region_keys else None
             ),
-            position=_vector(entity.position),
-            velocity=_vector(entity.velocity),
-            track_age=int(entity.track_age),
-            track_state=str(entity.track_state.value),
-            raw=entity.entity_class in RAW_ENTITY_CLASSES,
+            position=_vector(entity.position) if entity is not None else None,
+            velocity=_vector(entity.velocity) if entity is not None else None,
+            track_age=int(entity.track_age) if entity is not None else 0,
+            track_state=str(entity.track_state.value) if entity is not None else "unread",
+            raw=entity_class in RAW_ENTITY_CLASSES,
             properties=properties,
         ))
 
@@ -485,6 +502,8 @@ def build_discovery_model(
         warnings=_warnings(adapter, entities),
         field_contract=_field_contract(adapter),
         extraction=extraction,
+        authored_functions=authored_functions,
+        specification_provenance=getattr(adapter, "_specification_provenance", None),
         capabilities=(
             capabilities
             if capabilities is not None

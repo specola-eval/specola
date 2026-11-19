@@ -593,3 +593,79 @@ def test_start_rebinds_through_time_wait(tmp_path):
     url = server.start(port)
     assert url.endswith(str(port))
     server.shutdown()
+
+def test_stop_before_registration_is_delivered_once(tmp_path):
+    server, _, _ = _live_server(tmp_path)
+    _, client = _connect(server)
+    assert client.emit("stop_run", {}, callback=True) == {"ok": True}
+    fired = []
+    server.on_stop_run(lambda: fired.append(True))
+    client.emit("stop_run", {}, callback=True)
+    assert fired == [True]
+    client.disconnect()
+
+
+def test_last_viewer_shutdown_releases_port_and_preserves_refresh(tmp_path):
+    import socket
+    import time
+
+    server, _, _ = _live_server(tmp_path)
+    server.viewer_grace = 0.1
+    url = server.start(0)
+    port = int(url.rsplit(":", 1)[1])
+    try:
+        time.sleep(0.2)
+        assert server.active  # No viewer has connected yet.
+        _, first = _connect(server)
+        _, second = _connect(server)
+        first.disconnect()
+        time.sleep(0.2)
+        assert server.active
+        second.disconnect()
+        _, replacement = _connect(server)
+        time.sleep(0.2)
+        assert server.active
+        replacement.disconnect()
+        assert server.closed.wait(5)
+        assert server.stop_requested.is_set()
+        assert not server._thread.is_alive()
+        with socket.socket() as listener:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            listener.bind(("127.0.0.1", port))
+        fired = []
+        server.on_stop_run(lambda: fired.append(True))
+        assert fired == [True]
+    finally:
+        server.shutdown()
+
+@pytest.mark.parametrize("transport", ["websocket", "polling"])
+def test_owned_transport_shutdown_joins_tasks_and_rebinds(tmp_path, transport):
+    import socket
+    import socketio
+    import time
+
+    server = DashboardServer(_recording(tmp_path), mode="view")
+    url = server.start(0)
+    client = socketio.Client()
+    metadata = []
+    client.on("run_meta", metadata.append)
+    try:
+        client.connect(url, transports=[transport], wait_timeout=5)
+        deadline = time.monotonic() + 3
+        while not metadata and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert metadata and metadata[0]["mode"] == "view"
+        assert server.socketio.server.eio.ping_interval == 25
+        assert server.socketio.server.eio.ping_timeout == 60
+        assert client.call("view", {"seek": 1}, timeout=3)["ok"]
+        server.shutdown()
+        assert server.closed.is_set()
+        assert not server._thread.is_alive()
+        assert not server._control_thread.is_alive()
+        assert not [task.name for task in server._tasks if task.is_alive()]
+        with socket.socket() as listener:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            listener.bind(("127.0.0.1", int(url.rsplit(":", 1)[1])))
+    finally:
+        client.disconnect()
+        server.shutdown()

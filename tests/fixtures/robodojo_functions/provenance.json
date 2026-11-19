@@ -1,0 +1,20 @@
+{
+  "pick_from_conveyor_by_image.yaml": {
+    "source": "/workspace/results/robodojo-native-rerun-2026-09-25/specs/pick_from_conveyor_by_image.yaml",
+    "sha256": "35f95cdcc179444bcecbb7b6e5478cc830dfd2a25ef7f509a3575f4395019d35",
+    "formulas": 12,
+    "specs_json_sha256": "a4b8ac018fea9c494d1b5fd2529717d65496720b8ca077ce886f4bea2f1c89f8"
+  },
+  "sort_nesting_dolls_by_size.yaml": {
+    "source": "/workspace/results/robodojo-native-rerun-2026-09-25/specs/sort_nesting_dolls_by_size.yaml",
+    "sha256": "ef9c62518b1891211dc32d5a330ca6efd88e40b6dc341388c748efec620841fe",
+    "formulas": 10,
+    "specs_json_sha256": "a99e3c5c20ad5409cc728191e037ff127f6c4f1023ab56424f1be968126131ed"
+  },
+  "stack_bowls.yaml": {
+    "source": "/workspace/results/robodojo-native-rerun-2026-09-25/specs/stack_bowls.yaml",
+    "sha256": "3d88cc523e08d04da66b5d7039408b22c04f2d5b81ee174919f7b80d9efaae04",
+    "formulas": 8,
+    "specs_json_sha256": "9b932a2f9a56dadd70915a2c6884ca0650922577d2b2e390d8060bdccbb6a3e5"
+  }
+}

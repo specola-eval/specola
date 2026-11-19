@@ -201,7 +201,7 @@ def test_web_replay_restores_before_the_only_reset(monkeypatch, tmp_path):
     (path,) = _state_files(tmp_path)
     recorded = sr.StateRecording.load(path).states[:, 0].tolist()
     adapter = _Stateful()
-    monkeypatch.setattr(dashboard_server, "wait_for_interrupt", lambda: None)
+    monkeypatch.setattr(dashboard_server, "wait_for_interrupt", lambda server=None: None)
     original_payload = discovery_capture.discovery_payload
     original_start = engine_module.MonitorEngine.start_episode
 

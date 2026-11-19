@@ -239,6 +239,10 @@ def discovery_document(
         "selector_palette": selector_palette_document(view),
         "capabilities": capabilities_document(model.capabilities),
     }
+    if model.specification_provenance:
+        document["specification_provenance"] = model.specification_provenance
+    if model.authored_functions:
+        document["authored_functions"] = model.authored_functions
     if model.extraction is not None:
         document["extraction"] = extraction_document(model.extraction)
     if include_field_contract:

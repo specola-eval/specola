@@ -125,6 +125,7 @@ def test_full_queue_reports_a_warning_after_discovery_validation(capsys, monkeyp
 
     sink = object.__new__(WebRecorderSink)
     sink.active = True
+    sink._finish_requested = threading.Event()
     sink._queue = queue.Queue()
     monkeypatch.setattr(sink._queue, "put", full)
     sink.write_discovery(_payload())

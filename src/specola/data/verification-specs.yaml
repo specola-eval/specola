@@ -1,0 +1,14 @@
+functions:
+  twice_mass:
+    python: verification_functions.py:twice
+    entity_class: object
+    inputs:
+      samples: {provider: specola.verification.mass, schema: 1}
+    parameters: {}
+    outputs:
+      verification_twice_mass: {unit: kg, group: installation fixture}
+specs:
+- name: 'll[1m]ll\literal'
+  formula: 'object_*[verification_twice_mass] >= 0.45'
+- name: known_failure
+  formula: 'object_*[mass] >= 1.0'

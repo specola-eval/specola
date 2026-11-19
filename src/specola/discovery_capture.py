@@ -62,6 +62,7 @@ def discovery_payload(
         effective_dt=effective_dt,
         task_description=task_description,
         property_metadata=dict(reset.property_metadata or {}),
+        catalog=reset.discovered_catalog,
         capabilities=reset.capabilities,
         extraction=reset.initial_observation.extraction,
     )

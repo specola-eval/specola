@@ -206,6 +206,7 @@ def _interactive_spec_writer(
 def _save_specs(
     specs: List[Dict[str, object]],
     suggested: str,
+    functions=None,
 ) -> Optional[str]:
     if not specs:
         print(dim("  No specs to save."))
@@ -260,7 +261,8 @@ def _save_specs(
 
     while True:
         try:
-            _write_specs_document(specs, path, overwrite=overwrite)
+            options = {"functions": functions} if functions else {}
+            _write_specs_document(specs, path, overwrite=overwrite, **options)
         except FileExistsError:
             print(
                 "  {} {} appeared before save.".format(
@@ -321,53 +323,11 @@ def _write_specs_document(
     path: str,
     *,
     overwrite: bool = True,
+    functions=None,
 ) -> None:
-    """Atomically publish the existing specification document shape."""
-    document = yaml.safe_dump(
-        {"specs": specs},
-        default_flow_style=False,
-        allow_unicode=True,
-        sort_keys=False,
-    )
-    destination = Path(path)
-    temporary_path: Optional[str] = None
-    descriptor: Optional[int] = None
-    try:
-        while descriptor is None:
-            temporary_path = str(destination.with_name(
-                ".specola-{}.tmp".format(secrets.token_hex(8))
-            ))
-            try:
-                descriptor = os.open(
-                    temporary_path,
-                    os.O_WRONLY | os.O_CREAT | os.O_EXCL,
-                    0o666,
-                )
-            except FileExistsError:
-                continue
-        assert temporary_path is not None
-        if overwrite and destination.exists():
-            shutil.copystat(path, temporary_path)
-        with os.fdopen(descriptor, "w", encoding="utf-8") as fh:
-            descriptor = None
-            fh.write(document)
-            fh.flush()
-            os.fsync(fh.fileno())
-        if overwrite:
-            os.replace(temporary_path, path)
-        else:
-            os.link(temporary_path, path)
-    finally:
-        if temporary_path is not None:
-            try:
-                os.unlink(temporary_path)
-            except OSError:
-                pass
-        if descriptor is not None:
-            try:
-                os.close(descriptor)
-            except OSError:
-                pass
+    """Publish through the shared authoring writer, retaining loaded functions."""
+    from .authoring import write_specs_document
+    write_specs_document(specs, path, overwrite=overwrite, functions=functions)
 
 
 def _available_renamed_path(path: str) -> str:
@@ -427,6 +387,8 @@ def _discovery_command(args, model) -> str:
         if entity_class is not None
         else ["--raw", "--verbose"]
     )
+    if getattr(args, "functions", None) is not None:
+        common.extend(("--functions", str(args.functions)))
     return shlex.join(["specola", "discover", *common, *detail])
 
 
@@ -1152,6 +1114,8 @@ def build_write_specs_app(
                     self.specs,
                     path,
                     overwrite=overwrite,
+                    **({"functions": view.model.authored_functions["declarations"]}
+                       if view.model.authored_functions else {}),
                 )
             except FileExistsError:
                 self._pending_save_path = path
@@ -1246,6 +1210,8 @@ def _parser() -> argparse.ArgumentParser:
         """),
     )
     ap.add_argument("--sim",     default="mock")
+    ap.add_argument("--functions", type=Path, metavar="PATH",
+                    help="Explicitly load trusted local Python functions declared in YAML for authoring")
     ap.add_argument("--adapter-module", action="append", default=[],
                     metavar="MODULE",
                     help="Import MODULE so its adapter registration runs "
@@ -1270,8 +1236,8 @@ def _parser() -> argparse.ArgumentParser:
     )
     ap.add_argument("--dt",      type=float, default=None)
     ap.add_argument("--queries", type=Path, default=None, metavar="PATH",
-                    help="Native query configuration YAML or JSON, separate from "
-                         "the specification (required by the MuJoCo-family adapters)")
+                    help="Query configuration YAML or JSON; MuJoCo-family adapters default to "
+                         "a 0.05 m geometry cutoff (examples/geometry_queries.yaml shows the format)")
     return ap
 
 
@@ -1296,6 +1262,10 @@ def _select_ui(requested: Optional[str]) -> str:
 def main():
     args = _parser().parse_args()
     ui = _select_ui(args.ui)
+    functions = None
+    if args.functions is not None:
+        from .spec_functions import load_authoring_functions
+        functions = load_authoring_functions(args.functions)
 
     from .registry import load_adapter_module
     for module_name in args.adapter_module:
@@ -1319,6 +1289,20 @@ def main():
     from .discovery_render import render_discovery
 
     metadata = property_metadata_for(adapter, ents)
+    catalog = ComponentCatalog.from_entities(ents, metadata=metadata)
+    labels = dict(getattr(adapter, "entity_labels", {}) or {})
+    capabilities = getattr(adapter, "capabilities", None)
+    if functions is not None:
+        from .spec_functions import prepare_authoring_functions
+        try:
+            prepared = prepare_authoring_functions(adapter, functions)
+        except ValueError as exc:
+            print(red(f"  Function input error: {exc}"))
+            adapter.close()
+            raise SystemExit(1) from None
+        ents = dict(prepared.initial_observation.perceived_entities)
+        catalog, metadata, capabilities = prepared.discovered_catalog, prepared.property_metadata, prepared.capabilities
+        labels.update(functions.labels)
     model = build_discovery_model(
         adapter,
         ents,
@@ -1327,15 +1311,14 @@ def main():
         effective_dt=dt,
         task_description=_task_description(adapter),
         property_metadata=metadata,
+        catalog=catalog,
+        capabilities=capabilities,
         extraction=adapter.last_observation.extraction if adapter.last_observation is not None else None,
     )
     view = filter_discovery(
         model,
         DiscoveryQuery(include_raw=False),
     )
-    catalog = ComponentCatalog.from_entities(ents, metadata=metadata)
-    labels = getattr(adapter, "entity_labels", None)
-    capabilities = getattr(adapter, "capabilities", None)
     suggested = args.output or f"{args.sim}_specs.yaml"
 
     if ui == "textual":
@@ -1409,7 +1392,7 @@ def main():
         print(f"    {dim(s['formula'])}")
     print()
 
-    saved = _save_specs(specs, suggested=suggested)
+    saved = _save_specs(specs, suggested=suggested, functions=None if functions is None else functions.declarations)
     if saved:
         check_command, run_command = _followup_commands(args, saved)
         print()

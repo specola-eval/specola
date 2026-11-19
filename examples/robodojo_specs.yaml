@@ -12,7 +12,9 @@
 # `@ b:bowl0` selects the two arm-bowl0 pairs, and a run reads only the
 # pairs a specification selects. Without a query file or ROBODOJO_DISTMAX
 # no mesh_pair exists and bodies_stay_apart binds nothing, which
-# check-specs reports.
+# check-specs reports. robodojo_function_specs.yaml computes the same
+# distance as a spec function instead of in the adapter; use one or the
+# other, since both at once collide on mesh_pair's outputs.
 specs:
 - name: joints_stay_slow
   formula: "historically[0,1s](robot_*[all: joint_vel_*] <= limit)"

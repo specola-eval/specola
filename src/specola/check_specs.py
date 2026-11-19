@@ -498,6 +498,8 @@ def _print_slot_table(
 
 
 def _format_value(value: object) -> str:
+    if value is None:
+        return "not measured"
     try:
         return f"{float(value):+.4g}"
     except (TypeError, ValueError):
@@ -1009,7 +1011,8 @@ def main() -> None:
     ap.add_argument("specs")
     ap.add_argument("--sim", default="mock")
     ap.add_argument("--queries", type=Path, default=None, metavar="PATH",
-                    help="Native query configuration YAML or JSON, separate from specs")
+                    help="Query configuration YAML or JSON; MuJoCo-family adapters default to "
+                         "a 0.05 m geometry cutoff (examples/geometry_queries.yaml shows the format)")
     ap.add_argument("--adapter-module", action="append", default=[],
                     metavar="MODULE",
                     help="Import MODULE so its adapter registration runs "
@@ -1032,6 +1035,15 @@ def main() -> None:
     if not Path(args.specs).exists():
         print(red(f"  Not found: {args.specs}"))
         sys.exit(1)
+
+    try:
+        entries = MonitorEngine.iter_spec_entries(args.specs)
+    except (ValueError, OSError) as exc:
+        print(red(f"  Spec load error:\n  {exc}"))
+        sys.exit(1)
+    from .spec_functions import FunctionSet
+    loaded_specs = [spec for _, spec, error in entries if error is None]
+    functions = FunctionSet(getattr(loaded_specs[0], "functions", ()) if loaded_specs else (), loaded_specs)
 
     from .query_config import load_query_configuration
     queries = load_query_configuration(args.queries) if args.queries is not None else None
@@ -1065,21 +1077,24 @@ def main() -> None:
     catalog, extended = reset_catalog(adapter, ents, metadata)
     metadata = cast(Dict[int, Dict[str, PropertyMeta]], extended)
 
-    # Reuse MonitorEngine's YAML/formula-syntax loader so the spec format
-    # never drifts from specola run's, via the public per-entry API:
-    # MonitorEngine.load()'s all-or-nothing compile (start_episode's
-    # contract) is wrong for a tool whose whole job is reporting every
-    # entry's outcome, so this calls iter_spec_entries() instead — see
-    # module docstring. OSError (e.g. `specs` naming a directory) is
-    # caught alongside the YAML/shape ValueError so a bad path prints a
-    # clean error instead of a raw traceback.
-    try:
-        entries = MonitorEngine.iter_spec_entries(args.specs)
-    except (ValueError, OSError) as exc:
-        print(red(f"  Spec load error:\n  {exc}"))
-        sys.exit(1)
-
     capabilities = getattr(adapter, "capabilities", None)
+    if functions.declarations:
+        from .capabilities import reset_adapter
+        try:
+            adapter.set_function_inputs(functions.requirements)
+        except ValueError as exc:
+            # The adapter lacks a declared input provider: a spec error,
+            # reported like any other, not a traceback.
+            print(red(f"  Function input error: {exc}"))
+            adapter.close()
+            raise SystemExit(1) from None
+        prepared = functions.prepare(adapter, reset_adapter(adapter))
+        catalog = prepared.discovered_catalog
+        metadata = dict(prepared.property_metadata)
+        ents = dict(prepared.initial_observation.perceived_entities)
+        capabilities = prepared.capabilities
+        labels = dict(labels or {})
+        labels.update(functions.labels)
     try:
         _read_shown_entities(adapter, entries, dt, catalog, ents, capabilities)
     except ExtractionGuardError as exc:

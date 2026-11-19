@@ -128,7 +128,9 @@ def _make_mamujoco(
     scenario, _, agent_conf = (task or "HalfCheetah:2x3").partition(":")
     env = mamujoco_v1.parallel_env(scenario, agent_conf or None)
     env.reset(seed=0)
-    return MaMujocoAdapter(env)
+    adapter = MaMujocoAdapter(env)
+    adapter._owns_environment = env.close  # built here, so the adapter closes it
+    return adapter
 
 
 _register(

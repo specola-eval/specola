@@ -18,6 +18,11 @@ from specola.adapters.mujoco import MujocoAdapter
 
 
 def _fake_libero_modules(monkeypatch):
+    from importlib import metadata
+    from specola.adapters import mujoco_native
+
+    monkeypatch.setattr(metadata, "version", lambda name: "3.8.1")
+    monkeypatch.setattr(mujoco_native, "sys", SimpleNamespace(version_info=(3, 12)))
     task = SimpleNamespace(
         problem_folder="suite",
         bddl_file="task.bddl",
@@ -48,6 +53,9 @@ def _fake_libero_modules(monkeypatch):
         def reset(self):
             self.reset_called = True
 
+        def close(self):
+            pass
+
     class FakeControlEnv(_BaseFakeEnv):
         pass
 
@@ -72,6 +80,33 @@ def _fake_libero_modules(monkeypatch):
     )
     monkeypatch.setattr(libero_adapter.os.path, "isfile", lambda _path: True)
     return created, FakeControlEnv, FakeOffScreenRenderEnv
+
+
+@pytest.mark.parametrize("offscreen", [False, True])
+def test_python_mismatch_refuses_before_libero_scene_construction(monkeypatch, offscreen):
+    from importlib import metadata
+    from specola.adapters import mujoco_native
+    from specola.conformance.native_images import NativeImageError
+
+    created, _control, _offscreen = _fake_libero_modules(monkeypatch)
+    monkeypatch.setattr(metadata, "version", lambda name: "3.8.1")
+    monkeypatch.setattr(mujoco_native, "sys", SimpleNamespace(version_info=(3, 10)))
+    with pytest.raises(NativeImageError, match=r"CPython 3.12 \(running 3.10\)"):
+        libero_adapter.make_libero_env(offscreen_renderer=offscreen)
+    assert created == []
+
+
+def test_matching_python_allows_libero_scene_construction(monkeypatch):
+    from importlib import metadata
+    from specola.adapters import mujoco_native
+
+    created, control_class, _offscreen = _fake_libero_modules(monkeypatch)
+    monkeypatch.setattr(metadata, "version", lambda name: "3.8.1")
+    monkeypatch.setattr(mujoco_native, "sys", SimpleNamespace(version_info=(3, 12)))
+    env, _task = libero_adapter.make_libero_env()
+    assert isinstance(env, control_class)
+    assert created == [env]
+    assert env.reset_called
 
 
 def test_make_env_defaults_to_non_rendering_control_env(monkeypatch):
@@ -113,6 +148,7 @@ def test_registry_factory_builds_the_renderer_only_when_frames_may_be_captured(m
     assert isinstance(env, offscreen_class if offscreen else control_class)
     assert env.kwargs["has_offscreen_renderer"] is offscreen
     assert len(created) == 1
+    assert env._owns_environment == env.close  # the factory built it, so the adapter closes it
 
 
 def _declaration(

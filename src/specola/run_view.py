@@ -37,8 +37,18 @@ def main() -> None:
             "(pip install 'specola[web]'): {}".format(exc)
         )
 
-    server = DashboardServer(args.recording, mode="view")
-    url = server.start(args.port)
-    print("Serving {} at {} (Ctrl-C to exit)".format(args.recording, url),
+    try:
+        server = DashboardServer(args.recording, mode="view")
+    except (OSError, ValueError, KeyError) as exc:
+        # json.JSONDecodeError and gzip.BadGzipFile are ValueError and
+        # OSError subclasses: a damaged recording is a usage error.
+        ap.error("cannot read recording {}: {}: {}".format(
+            args.recording, type(exc).__name__, exc))
+    try:
+        url = server.start(args.port)
+    except OSError as exc:
+        ap.error("cannot listen on 127.0.0.1:{}: {}; pass --port 0 for a "
+                 "free port".format(args.port, exc))
+    print("Serving {} at {} (close the last tab or Ctrl-C to exit)".format(args.recording, url),
           flush=True)
-    wait_for_interrupt()
+    wait_for_interrupt(server)

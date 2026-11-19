@@ -7,6 +7,8 @@ from types import SimpleNamespace
 from typing import cast
 
 import numpy as np
+import threading
+
 import pytest
 
 from specola.adapter import MonitorObservation, SimulatorAdapter
@@ -292,6 +294,6 @@ def test_recorder_rejects_verification_input_before_capture_or_enqueue():
 
     envelope = replace(_envelope(), verification_only=True)
     adapter = SimpleNamespace(last_observation=SimpleNamespace(extraction=envelope))
-    sink = SimpleNamespace(active=True)
+    sink = SimpleNamespace(active=True, _finish_requested=threading.Event())
     with pytest.raises(ExtractionObservationError, match="verification-only"):
         WebRecorderSink.on_step(cast(WebRecorderSink, sink), adapter, object())

@@ -54,6 +54,7 @@ import numpy as np
 
 from ..adapter import PropertyMeta
 from ..entities import EntityState
+from ..conformance.native_images import NativeImageError
 from .mujoco import (
     BodyRule,
     DeclaredEntitySpec,
@@ -1818,6 +1819,9 @@ def make_libero_env(
 
     Returns ``(env, task)`` ready to pass to LIBEROAdapter.
     """
+    from .mujoco_native import check_profile_python
+
+    check_profile_python()
     try:
         from libero.libero import benchmark, get_libero_path
     except Exception as exc:
@@ -1901,7 +1905,9 @@ def _make_libero(
 
     if not capture_frames:
         env, libero_task = make_libero_env(suite=suite, task_id=task_id)
-        return LIBEROAdapter(env, task=libero_task, target_only=target_only)
+        adapter = LIBEROAdapter(env, task=libero_task, target_only=target_only)
+        adapter._owns_environment = env.close  # built here, so the adapter closes it
+        return adapter
 
     # Offscreen renderer preferred: robosuite-family envs upload
     # reset-time texture data through the live render context only, so
@@ -1914,6 +1920,8 @@ def _make_libero(
         env, libero_task = make_libero_env(
             suite=suite, task_id=task_id, offscreen_renderer=True
         )
+    except NativeImageError:
+        raise
     except Exception as exc:
         import sys
 
@@ -1929,7 +1937,9 @@ def _make_libero(
             file=sys.stderr,
         )
         env, libero_task = make_libero_env(suite=suite, task_id=task_id)
-    return LIBEROAdapter(env, task=libero_task, target_only=target_only)
+    adapter = LIBEROAdapter(env, task=libero_task, target_only=target_only)
+    adapter._owns_environment = env.close  # built here, so the adapter closes it
+    return adapter
 
 
 def _handles(obj) -> bool:
@@ -1953,12 +1963,12 @@ _register(
     factory=_make_libero,
     description="LIBERO benchmark (Liu et al., NeurIPS 2023)",
     install_hint=(
-        "conda env with python=3.8.13 and robosuite==1.4.1; "
-        "pip install -e <LIBERO clone>"
+        'conda create -n specola-libero python=3.12 -y; '
+        'conda activate specola-libero; pip install "specola[libero]"'
     ),
     handles=_handles,
     wrap=_wrap,
-    requires=("libero",),
+    requires=("libero", "robosuite", "mujoco"),
 )
 
 

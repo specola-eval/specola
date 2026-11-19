@@ -69,24 +69,30 @@ startup diagnostics; the destination can contain a partial copy.
 document before the first adapter reset. The same option is available to
 `specola discover`, `specola check` and `specola write-specs`. Query arguments belong to the
 extraction configuration.
-The MuJoCo-family adapters require a population entry for
-`mujoco.mj_geomDistance` with a `distmax` cutoff; `examples/geometry_queries.yaml`
-is a starting point. Each collision-eligible geom pair then appears as a
-`geom_pair` entity carrying `geom_distance_capped` (the native signed
-distance, bounded above by the cutoff) and `geom_distance_clipped` (1 at or
-beyond the cutoff), tagged with both body names and `robot`, `self_collision`
-or `environment`. `specola discover` lists and reads every pair. `specola
-check` lists every pair in its slot tables and reads only the pairs whose
-values it prints. During `specola run` and a `Monitor` session, the reset
-reads no pair: your specifications compile against a catalog that lists every
-pair, and each observation after the reset reads only the pairs they can bind.
+The MuJoCo-family adapters start with a `mujoco.mj_geomDistance` population
+and a `distmax` cutoff of 0.05 m. Pass `--queries PATH` to replace it;
+`examples/geometry_queries.yaml` shows the format. Invalid explicit
+configuration fails validation rather than restoring the default.
+
+Each collision-eligible geom pair appears in the catalog as a `geom_pair`
+entity carrying `geom_distance_capped` (the native signed distance, bounded
+above by the cutoff) and `geom_distance_clipped` (1 at or beyond the cutoff),
+tagged with both body names and `robot`, `self_collision` or `environment`.
+The cutoff bounds values; it does not remove distant pairs from the catalog.
+`specola discover` lists eligible pairs without measuring them. Unread values
+appear as `not measured` in the browser and verbose plain output, and as
+`null` in JSON. `specola check` lists pairs in its slot tables and reads only
+the pairs whose values it prints.
+
+During `specola run` and a `Monitor` session, the reset reads no pair. Your
+specifications compile against the complete eligible catalog; subsequent
+observations read only the pairs and properties they can bind.
 `geom_pair_*[geom_distance_capped @ robot]` keeps the robot pairs, and a run
-whose specifications name no `geom_pair` reads none. The same holds with
-`--web`: the dashboard's discovery snapshot describes that reset, so it
-lists no pair entity (on a RoboCasa kitchen, reading every pair there cost
-about two minutes of startup). Add `population: all` next to `distmax` to
-read every pair at every reset and observation, for example to record them
-all or to browse them in the dashboard. Keep the cutoff at or below 0.1 m on MuJoCo 3.8.1 and
+whose specifications name no `geom_pair` reads none. With `--web`, the
+Discover view includes unread pairs from that catalog, so you can author a
+specification before measuring a pair. Add `population: all` next to
+`distmax` to request pair measurements outside specification scope.
+Keep the cutoff at or below 0.1 m on MuJoCo 3.8.1 and
 3.10.0: those builds return exact zeros for some separated pairs at larger
 cutoffs. The reader has custody rows for MuJoCo 3.3.0, 3.3.1, 3.8.1 and 3.10.0; another installed version is refused with a message naming the reviewed
 ones.

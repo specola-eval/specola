@@ -45,6 +45,9 @@ class _DashboardUpdate:
 
 
 # Canonical mapping shared with the plain renderer; Rich has no "amber".
+_DRIVER_JOIN_TIMEOUT = 30.0
+
+
 _STATE_STYLES = {
     state: "yellow" if name == "amber" else name
     for state, name in STATE_COLOR_NAMES.items()
@@ -1032,7 +1035,7 @@ def run_textual_dashboard(
         driver_thread = getattr(application, "driver_thread", None)
         if driver_thread is not None:
             # A slow final simulator step is normal; never turn it into a
-            # failed episode. Wait as long as it takes, telling the user
+            # failed episode. Allow up to 30 seconds, telling the user
             # what is happening (the terminal is restored at this point).
             # While waiting, simulator stdout/stderr must keep reaching the
             # durable log: the App's print capture is gone, so tee the
@@ -1041,10 +1044,16 @@ def run_textual_dashboard(
             # WorkerAbandoned so the caller knows finalization is unsafe
             # while the worker may still be mutating the session.
             waited = 0.0
+            deadline = time.monotonic() + _DRIVER_JOIN_TIMEOUT
             try:
                 with tee_context:
                     while driver_thread.is_alive():
-                        driver_thread.join(timeout=1.0)
+                        remaining = deadline - time.monotonic()
+                        if remaining <= 0:
+                            raise WorkerAbandoned(
+                                "simulator worker did not stop within 30 seconds; "
+                                "session state must not be finalized")
+                        driver_thread.join(timeout=min(1.0, remaining))
                         waited += 1.0
                         if driver_thread.is_alive() and waited == 5.0:
                             print(

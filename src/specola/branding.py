@@ -44,7 +44,7 @@ COLORS = {"light": "#0F2747", "dark": "#A9C1E8", "unknown": "default"}
 # Optional extras and the package whose presence shows each is installed.
 EXTRAS: Tuple[Tuple[str, str], ...] = (
     ("rtamt", "rtamt"),
-    ("report", "pyarrow"),
+    ("parquet", "pyarrow"),
     ("web", "flask"),
 )
 
@@ -153,6 +153,9 @@ def status_label(status) -> str:
         return f"adapter failed to load: {status.load_error}"
     if status.missing:
         return "missing " + ", ".join(status.missing)
+    if status.python_mismatch:
+        running = "{}.{}".format(*sys.version_info[:2])
+        return "packages found; needs Python {} (running {})".format(status.python_required, running)
     return "packages found"
 
 

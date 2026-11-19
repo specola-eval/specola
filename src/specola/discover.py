@@ -32,10 +32,13 @@ def _parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--sim", default="mock")
+    parser.add_argument("--functions", type=Path, metavar="PATH",
+                        help="Explicitly load trusted local Python functions declared in YAML for authoring")
     parser.add_argument("--audit-surface", action="store_true",
                         help="Report extraction declarations and missing evidence without constructing a simulator")
     parser.add_argument("--queries", type=Path, default=None, metavar="PATH",
-                        help="Native query configuration YAML or JSON, separate from scope")
+                        help="Query configuration YAML or JSON; MuJoCo-family adapters default to "
+                         "a 0.05 m geometry cutoff (examples/geometry_queries.yaml shows the format)")
     parser.add_argument(
         "--adapter-module", action="append", default=[], metavar="MODULE",
         help="Import MODULE so its adapter registration runs (repeatable)",
@@ -134,10 +137,9 @@ def _serve_discovery(args, model) -> None:
     every consumer that pipes it.
     """
     import sys
-    import threading
 
     try:
-        from .dashboard.server import DashboardServer
+        from .dashboard.server import DashboardServer, wait_for_interrupt
     except ImportError as exc:
         raise SystemExit(
             "specola discover --web needs the 'web' extra "
@@ -188,12 +190,9 @@ def _serve_discovery(args, model) -> None:
     # which redirecting only across start() would not.
     with contextlib.redirect_stdout(sys.stderr):
         url = server.start(args.web)
-        print("Discover: {} (Ctrl-C to exit)".format(url), file=sys.stderr)
+        print("Discover: {} (close the last tab or Ctrl-C to exit)".format(url), file=sys.stderr)
         print("Scene: {}".format(recording_dir), file=sys.stderr)
-        try:
-            threading.Event().wait()
-        except KeyboardInterrupt:
-            pass
+        wait_for_interrupt(server)
 
 
 def main() -> None:
@@ -201,7 +200,7 @@ def main() -> None:
     require_ordinary_execution()
     args = _parser().parse_args()
     if args.audit_surface:
-        if (args.web is not None or args.ui is not None or args.raw or args.verbose or args.field_contract
+        if (args.functions is not None or args.web is not None or args.ui is not None or args.raw or args.verbose or args.field_contract
                 or any((args.classes, args.entities, args.signals, args.groups, args.roles, args.tags, args.search))):
             raise SystemExit("--audit-surface cannot publish ordinary UI/web discovery or apply observation-value filters")
         from .conformance.audit import adapter_surface_audit, render_surface_audit
@@ -239,6 +238,8 @@ def main() -> None:
             "use --ui plain or --ui rich for redirected output"
         )
 
+    functions = None
+
     filters = any((
         args.classes, args.entities, args.signals, args.groups,
         args.roles, args.tags, args.search,
@@ -256,11 +257,14 @@ def main() -> None:
     loaded = None
     task_description = ""
     with contextlib.redirect_stdout(output_stream):
+        if args.functions is not None:
+            from .spec_functions import load_authoring_functions
+            functions = load_authoring_functions(args.functions)
         from .registry import load_adapter_module
         for module_name in args.adapter_module:
             load_adapter_module(module_name)
 
-        from .cli_common import _task_description, load_sim
+        from .cli_common import _task_description, load_sim, red
         from .query_config import load_query_configuration
         queries = load_query_configuration(args.queries) if args.queries is not None else None
         from .conformance.provider import ExtractionGuardError
@@ -274,17 +278,25 @@ def main() -> None:
                 target_only=not args.all_regions,
                 dt_override=args.dt,
                 header="Specola Discovery", queries=queries, allow_schema_only=True,
+                catalog_only=True,
             )
         except SchemaOnlyDiscovery as exc:
             authoring_document = exc.document
         except ExtractionGuardError as exc:
             report_extraction_failure(exc, command="discover", adapter=args.sim, task=args.task)
             raise SystemExit(1) from None
-        else:
-            task_description = _task_description(loaded[0])
+        except (ValueError, OSError) as exc:
+            # What an adapter raises for a task it cannot open: a missing
+            # file, or a dataset without the required columns.
+            if args.verbose:
+                raise
+            print(red("  Could not load {}: {}: {} (pass --verbose for the "
+                      "traceback)".format(args.sim, type(exc).__name__, exc)),
+                  file=sys.stderr)
+            raise SystemExit(1) from None
 
     if authoring_document is not None:
-        if (args.web is not None or args.ui is not None or args.raw or args.verbose
+        if (args.functions is not None or args.web is not None or args.ui is not None or args.raw or args.verbose
                 or args.field_contract or filters):
             raise SystemExit("schema-only discovery cannot publish ordinary UI/web results or apply observation-value filters")
         text = (json.dumps(authoring_document, sort_keys=True, indent=2, allow_nan=False) + "\n"
@@ -298,83 +310,104 @@ def main() -> None:
 
     assert loaded is not None
     adapter, effective_dt, _dims, entities, _classes = loaded
-    from .discovery_filter import DiscoveryQuery, filter_discovery
-    from .discovery_model import build_discovery_model
-
-    model = build_discovery_model(
-        adapter,
-        entities,
-        simulator=args.sim,
-        task=args.task,
-        effective_dt=effective_dt,
-        task_description=task_description,
-        extraction=adapter.last_observation.extraction if adapter.last_observation is not None else None,
-    )
-    include_raw = args.raw or filters or args.format == "json"
-    query = DiscoveryQuery(
-        classes=tuple(args.classes),
-        entities=tuple(args.entities),
-        signals=tuple(args.signals),
-        groups=tuple(args.groups),
-        roles=tuple(args.roles),
-        tags=tuple(args.tags),
-        search=tuple(args.search),
-        include_raw=include_raw,
-    )
     try:
-        view = filter_discovery(model, query)
-    except ValueError as exc:
-        raise SystemExit("invalid discovery filter: {}".format(exc))
+        with contextlib.redirect_stdout(output_stream):
+            task_description = _task_description(adapter)
+        from .discovery_filter import DiscoveryQuery, filter_discovery
+        from .discovery_model import build_discovery_model, property_metadata_for
+        from .capabilities import reset_catalog
+        catalog, metadata = reset_catalog(adapter, entities, property_metadata_for(adapter, entities))
+        capabilities = None
+        if functions is not None:
+            from .spec_functions import prepare_authoring_functions
+            try:
+                prepared = prepare_authoring_functions(adapter, functions)
+            except ValueError as exc:
+                print(red(f"  Function input error: {exc}"), file=sys.stderr)
+                raise SystemExit(1) from None
+            entities = dict(prepared.initial_observation.perceived_entities)
+            catalog, metadata = prepared.discovered_catalog, prepared.property_metadata
+            capabilities = prepared.capabilities
 
-    if args.format == "json":
-        from .discovery_serialize import discovery_json
-        text = discovery_json(
-            view,
-            include_field_contract=args.field_contract,
+        model = build_discovery_model(
+            adapter,
+            entities,
+            simulator=args.sim,
+            task=args.task,
+            effective_dt=effective_dt,
+            task_description=task_description,
+            property_metadata=metadata,
+            catalog=catalog,
+            capabilities=capabilities,
+            extraction=adapter.last_observation.extraction if adapter.last_observation is not None else None,
         )
-        if args.output is not None:
-            args.output.write_text(text, encoding="utf-8")
-        else:
-            sys.stdout.write(text)
-            sys.stdout.flush()
-        # The document is complete on stdout before anything is served,
-        # so `--format json --web` honours both contracts: a consumer
-        # piping stdout gets exactly one document, and the browser still
-        # opens. The URL was never going to stdout anyway.
+        include_raw = args.raw or filters or args.format == "json"
+        query = DiscoveryQuery(
+            classes=tuple(args.classes),
+            entities=tuple(args.entities),
+            signals=tuple(args.signals),
+            groups=tuple(args.groups),
+            roles=tuple(args.roles),
+            tags=tuple(args.tags),
+            search=tuple(args.search),
+            include_raw=include_raw,
+        )
+        try:
+            view = filter_discovery(model, query)
+        except ValueError as exc:
+            raise SystemExit("invalid discovery filter: {}".format(exc))
+
+        if args.format == "json":
+            from .discovery_serialize import discovery_json
+            text = discovery_json(
+                view,
+                include_field_contract=args.field_contract,
+            )
+            if args.output is not None:
+                args.output.write_text(text, encoding="utf-8")
+            else:
+                sys.stdout.write(text)
+                sys.stdout.flush()
+            # The document is complete on stdout before anything is served,
+            # so `--format json --web` honours both contracts: a consumer
+            # piping stdout gets exactly one document, and the browser still
+            # opens. The URL was never going to stdout anyway.
+            if args.web is not None:
+                _serve_discovery(args, model)
+            return
+
         if args.web is not None:
             _serve_discovery(args, model)
-        return
+            return
 
-    if args.web is not None:
-        _serve_discovery(args, model)
-        return
+        ui = args.ui or ("textual" if _is_tty() else "plain")
+        if ui == "textual":
+            from .explore import run_explorer
+            run_explorer(view)
+            return
+        if ui == "rich":
+            from .discovery_live import render_rich_discovery
+            render_rich_discovery(view)
+            return
 
-    ui = args.ui or ("textual" if _is_tty() else "plain")
-    if ui == "textual":
-        from .explore import run_explorer
-        run_explorer(view)
-        return
-    if ui == "rich":
-        from .discovery_live import render_rich_discovery
-        render_rich_discovery(view)
-        return
+        from .discovery_render import render_discovery
+        detailed = filters or args.raw
+        text = render_discovery(view, detailed=detailed, verbose=args.verbose)
+        if args.field_contract:
+            from .cli_common import _print_mujoco_field_contract
 
-    from .discovery_render import render_discovery
-    detailed = filters or args.raw
-    text = render_discovery(view, detailed=detailed, verbose=args.verbose)
-    if args.field_contract:
-        from .cli_common import _print_mujoco_field_contract
+            contract_stream = io.StringIO()
+            with contextlib.redirect_stdout(contract_stream):
+                _print_mujoco_field_contract(adapter, full=True)
+            text += contract_stream.getvalue()
+        if args.output is not None:
+            args.output.write_text(text, encoding="utf-8")
+            return
 
-        contract_stream = io.StringIO()
-        with contextlib.redirect_stdout(contract_stream):
-            _print_mujoco_field_contract(adapter, full=True)
-        text += contract_stream.getvalue()
-    if args.output is not None:
-        args.output.write_text(text, encoding="utf-8")
-        return
-
-    with maybe_page(disable=args.no_pager):
-        sys.stdout.write(text)
+        with maybe_page(disable=args.no_pager):
+            sys.stdout.write(text)
+    finally:
+        adapter.close()
 
 
 if __name__ == "__main__":

@@ -56,30 +56,23 @@ def test_save_rows_roundtrip(tmp_path):
     assert list(df["step"]) == [0, 1]
 
 
-def test_csv_fallback_reports_nothing_written_for_an_empty_row_set(
-    tmp_path, monkeypatch,
-):
-    """
-    The CSV fallback cannot write a zero-row file: with no rows there are
-    no field names for a header. It used to return the path anyway, which
-    named a file that did not exist -- or, if an earlier episode's file
-    happened to occupy that name, one holding somebody else's results.
-    """
+def test_csv_fallback_writes_headers_for_an_empty_row_set(tmp_path, monkeypatch):
+    import csv
+    import json
     import sys
 
-    from specola import results_io
-
     monkeypatch.setitem(sys.modules, "pyarrow", None)
-
     target = tmp_path / "episode.parquet"
-    stale = target.with_suffix(".csv")
-    stale.write_text("old,results\n1,2\n")
+    target.with_suffix(".csv").write_text("old,results\\n1,2\\n")
+    written = results_io.save_rows([], target, {"status": "truncated", "steps": 0}, quiet=True)
 
-    written = results_io.save_rows([], target, {}, quiet=True)
-
-    assert written is None
-    # the earlier file is left exactly as it was, not truncated or claimed
-    assert stale.read_text() == "old,results\n1,2\n"
+    assert written == target.with_suffix(".csv")
+    with written.open() as stream:
+        assert set(next(csv.reader(stream))) == results_io.CORE_COLUMNS
+        assert list(csv.reader(stream)) == []
+    metadata = json.loads(written.with_suffix(".meta.json").read_text())
+    assert metadata["status"] == "truncated"
+    assert metadata["steps"] == "0"
 
 
 def test_csv_fallback_still_writes_and_reports_a_non_empty_row_set(

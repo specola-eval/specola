@@ -36,7 +36,7 @@ PACKAGE_ROOT = Path(__file__).resolve().parent
 _STATUS_INTERVAL_S = 0.25   # HRC's status-throttle cadence
 
 
-def wait_for_interrupt() -> None:
+def wait_for_interrupt(server=None) -> None:
     """Block the main thread until Ctrl-C, for the serve-until-exit CLIs.
 
     The wait is a timed sleep in a loop. Any thread may take a
@@ -55,9 +55,21 @@ def wait_for_interrupt() -> None:
     read-only, and the standard streams and atexit handlers still run.
     """
     try:
-        while True:
-            time.sleep(1.0)
+        while server is None or server.active:
+            time.sleep(0.1)
     except KeyboardInterrupt:
+        pass
+    finally:
+        # A second Ctrl-C during the bounded shutdown joins would surface
+        # as a KeyboardInterrupt traceback from inside threading; the
+        # shutdown is already under way, so the repeat is ignored.
+        import signal
+        previous = signal.signal(signal.SIGINT, signal.SIG_IGN)
+        try:
+            if server is not None:
+                server.shutdown()
+        finally:
+            signal.signal(signal.SIGINT, previous)
         gc.freeze()
 
 
@@ -456,6 +468,18 @@ class DashboardServer:
         else:
             self.index = RunIndex()
         self.stop_requested = threading.Event()
+        self.closed = threading.Event()
+        self._shutdown_requested = threading.Event()
+        self._tasks_stop = threading.Event()
+        self._stop_lock = threading.Lock()
+        self._tasks_lock = threading.Lock()
+        self._tasks = []
+        self._http_server = None
+        self._control_thread = None
+        self.viewer_grace = 2.0
+        self._draft_checker_for = None
+        self._draft_checker_lock = threading.Lock()
+        self._viewer_deadline = None
         self._stop_callbacks: List[Callable[[], None]] = []
         self._ended = mode == "view"
         self._ended_status: Optional[str] = (
@@ -502,6 +526,8 @@ class DashboardServer:
         self._emit_lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
         self.app, self.socketio = self._create_app()
+        # Flask-SocketIO's runtime member is absent from its type stub.
+        self._socket_server = getattr(self.socketio, "server")
 
     # -- wiring -----------------------------------------------------------
 
@@ -595,56 +621,122 @@ class DashboardServer:
         )
 
     def on_stop_run(self, callback: Callable[[], None]) -> None:
-        self._stop_callbacks.append(callback)
-        # A stop_run may land before a UI path registers (e.g. the
-        # textual driver thread starting up); honor it immediately so
-        # the stop is not lost in that window.
-        if self.stop_requested.is_set():
+        with self._stop_lock:
+            stopped = self.stop_requested.is_set()
+            if not stopped:
+                self._stop_callbacks.append(callback)
+        if stopped:
             callback()
 
-    def start(self, port: int) -> str:
-        """Bind 127.0.0.1 and serve from a daemon thread; returns the URL.
-
-        Raises OSError while still on the caller's thread when the port
-        is busy. ``port == 0`` picks a free ephemeral port.
-        """
-        # ponytail: bind-probe then close has a race window; acceptable
-        # for a localhost dev server.
-        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            # SO_REUSEADDR to match werkzeug (allow_reuse_address=True):
-            # without it a just-killed server's TIME_WAIT socket fails
-            # this probe for ~60s even though nothing is listening and
-            # werkzeug itself would rebind fine. A live listener still
-            # fails the bind either way.
-            probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            probe.bind(("127.0.0.1", port))
-            port = probe.getsockname()[1]
-        finally:
-            probe.close()
-        def _serve() -> None:
+    def _request_stop(self) -> None:
+        with self._stop_lock:
+            if self.stop_requested.is_set():
+                return
+            self.stop_requested.set()
+            callbacks, self._stop_callbacks = self._stop_callbacks, []
+        for callback in callbacks:
             try:
-                self.socketio.run(
-                    self.app, host="127.0.0.1", port=port,
-                    allow_unsafe_werkzeug=True)
+                callback()
             except Exception as exc:
-                # Failure isolation: a server crash warns once and only
-                # disables the dashboard; monitoring is untouched.
-                _warn("{}: {}; dashboard server stopped, monitoring "
-                      "continues.".format(type(exc).__name__, exc))
+                _warn("stop callback failed: {}: {}".format(type(exc).__name__, exc))
+
+    def _control_lifetime(self) -> None:
+        """Own transport shutdown; callbacks only request simulator stop."""
+        while not self._shutdown_requested.wait(0.05):
+            with self._clients_lock:
+                if (self._viewer_deadline is not None
+                        and time.monotonic() >= self._viewer_deadline
+                        and not self._clients):
+                    self._shutdown_requested.set()
+        self.active = False
+        self._request_stop()
+        try:
+            with self._clients_lock:
+                clients = list(self._clients.values())
+            for state in clients:
+                state.playing = False
+                state.play_generation += 1
+                self._socket_server.disconnect(state.sid)
+            # Engine.IO's public disconnect waits on a polling queue that
+            # a departed browser may never drain. Its socket close supports
+            # a nonblocking close while the transport writer drains.
+            for transport in list(self._socket_server.eio.sockets.values()):
+                transport.close(wait=False)
+            self._tasks_stop.set()
+            self._socket_server.shutdown()
+        except Exception as exc:
+            _warn("dashboard transport shutdown failed: {}: {}".format(
+                type(exc).__name__, exc))
+        finally:
+            self._tasks_stop.set()
+            if self._http_server is not None:
+                self._http_server.shutdown()
+                self._http_server.server_close()
+            deadline = time.monotonic() + 5.0
+            if self._thread is not None:
+                self._thread.join(max(0.0, deadline - time.monotonic()))
+            with self._tasks_lock:
+                tasks = list(self._tasks)
+            for task in tasks:
+                task.join(max(0.0, deadline - time.monotonic()))
+            alive = [task.name for task in tasks if task.is_alive()]
+            if alive:
+                _warn("dashboard tasks still stopping: {}".format(", ".join(alive)))
+            self.closed.set()
+
+    def start(self, port: int) -> str:
+        """Bind one owned loopback listener; port zero selects a free port."""
+        from werkzeug.serving import make_server
+
+        if self._http_server is not None or self.closed.is_set():
+            raise RuntimeError("dashboard server cannot be started twice")
+        # Pass the bound fd to Werkzeug. No probe-close-rebind race, and a
+        # busy port raises OSError on this caller instead of SystemExit.
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            listener.bind(("127.0.0.1", port))
+            listener.listen()
+            port = listener.getsockname()[1]
+            self._http_server = make_server(
+                "127.0.0.1", port, self.app, threaded=True, fd=listener.fileno())
+
+        http_server = self._http_server
+        assert http_server is not None
+
+        def serve() -> None:
+            try:
+                http_server.serve_forever(poll_interval=0.05)
+            except Exception as exc:
+                _warn("{}: {}; dashboard server stopped.".format(
+                    type(exc).__name__, exc))
             finally:
-                # A crashed server must not leave active=True or the
-                # CLI's serve-until-exit wait would hang on a dead URL.
                 self.active = False
+                self._shutdown_requested.set()
 
         self._thread = threading.Thread(
-            target=_serve, name="specola-web-server", daemon=True)
+            target=serve, name="specola-web-server", daemon=True)
+        self._control_thread = threading.Thread(
+            target=self._control_lifetime, name="specola-web-control", daemon=True)
         self._thread.start()
+        self._control_thread.start()
         self.url = "http://127.0.0.1:{}".format(port)
         return self.url
 
     def shutdown(self) -> None:
-        self.active = False
+        self._shutdown_requested.set()
+        # Taken after the flag is set: a request that holds the lock
+        # finishes creating its checker first, and none starts later.
+        with self._draft_checker_lock:
+            held, self._draft_checker_for = self._draft_checker_for, None
+        if held is not None:
+            held[1].close()
+        if self._control_thread is None:
+            self.active = False
+            self.closed.set()
+            return
+        self._control_thread.join(timeout=7.0)
+        if self._control_thread.is_alive():
+            _warn("dashboard shutdown exceeded 7 seconds")
 
     # -- live feed (recorder writer thread) --------------------------------
 
@@ -744,13 +836,32 @@ class DashboardServer:
                 "delivery": state.delivery.dropped}
 
     def _run_meta(self) -> dict:
-        return run_meta(
+        import json
+        specs = list(self.index.specs)
+        provenance = {}
+        if self._discovery is not None:
+            # A snapshot that cannot be restored is reported by
+            # _discovery_ready and the routes; run_meta must still reach
+            # the page, so it simply carries no authored formulas.
+            try:
+                model = self._discovery.model
+            except Exception:               # noqa: BLE001
+                model = None
+            if model is not None:
+                provenance = model.specification_provenance or {}
+        loaded = {record["name"]: record for record in json.loads(provenance.get("spec_formulas", "[]"))}
+        specs = [dict(spec, authored_formula=loaded[spec["name"]]["formula"])
+                 if spec["name"] in loaded else spec for spec in specs]
+        payload = run_meta(
             self.reader.manifest, mode=self.phase,
-            specs=list(self.index.specs),
+            specs=specs,
             bindings=list(self.index.bindings.values()),
             min_step=self.index.min_step,
             max_step=self.index.max_step,
             view_command=self._view_command())
+        if provenance:
+            payload["specification_provenance"] = provenance
+        return payload
 
     def _geometry_payload(self) -> Optional[dict]:
         """The recording's scene files, read at most once per run.
@@ -1242,6 +1353,40 @@ class DashboardServer:
             self._context = (snapshot, context)
         return context, None
 
+    def _check_untrusted_draft(self, **draft):
+        """Compile browser-supplied text in the killable child process.
+
+        Every formula that arrives over the socket goes through here,
+        when it is validated and again when it is saved. There is no
+        in-process fallback: if the child cannot run, the draft is
+        rejected with the reason, because compiling it here would put
+        text from whoever can reach the port back into the process that
+        is stepping the simulator.
+        """
+        from ..authoring import DraftCheckResult, DraftChecker
+
+        snapshot = self._discovery
+        with self._draft_checker_lock:
+            if snapshot is None or self._shutdown_requested.is_set():
+                return DraftCheckResult(
+                    accepted=False, report="",
+                    error="Validation is unavailable: the dashboard is "
+                          "closing or has no scene.")
+            held = self._draft_checker_for
+            if held is None or held[0] is not snapshot:
+                if held is not None:
+                    held[1].close()
+                held = (snapshot, DraftChecker(snapshot.raw_gzip))
+                self._draft_checker_for = held
+            checker = held[1]
+        try:
+            return checker.check(**draft)
+        except OSError as exc:
+            return DraftCheckResult(
+                accepted=False, report="",
+                error="Validation is unavailable: {}: {}".format(
+                    type(exc).__name__, exc))
+
     @property
     def authored_dir(self) -> Path:
         """Where authored specifications go, and the only such place.
@@ -1255,7 +1400,6 @@ class DashboardServer:
     def _save_specs(self, context, entries, collision: str) -> dict:
         from ..authoring import (
             available_renamed_path,
-            check_draft,
             normalise_name,
             spec_entry,
             write_specs_document,
@@ -1267,6 +1411,8 @@ class DashboardServer:
         for raw in entries:
             if not isinstance(raw, dict):
                 return {"ok": False, "error": "entry must be an object"}
+            if "functions" in raw or "python" in raw:
+                return {"ok": False, "error": "load local function code explicitly before browser authoring"}
             name = normalise_name(str(raw.get("name") or "").strip())
             if not name:
                 return {"ok": False, "error": "every entry needs a name"}
@@ -1285,14 +1431,14 @@ class DashboardServer:
             # Re-checked here, immediately before writing: a client can
             # accumulate entries over a long session, and nothing
             # guarantees a verdict it recorded earlier still holds.
-            verdict = check_draft(
-                context, name=name, formula=formula,
+            verdict = self._check_untrusted_draft(
+                name=name, formula=formula,
                 constants=constants, backend=backend, symmetric=symmetric,
             )
             if not verdict.accepted:
                 return {"ok": False,
                         "error": "{!r} no longer compiles".format(name),
-                        "report": verdict.report}
+                        "report": verdict.report or (verdict.error or "")}
             prepared.append(spec_entry(
                 name=name, formula=formula, constants=constants,
                 backend=backend, symmetric=symmetric,
@@ -1313,7 +1459,8 @@ class DashboardServer:
                     "error": "{} already exists".format(destination.name)}
         try:
             write_specs_document(
-                prepared, str(destination), overwrite=overwrite
+                prepared, str(destination), overwrite=overwrite,
+                functions=context.functions,
             )
         except FileExistsError:
             return {"ok": False, "collision": True,
@@ -1352,6 +1499,21 @@ class DashboardServer:
             # payload and the cycle repeats. 60 s rides out the stalls.
             ping_timeout=60,
         )
+
+        # Keep the threaded stack's heartbeat intervals, but wake its
+        # sleepers on shutdown and retain handles for bounded joins.
+        engineio = getattr(socketio, "server").eio
+        engineio.sleep = self._tasks_stop.wait
+        start_task = engineio.start_background_task
+
+        def tracked_task(target, *args, **kwargs):
+            with self._tasks_lock:
+                self._tasks = [task for task in self._tasks if task.is_alive()]
+                task = start_task(target, *args, **kwargs)
+                self._tasks.append(task)
+            return task
+
+        engineio.start_background_task = tracked_task
 
         # After SocketIO has wrapped app.wsgi_app, so this sits outside
         # its /socket.io/ interception rather than behind it.
@@ -1433,6 +1595,9 @@ class DashboardServer:
             state = _ClientState(
                 sid, sender, follow=(self.phase == "live"))
             with self._clients_lock:
+                if self._shutdown_requested.is_set():
+                    return False
+                self._viewer_deadline = None
                 self._clients[sid] = state
             self._emit("run_meta", self._run_meta(), sid=sid)
             self._emit("discovery_ready", self._discovery_ready(), sid=sid)
@@ -1442,12 +1607,14 @@ class DashboardServer:
         def disconnected():             # pyright: ignore[reportUnusedFunction]
             with self._clients_lock:
                 state = self._clients.pop(request.sid, None)
+                if state is not None and not self._clients:
+                    self._viewer_deadline = time.monotonic() + self.viewer_grace
             if state is not None:
                 state.playing = False
                 state.play_generation += 1
 
         @socketio.on("view")
-        def view(payload):              # pyright: ignore[reportUnusedFunction]
+        def view(payload=None):              # pyright: ignore[reportUnusedFunction]
             with self._clients_lock:
                 state = self._clients.get(request.sid)
             if state is None or not isinstance(payload, dict):
@@ -1455,7 +1622,7 @@ class DashboardServer:
             try:
                 with state.lock:
                     result, start_playback = self._apply_view(state, payload)
-            except (KeyError, TypeError, ValueError) as error:
+            except (KeyError, TypeError, ValueError, OverflowError) as error:
                 return {"ok": False, "error": str(error)}
             if start_playback:
                 socketio.start_background_task(
@@ -1463,7 +1630,7 @@ class DashboardServer:
             return result
 
         @socketio.on("selector_palette")
-        def selector_palette_request(payload):  # pyright: ignore[reportUnusedFunction]
+        def selector_palette_request(payload=None):  # pyright: ignore[reportUnusedFunction]
             """Resolve a browser selection against the Python model.
 
             The browser sends names. Names are looked up in the
@@ -1489,7 +1656,7 @@ class DashboardServer:
                     request_id, forms=[], reason=str(error))
 
         @socketio.on("signal_rows")
-        def signal_rows(payload):       # pyright: ignore[reportUnusedFunction]
+        def signal_rows(payload=None):       # pyright: ignore[reportUnusedFunction]
             """Aggregate one scope's signals, so only Python ever does.
 
             The page renders what this returns and sends a pattern from
@@ -1514,7 +1681,7 @@ class DashboardServer:
                     request_id, signals=[], reason=str(error))
 
         @socketio.on("spec_check")
-        def spec_check(payload):        # pyright: ignore[reportUnusedFunction]
+        def spec_check(payload=None):        # pyright: ignore[reportUnusedFunction]
             """Compile one draft against this run's own scene.
 
             Every reply echoes the revision it was asked about. The
@@ -1532,7 +1699,7 @@ class DashboardServer:
             if context is None:
                 return {"ok": False, "revision": revision,
                         "accepted": False, "error": error}
-            from ..authoring import check_draft, normalise_name, parse_constants
+            from ..authoring import normalise_name, parse_constants
 
             raw_constants = payload.get("constants") or ""
             try:
@@ -1548,14 +1715,14 @@ class DashboardServer:
             if not name:
                 return {"ok": True, "revision": revision, "accepted": False,
                         "report": "Specification name is required."}
-            result = check_draft(
-                context,
+            draft = dict(
                 name=name,
                 formula=str(payload.get("formula") or ""),
                 constants=constants,
                 backend=str(payload.get("backend") or "auto"),
                 symmetric=bool(payload.get("symmetric")),
             )
+            result = self._check_untrusted_draft(**draft)
             from ..authoring import spec_entry
 
             return {
@@ -1576,7 +1743,7 @@ class DashboardServer:
             }
 
         @socketio.on("spec_save")
-        def spec_save(payload):         # pyright: ignore[reportUnusedFunction]
+        def spec_save(payload=None):         # pyright: ignore[reportUnusedFunction]
             """Write kept specifications beside this run.
 
             The browser sends entries and a collision choice. It does not
@@ -1603,16 +1770,11 @@ class DashboardServer:
         def stop_run(payload=None):     # pyright: ignore[reportUnusedFunction]
             if self.phase != "live":
                 return {"ok": False, "error": "no live run to stop"}
-            self.stop_requested.set()
-            for callback in list(self._stop_callbacks):
-                try:
-                    callback()
-                except Exception:
-                    pass
+            self._request_stop()
             return {"ok": True}
 
         @socketio.on("series_window")
-        def series_window(payload):     # pyright: ignore[reportUnusedFunction]
+        def series_window(payload=None):     # pyright: ignore[reportUnusedFunction]
             if not isinstance(payload, dict):
                 return {"ok": False, "error": "payload must be an object"}
             try:
@@ -1630,18 +1792,18 @@ class DashboardServer:
                     series.append(
                         [spec_name, key,
                          decimate(steps, values, start, end, px)])
-            except (KeyError, TypeError, ValueError, IndexError) as error:
+            except (KeyError, TypeError, ValueError, IndexError, OverflowError) as error:
                 return {"ok": False, "error": str(error)}
             return {"ok": True, "series": series}
 
         @socketio.on("transitions_page")
-        def transitions_page(payload):  # pyright: ignore[reportUnusedFunction]
+        def transitions_page(payload=None):  # pyright: ignore[reportUnusedFunction]
             if not isinstance(payload, dict):
                 return {"ok": False, "error": "payload must be an object"}
             try:
                 offset = max(0, int(payload.get("offset", 0)))
                 limit = max(1, min(int(payload.get("limit", 200)), 500))
-            except (TypeError, ValueError) as error:
+            except (TypeError, ValueError, OverflowError) as error:
                 return {"ok": False, "error": str(error)}
             entries = self.index.transitions[offset:offset + limit]
             return {"ok": True, "total": len(self.index.transitions),

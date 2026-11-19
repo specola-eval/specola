@@ -41,6 +41,17 @@ extension (`specola._native_tls`, used by the guarded native
 observation) when a C compiler is present; without one the install
 still succeeds and that bridge is absent.
 
+### Check an Ubuntu version in Docker
+
+From a non-root Linux x86_64 account with Docker access, run
+`bash docker/check-quickstart.sh 22.04 24.04` from the repository root.
+The driver builds fresh wheels for system Python and Python 3.12, runs the mock
+quickstart, and invokes the installed browser verifier for mock and LIBERO replay.
+It uses OSMesa, downloads a pinned asset snapshot before offline verification,
+and retains stage results and failure artifacts under `logs/tester-feedback/task-7/runs/`.
+The container rows and hosted CI remain unverified; see the
+[container evidence](evidence/docker-quickstart-2026-10-19.md) for limits.
+
 ## Install a simulator adapter
 
 Give each simulator its own conda environment, because simulators pin
@@ -72,12 +83,14 @@ you:
   build against the builds Specola has reviewed, and those are Linux
   x86_64 wheels.
 - **The Python version in the table.** The reviewed wheels are specific
-  to one Python version. On another version the install succeeds and
-  the adapter stops at its first reset with
-  `NativeImageError: MuJoCo distribution native image population differs`.
-- **A queries file.** Pass `--queries examples/geometry_queries.yaml` to
-  `discover`, `check` and `run`. The file sets the cutoff for geometry
-  distances, which Specola does not choose for you.
+  to one Python version. Installation depends on the packages' declared
+  requirements and available distributions. LIBERO refuses a known Python
+  mismatch before constructing its scene and names the required and running
+  versions. `specola doctor` also reports the mismatch. These versions are
+  Specola's reviewed native profiles, not upstream Python requirements.
+- **A geometry cutoff.** Geometry distances come from `mj_geomDistance`,
+  which takes a cutoff. The adapters start with 0.05 m; pass
+  `--queries examples/geometry_queries.yaml` (edited) to change it.
 
 | Adapter | Extra | Python | Simulator versions verified | MuJoCo | Fresh-install check |
 |---|---|---|---|---|---|
@@ -104,15 +117,13 @@ conda create -n metaworld python=3.11 -y
 conda activate metaworld
 pip install ".[metaworld,web,report]"
 export MUJOCO_GL=egl
-specola discover --sim metaworld --task pick-place-v3 \
-  --queries examples/geometry_queries.yaml
+specola discover --sim metaworld --task pick-place-v3
 ```
 
 Then run the example specifications:
 
 ```bash
 specola run --sim metaworld --task pick-place-v3 \
-  --queries examples/geometry_queries.yaml \
   --specs examples/metaworld_specs.yaml --steps 20
 ```
 
@@ -127,8 +138,7 @@ conda create -n dmcontrol python=3.11 -y
 conda activate dmcontrol
 pip install ".[dmcontrol,web,report]"
 export MUJOCO_GL=egl
-specola discover --sim dmcontrol --task walker:walk \
-  --queries examples/geometry_queries.yaml
+specola discover --sim dmcontrol --task walker:walk
 ```
 
 The example specifications are in `examples/dmcontrol_specs.yaml`.
@@ -144,8 +154,7 @@ conda create -n mamujoco python=3.11 -y
 conda activate mamujoco
 pip install ".[mamujoco,web,report]"
 export MUJOCO_GL=egl
-specola discover --sim mamujoco --task HalfCheetah:2x3 \
-  --queries examples/geometry_queries.yaml
+specola discover --sim mamujoco --task HalfCheetah:2x3
 ```
 
 The example specifications are in `examples/mamujoco_specs.yaml`. At
@@ -154,22 +163,27 @@ environments; it does not concern MaMuJoCo.
 
 ### LIBERO
 
-Install LIBERO and its simulator versions before Specola. LIBERO runs
-on robosuite 1.4.0 and MuJoCo 3.8.1, whose reviewed wheel is for
-Python 3.12.
+Install the `libero` extra in a separate environment. It includes hf-libero
+0.1.4, robosuite 1.4.0 and MuJoCo 3.8.1. Specola's reviewed MuJoCo profile
+requires Python 3.12; this is a Specola policy, not hf-libero's upstream
+Python requirement.
 
 ```bash
 conda create -n libero python=3.12 -y
 conda activate libero
-pip install mujoco==3.8.1 robosuite==1.4.0 hf-libero==0.1.4
 pip install ".[libero,web,report]"
 export MUJOCO_GL=egl
 export NUMBA_CACHE_DIR="$HOME/.cache/specola/numba"
 export MPLCONFIGDIR="$HOME/.cache/specola/matplotlib"
 mkdir -p "$NUMBA_CACHE_DIR" "$MPLCONFIGDIR"
-specola discover --sim libero --task libero_goal:0 \
-  --queries examples/geometry_queries.yaml
+specola discover --sim libero --task libero_goal:0
 ```
+
+If you install in another interpreter, package resolution can fail under the
+packages' own requirements. If installation succeeds, Specola refuses a known
+profile mismatch before constructing LIBERO and reports the supported Python
+version. Use `specola doctor` to check the installed profile's Python version
+without importing the simulator.
 
 `NUMBA_CACHE_DIR` and `MPLCONFIGDIR` must be absolute paths to existing,
 writable directories. Without `NUMBA_CACHE_DIR` the robosuite import
@@ -230,8 +244,7 @@ python -m robocasa.scripts.setup_macros
 python -m robocasa.scripts.download_kitchen_assets
 pip install ".[robocasa,web,report]"
 export MUJOCO_GL=egl
-specola discover --sim robocasa --task PickPlaceCounterToCabinet \
-  --queries examples/geometry_queries.yaml
+specola discover --sim robocasa --task PickPlaceCounterToCabinet
 ```
 
 The asset download is about 10 GB. The fresh-install check found the
@@ -247,7 +260,6 @@ the pairs your specifications can bind:
 
 ```bash
 specola run --sim robocasa --task PickPlaceCounterToCabinet \
-  --queries examples/geometry_queries.yaml \
   --specs examples/robocasa_specs.yaml --steps 5
 ```
 

@@ -414,6 +414,9 @@ def test_registry_factory_draws_the_task_variant_from_the_seed(monkeypatch):
         def reset(self):
             pass
 
+        def close(self):
+            pass
+
     class FakeMT1:
         def __init__(self, env_name, seed=None):
             benchmarks.append(seed)
@@ -424,5 +427,6 @@ def test_registry_factory_draws_the_task_variant_from_the_seed(monkeypatch):
     monkeypatch.setattr(metaworld_adapter, "MetaworldAdapter", lambda env, **kwargs: env)
     env = metaworld_adapter._make_metaworld("pick-place-v3", None, False, seed=7)
     assert benchmarks == [7] and env.task == "variant drawn from 7"
+    assert env._owns_environment == env.close  # the factory built it, so the adapter closes it
     metaworld_adapter._make_metaworld("pick-place-v3", None, False)
     assert benchmarks == [7, None]

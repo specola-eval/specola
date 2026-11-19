@@ -56,6 +56,8 @@ class CheckContext:
     entities: Mapping[int, Any]
     labels: Optional[Mapping[int, str]]
     capabilities: Any
+    functions: Optional[Mapping[str, Any]] = None
+    input_schemas: Optional[Mapping[str, int]] = None
 
     @classmethod
     def from_discovery_model(cls, model) -> "CheckContext":
@@ -81,6 +83,8 @@ class CheckContext:
             entities=entity_states_from_model(model),
             labels=labels_from_model(model),
             capabilities=model.capabilities,
+            functions=(model.authored_functions or {}).get("declarations", {}),
+            input_schemas=(model.authored_functions or {}).get("input_schemas", {}),
         )
 
 
@@ -101,6 +105,15 @@ def parse_constants(source: str) -> Dict[str, float]:
     if not source.strip():
         return {}
     try:
+        # Scanned first, without building anything: a mapping of names to
+        # numbers needs no anchors, and aliases under nested merge keys
+        # expand exponentially (700 bytes occupy the loader for minutes).
+        for token in yaml.scan(source):
+            if isinstance(token, (yaml.AnchorToken, yaml.AliasToken)):
+                raise ValueError(
+                    "Constants must be a plain YAML mapping such as "
+                    "{threshold: 0.25}; anchors and aliases are not "
+                    "supported")
         value = yaml.safe_load(source)
     except yaml.YAMLError as exc:
         raise ValueError("Invalid constants YAML: {}".format(exc)) from exc
@@ -134,6 +147,10 @@ def check_draft(
     """
     from .check_specs import _check_entry
 
+    for function_name, declaration in (context.functions or {}).items():
+        for requirement in declaration["inputs"].values():
+            if (context.input_schemas or {}).get(requirement["provider"]) != requirement["schema"]:
+                return DraftCheckResult(accepted=False, report="", error=f"function {function_name}: missing recorded input schema {requirement['provider']}")
     entry = SimpleNamespace(
         name=name,
         formula_text=formula,
@@ -166,6 +183,223 @@ def check_draft(
     )
 
 
+# How long one browser-submitted draft may take to compile, and how much
+# memory. Formula text arrives over the dashboard's socket from whoever
+# can reach the port; sympy evaluates constant arithmetic exactly, and
+# the compiler's own bounds on it (spec/semantic.py) are a list of known
+# cases, not a proof. A draft that outruns them holds the interpreter
+# lock in one arithmetic call, which would freeze the live run that
+# shares this process. A child process can be killed.
+DRAFT_CHECK_SECONDS = 30.0
+DRAFT_CHECK_BYTES = 4 * 1024 ** 3
+
+
+DRAFT_WORKER_START_SECONDS = 300.0
+# A draft larger than this is refused. It also keeps the request within
+# one pipe buffer, so writing it to an idle child cannot block.
+DRAFT_MAX_BYTES = 32 * 1024
+
+
+class DraftChecker:
+    """``check_draft`` in a child process that can be killed.
+
+    One child per scene. It rebuilds the scene from the discovery
+    document the browser was sent, which is the slow part (17 s for a
+    RoboCasa kitchen in a fresh interpreter, measured 2026-11-19), then
+    answers drafts until it is closed. A draft that exceeds its time
+    limit kills the child; the next draft starts another.
+    """
+
+    def __init__(self, discovery_gzip: bytes) -> None:
+        self._discovery_gzip = discovery_gzip
+        self._lock = threading.Lock()
+        self._process = None
+        self._replies = None
+        self._closed = False
+
+    def _start(self) -> None:
+        import queue
+        import subprocess
+        import sys
+
+        process = subprocess.Popen(
+            [sys.executable, "-m", "specola.authoring"],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        )
+        replies: "queue.Queue[Optional[bytes]]" = queue.Queue()
+
+        def pump() -> None:
+            for line in process.stdout:
+                if line.startswith(b"{"):
+                    replies.put(line)
+            replies.put(None)                       # the child has gone
+
+        threading.Thread(
+            target=pump, name="specola-draft-worker", daemon=True).start()
+        # Owned before the first write, so close() can kill a child that
+        # never reads its scene and unblock the write below.
+        self._process, self._replies = process, replies
+        try:
+            process.stdin.write(
+                len(self._discovery_gzip).to_bytes(8, "big")
+                + self._discovery_gzip)
+            process.stdin.flush()
+        except OSError:
+            self._stop()
+            raise
+        ready = self._reply(DRAFT_WORKER_START_SECONDS)
+        if ready is None or "ready" not in ready:
+            self._stop()
+            raise OSError("draft worker did not start: {}".format(
+                (ready or {}).get("error", "no reply")))
+
+    def _reply(self, timeout: float) -> Optional[dict]:
+        import json
+        import queue
+
+        try:
+            line = self._replies.get(timeout=timeout)
+        except queue.Empty:
+            return None
+        return json.loads(line) if line else {"error": "worker exited"}
+
+    def _stop(self) -> None:
+        process, self._process, self._replies = self._process, None, None
+        if process is not None:
+            process.kill()
+            process.wait()
+
+    def close(self) -> None:
+        """Kill the child for good; later checks raise ``OSError``."""
+        self._closed = True
+        process = self._process
+        if process is not None:
+            # Before the lock: a check in flight holds it while it waits,
+            # and the kill is what ends that wait.
+            process.kill()
+        with self._lock:
+            self._stop()
+
+    def check(
+        self,
+        *,
+        name: str,
+        formula: str,
+        constants: Optional[Mapping[str, float]] = None,
+        backend: str = "auto",
+        symmetric: bool = False,
+        timeout: float = DRAFT_CHECK_SECONDS,
+    ) -> DraftCheckResult:
+        """Check one draft, or reject it for running out of time or memory.
+
+        Raises
+        ------
+        OSError
+            If the child cannot be started. The caller decides whether
+            to check in-process instead.
+        """
+        import json
+
+        draft = json.dumps({
+            "name": name, "formula": formula,
+            "constants": dict(constants or {}), "backend": backend,
+            "symmetric": bool(symmetric),
+        }).encode("utf-8") + b"\n"
+        if len(draft) > DRAFT_MAX_BYTES:
+            return DraftCheckResult(
+                accepted=False, report="",
+                error="The draft is larger than {} bytes.".format(
+                    DRAFT_MAX_BYTES))
+        with self._lock:
+            if self._closed:
+                raise OSError("the draft checker is closed")
+            if self._process is None or self._process.poll() is not None:
+                self._start()
+            try:
+                self._process.stdin.write(draft)
+                self._process.stdin.flush()
+            except OSError:
+                self._stop()
+                raise
+            verdict = self._reply(timeout)
+            if verdict is None:
+                self._stop()
+                return DraftCheckResult(
+                    accepted=False, report="",
+                    error="Validation stopped after {:g} s. The formula "
+                          "takes too long to compile; constant arithmetic "
+                          "is exact, so look for a very large power or "
+                          "number.".format(timeout),
+                )
+            if "accepted" not in verdict:
+                self._stop()
+                return DraftCheckResult(
+                    accepted=False, report="",
+                    error="Validation could not finish ({}). Constant "
+                          "arithmetic is exact, so look for a very large "
+                          "power or number.".format(verdict.get("error")),
+                )
+            return DraftCheckResult(
+                accepted=bool(verdict["accepted"]),
+                report=str(verdict["report"]), error=verdict["error"],
+            )
+
+
+def _draft_worker_main() -> None:
+    """Child side of ``DraftChecker``: one JSON line per draft."""
+    import json
+    import sys
+
+    try:
+        import resource
+
+        resource.setrlimit(
+            resource.RLIMIT_AS, (DRAFT_CHECK_BYTES, DRAFT_CHECK_BYTES))
+    except (ImportError, ValueError, OSError):
+        pass                    # no such limit on this platform
+    stream = sys.stdin.buffer
+    out = sys.stdout.buffer
+    # Anything the checker prints must not be read as a reply.
+    sys.stdout = sys.stderr
+
+    def send(message: dict) -> None:
+        out.write(json.dumps(message).encode("utf-8") + b"\n")
+        out.flush()
+
+    try:
+        size = int.from_bytes(stream.read(8), "big")
+        from .dashboard.server import DiscoverySnapshot
+
+        context = CheckContext.from_discovery_model(
+            DiscoverySnapshot.from_gzip(stream.read(size)).model)
+    except Exception as exc:                        # noqa: BLE001
+        send({"error": "{}: {}".format(type(exc).__name__, exc)})
+        return
+    send({"ready": True})
+    import signal
+
+    for line in stream:
+        if hasattr(signal, "alarm"):
+            # The parent kills a slow check itself. This is for a parent
+            # that died meanwhile: SIGALRM's default action ends the
+            # process even inside one long arithmetic call.
+            signal.alarm(int(DRAFT_CHECK_SECONDS) + 30)
+        try:
+            result = check_draft(context, **json.loads(line))
+            send({"accepted": result.accepted, "report": result.report,
+                  "error": result.error})
+        except MemoryError:
+            send({"error": "out of memory"})
+            return
+        except Exception as exc:                    # noqa: BLE001
+            send({"accepted": False, "report": "",
+                  "error": "{}: {}".format(type(exc).__name__, exc)})
+        finally:
+            if hasattr(signal, "alarm"):
+                signal.alarm(0)
+
+
 def spec_entry(
     *,
     name: str,
@@ -195,6 +429,7 @@ def write_specs_document(
     path: str,
     *,
     overwrite: bool = True,
+    functions: Optional[Mapping[str, Any]] = None,
 ) -> None:
     """Publish a specification document atomically.
 
@@ -205,7 +440,7 @@ def write_specs_document(
     of silently destroying someone's specifications.
     """
     document = yaml.safe_dump(
-        {"specs": specs},
+        ({"functions": dict(functions), "specs": specs} if functions else {"specs": specs}),
         default_flow_style=False,
         allow_unicode=True,
         sort_keys=False,
@@ -271,3 +506,7 @@ def yaml_path(path: str) -> str:
     if path.endswith(".yaml") or path.endswith(".yml"):
         return path
     return path + ".yaml"
+
+
+if __name__ == "__main__":
+    _draft_worker_main()

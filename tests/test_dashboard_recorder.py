@@ -97,6 +97,37 @@ def test_records_data_every_step_and_default_camera(tmp_path):
     assert reader.frame("cam0", 2) is not None
     assert reader.read_step(1)["wall_time"] is not None
 
+def test_stalled_writer_never_publishes_terminal_status(tmp_path, monkeypatch):
+    started = threading.Event()
+    release = threading.Event()
+    sink = _sink(tmp_path, video="jpeg")
+    original = sink._writer.append_step
+
+    def stalled(line):
+        started.set()
+        assert release.wait(10)
+        original(line)
+
+    monkeypatch.setattr(sink._writer, "append_step", stalled)
+    monkeypatch.setattr(recorder_module, "_FINALIZE_TIMEOUT", 0.05, raising=False)
+    ended = []
+    sink._on_episode_end = ended.append
+    try:
+        _drive(sink, _FrameAdapter(), 1)
+        assert started.wait(2)
+        sink.finalize_episode("truncated")
+        reader = RecordingReader(sink.recording_dir)
+        assert reader.manifest["status"] is None
+        assert ended == []
+        assert not sink.finalized
+    finally:
+        release.set()
+        sink._thread.join(3)
+    assert not sink._thread.is_alive()
+    assert sink.finalized
+    assert RecordingReader(sink.recording_dir).manifest["status"] == "truncated"
+    assert ended == ["truncated"]
+
 
 def test_stride_thins_frames_not_data(tmp_path):
     adapter = _FrameAdapter(frame=_frame())

@@ -156,6 +156,20 @@ class QueryConfiguration:
     def empty(cls) -> QueryConfiguration:
         return cls.from_document({"schema": "specola.queries.v1", "populations": [], "instances": []})
 
+    @classmethod
+    def mujoco_default(cls, distmax: float = 0.05) -> QueryConfiguration:
+        """Configure the MuJoCo-family geometry population cutoff in metres.
+
+        Explicit query configuration replaces this built-in population.
+        The cutoff bounds values without selecting pairs by proximity.
+        """
+        return cls.from_document({
+            "schema": "specola.queries.v1",
+            "populations": [{"binding": "mujoco.mj_geomDistance",
+                             "arguments": {"distmax": distmax}}],
+            "instances": [],
+        })
+
     def document(self) -> Dict[str, Any]:
         return json.loads(self.canonical_json)
 

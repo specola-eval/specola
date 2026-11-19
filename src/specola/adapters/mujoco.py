@@ -1072,6 +1072,8 @@ class MujocoAdapter(SimulatorAdapter):
     policy cannot select a subset.
     """
 
+    DEFAULT_GEOMETRY_CUTOFF_M = 0.05
+
     def __init__(
         self,
         env: Any,
@@ -1085,8 +1087,14 @@ class MujocoAdapter(SimulatorAdapter):
     ) -> None:
         self._reject_legacy_options(legacy_options)
         super().__init__()
+        from ..query_config import QueryConfiguration
+        self._query_configuration = QueryConfiguration.mujoco_default(
+            self.DEFAULT_GEOMETRY_CUTOFF_M
+        )
 
         self.env = env
+        # The env's close, when the factory built env; None borrows it.
+        self._owns_environment: Optional[Callable[[], Any]] = None
         self.gripper_site = gripper_site
         self.gripper_class = gripper_class
         self.perception_gate = perception_gate
@@ -2926,7 +2934,8 @@ class MujocoAdapter(SimulatorAdapter):
         records = self._geom_pair_records
         entity_scope = self._extraction_entity_scope
         reader = self._geometry_reader
-        if records is None or entity_scope is None or reader is None or reader.population_all:
+        if (records is None or entity_scope is None or reader is None
+                or (reader.population_all and not self._catalog_only_reset_active)):
             return records, None
         selectors = entity_scope.get(GEOM_PAIR_ENTITY_CLASS, _NO_SELECTORS)
         if selectors and not self._episode_started:
@@ -9087,11 +9096,33 @@ class MujocoAdapter(SimulatorAdapter):
 
         try:
             viewer.close()
-        except Exception:
-            # Teardown must never mask the run's real outcome.
-            pass
+        except Exception as exc:
+            import sys
+            print("Adapter renderer cleanup warning: {}: {}".format(
+                type(exc).__name__, exc), file=sys.stderr)
 
         time.sleep(_VIEWER_TEARDOWN_SETTLE)
+
+    def close(self) -> None:
+        """Release observation and render resources before closing the env.
+
+        Explicit owner-path cleanup releases resources before interpreter exit.
+        The tester's reported native crash has not been reproduced. The env
+        is closed only when a factory built it and handed its close over as
+        ``_owns_environment``; an env the caller passed in (``Monitor.watch``,
+        ``RoboCasaAdapter(env)``) stays open for its owner.
+        """
+        if getattr(self, "_closed", False):
+            return
+        super().close()
+        cleanup = getattr(self, "_owns_environment", None)
+        if callable(cleanup):
+            try:
+                cleanup()
+            except Exception as exc:
+                import sys
+                print("Adapter cleanup warning: env.close: {}: {}".format(
+                    type(exc).__name__, exc), file=sys.stderr)
 
     def camera_names(self) -> Tuple[str, ...]:
         """
@@ -9231,9 +9262,10 @@ class MujocoAdapter(SimulatorAdapter):
         self._offscreen_renderer = None
         try:
             renderer.close()
-        except Exception:
-            # Teardown must never mask the run's real outcome.
-            pass
+        except Exception as exc:
+            import sys
+            print("Adapter renderer cleanup warning: {}: {}".format(
+                type(exc).__name__, exc), file=sys.stderr)
 
     # -- state tier (replay) ------------------------------------------------
 

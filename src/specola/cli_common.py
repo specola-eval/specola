@@ -65,15 +65,28 @@ def _tty() -> bool:
     )
 
 
-class C:
-    BOLD = "\033[1m" if _tty() else ""
-    DIM = "\033[2m" if _tty() else ""
-    CYAN = "\033[36m" if _tty() else ""
-    GREEN = "\033[32m" if _tty() else ""
-    AMBER = "\033[33m" if _tty() else ""
-    RED = "\033[31m" if _tty() else ""
-    MAGENTA = "\033[35m" if _tty() else ""
-    RST = "\033[0m" if _tty() else ""
+class _Codes:
+    """ANSI codes evaluated against the current stdout on every access.
+
+    The authoring panel captures checker output in a StringIO after import,
+    so an import-time terminal decision would leak codes into its report.
+    """
+
+    _SEQ = {
+        "BOLD": "\033[1m", "DIM": "\033[2m", "CYAN": "\033[36m",
+        "GREEN": "\033[32m", "AMBER": "\033[33m", "RED": "\033[31m",
+        "MAGENTA": "\033[35m", "RST": "\033[0m",
+    }
+
+    def __getattr__(self, name: str) -> str:
+        try:
+            sequence = self._SEQ[name]
+        except KeyError:
+            raise AttributeError(name) from None
+        return sequence if _tty() else ""
+
+
+C = _Codes()
 
 
 # Canonical state -> color-name mapping shared by every run renderer.
@@ -2625,6 +2638,15 @@ def construct_sim(
 
     if queries is not None:
         adapter.set_query_configuration(queries)
+    # Every CLI that builds an adapter here releases it here. atexit runs
+    # last-registered first, so this close precedes robosuite's
+    # eglTerminate (registered while the env was constructed above) and
+    # the render contexts are freed while the display is still alive,
+    # whatever exit path the caller takes. close() is idempotent, so
+    # callers that release earlier, before serving a dashboard or
+    # exporting reports, are unaffected.
+    import atexit
+    atexit.register(adapter.close)
     return adapter
 
 
@@ -2634,13 +2656,18 @@ def print_ready(
     entity_count: int,
 ) -> None:
     """Print the readiness line for a completed reset, then the task line."""
+    geometry = adapter.query_configuration.population_arguments("mujoco.mj_geomDistance")
+    cutoff = ""
+    if geometry is not None and "distmax" in geometry:
+        suffix = "(default)" if adapter.query_configuration_is_default else ""
+        cutoff = f"   geometry_cutoff={geometry['distmax']:g}m{suffix}"
     print(
         f"  {green('✓')} ready   "
         + dim(
             f"adapter_dt={adapter.dt}s   "
             f"spec_dt={effective_dt}s   "
             f"spatial_dims={int(adapter.spatial_dims)}   "
-            f"entities={entity_count}"
+            f"entities={entity_count}{cutoff}"
         )
     )
 
@@ -2716,50 +2743,57 @@ def load_sim(
         header=header,
         queries=queries,
     )
+    try:
+        override = _validate_dt_override(
+            dt_override
+        )
 
-    override = _validate_dt_override(
-        dt_override
-    )
+        if allow_schema_only:
+            from .conformance.authoring import SchemaOnlyDiscovery, prepare_schema_authoring
+            document = prepare_schema_authoring(adapter)
+            if document is not None:
+                document["subject"].update(requested_adapter=sim, task=task,
+                    requested_factory_arguments={"robot": robot, "target_only": target_only,
+                                                 "dt_override": dt_override})
+                raise SchemaOnlyDiscovery(document)
+        observation = adapter.reset_catalog_only() if catalog_only else adapter.reset()
 
-    if allow_schema_only:
-        from .conformance.authoring import SchemaOnlyDiscovery, prepare_schema_authoring
-        document = prepare_schema_authoring(adapter)
-        if document is not None:
-            document["subject"].update(requested_adapter=sim, task=task,
-                requested_factory_arguments={"robot": robot, "target_only": target_only,
-                                             "dt_override": dt_override})
-            raise SchemaOnlyDiscovery(document)
-    if catalog_only:
-        adapter.set_extraction_entity_scope({})
-    observation = adapter.reset()
+        effective_dt = (
+            override
+            if override is not None
+            else float(adapter.dt)
+        )
 
-    effective_dt = (
-        override
-        if override is not None
-        else float(adapter.dt)
-    )
+        dimensions = int(
+            adapter.spatial_dims
+        )
 
-    dimensions = int(
-        adapter.spatial_dims
-    )
+        entities = dict(
+            observation.perceived_entities
+        )
 
-    entities = dict(
-        observation.perceived_entities
-    )
+        entity_classes = sorted(
+            {
+                entity.entity_class
+                for entity in entities.values()
+            }
+        )
 
-    entity_classes = sorted(
-        {
-            entity.entity_class
-            for entity in entities.values()
-        }
-    )
+        print_ready(adapter, effective_dt, len(entities))
 
-    print_ready(adapter, effective_dt, len(entities))
-
-    return (
-        adapter,
-        effective_dt,
-        dimensions,
-        entities,
-        entity_classes,
-    )
+        return (
+            adapter,
+            effective_dt,
+            dimensions,
+            entities,
+            entity_classes,
+        )
+    except BaseException:
+        # Ownership transfers only with the tuple return, including the
+        # schema-only exception path that intentionally skips reset.
+        try:
+            adapter.close()
+        except Exception as cleanup_error:
+            print("Adapter cleanup warning: {}: {}".format(
+                type(cleanup_error).__name__, cleanup_error), file=sys.stderr)
+        raise
