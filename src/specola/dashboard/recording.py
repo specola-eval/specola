@@ -284,6 +284,7 @@ class RecordingWriter:
         (self.directory / "frames").mkdir(parents=True, exist_ok=True)
         self.manifest = dict(manifest)
         self.manifest.setdefault("frame_store", FRAME_STORE_JPEG)
+        self._manifest_lock = threading.Lock()
         self.rewrite_manifest()
         self._camera_dirs: set = set()
         self._fh = open(self.directory / "snapshots.jsonl", "a",
@@ -302,9 +303,15 @@ class RecordingWriter:
         self.rewrite_manifest()
 
     def rewrite_manifest(self) -> None:
-        tmp = self.directory / "manifest.json.tmp"
-        tmp.write_text(json.dumps(self.manifest, indent=2))
-        tmp.replace(self.directory / "manifest.json")
+        # Called from the simulator thread (dashboard address, cameras)
+        # and from the recorder's writer thread (frame store). With one
+        # temporary name and no lock, the second replace() found the file
+        # already moved and raised FileNotFoundError, which turned the
+        # dashboard off for the run.
+        with self._manifest_lock:
+            tmp = self.directory / "manifest.json.tmp"
+            tmp.write_text(json.dumps(self.manifest, indent=2))
+            tmp.replace(self.directory / "manifest.json")
 
     def write_discovery(self, payload: bytes) -> dict:
         """Publish the episode's discovery sidecar, gzipped.

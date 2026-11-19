@@ -355,3 +355,28 @@ def test_geometry_roundtrip(tmp_path):
     loaded = read_geometry(tmp_path)
     assert loaded == payload
     assert read_geometry(tmp_path / "missing") is None
+
+
+def test_manifest_rewrites_from_two_threads_do_not_collide(tmp_path):
+    """The simulator thread and the recorder's writer thread both
+    republish the manifest; sharing one temporary file without a lock
+    made the slower one raise FileNotFoundError."""
+    import threading
+
+    writer = RecordingWriter(tmp_path / "rec", {"run_id": "r", "cameras": []})
+    errors = []
+
+    def republish():
+        try:
+            for _ in range(1500):
+                writer.rewrite_manifest()
+        except Exception as error:      # noqa: BLE001
+            errors.append(error)
+
+    threads = [threading.Thread(target=republish) for _ in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert errors == []
+    assert json.loads((tmp_path / "rec" / "manifest.json").read_text())["run_id"] == "r"

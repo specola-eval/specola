@@ -101,6 +101,10 @@ def test_codec_string_from_sps():
 
 
 def test_probe_encoder_accepts_a_working_encoder():
+    import shutil
+
+    if shutil.which("ffmpeg") is None:
+        pytest.skip("needs ffmpeg on PATH for the video store")
     assert probe_encoder(X264_ARGS) is True
 
 

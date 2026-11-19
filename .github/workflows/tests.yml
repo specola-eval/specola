@@ -1,6 +1,10 @@
 # The simulator-free suite, from a clean install, on every push and pull
 # request. Simulator-dependent tests skip themselves: no simulator is
 # installed here.
+#
+# For release snapshots. The development tree also carries benchmark
+# harness tests that need its own environments and an in-tree install;
+# there the steps below are skipped.
 name: Tests
 
 on:
@@ -20,12 +24,25 @@ jobs:
         python: ["3.9", "3.10", "3.12"]
     steps:
       - uses: actions/checkout@v6
+      - name: Detect the development tree
+        id: tree
+        run: |
+          if [ -e benchmarks/cli_smoke_matrix.py ]; then
+            echo "development=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-python@v5
+        if: steps.tree.outputs.development != 'true'
         with:
           python-version: ${{ matrix.python }}
+      - name: Install ffmpeg for the video-store tests
+        if: steps.tree.outputs.development != 'true'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Install with the web and dev extras
+        if: steps.tree.outputs.development != 'true'
         run: python -m pip install ".[web,dev]"
       - name: Quickstart on the mock scene
+        if: steps.tree.outputs.development != 'true'
         run: specola run --sim mock --specs examples/mock_specs.yaml --steps 150 --ui plain
       - name: Simulator-free test suite
+        if: steps.tree.outputs.development != 'true'
         run: python -m pytest tests -q
